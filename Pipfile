@@ -22,4 +22,4 @@ v = {editable = true,version = "*"}
 lark-parser = "==0.7.8"
 
 [requires]
-python_version = "3.7"
+python_version = ">=3.6"
