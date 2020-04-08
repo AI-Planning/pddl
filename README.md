@@ -5,7 +5,7 @@
 [![](https://img.shields.io/badge/docs-mkdocs-9cf)](https://www.mkdocs.org/)
 [![](https://img.shields.io/badge/status-development-orange.svg)](https://img.shields.io/badge/status-development-orange.svg)
 [![codecov](https://codecov.io/gh/whitemech/fondpddl/branch/master/graph/badge.svg)](https://codecov.io/gh/whitemech/fondpddl)
-![fondpddl CI](https://github.com/whitemech/fondpddl/workflows/fondpddl%20Continuous%20Integration%20pipeline./badge.svg)
+![fondpddl CI](https://github.com/whitemech/fondpddl/workflows/fondpddl%20CI/badge.svg)
 [![](https://img.shields.io/badge/flake8-checked-blueviolet)](https://img.shields.io/badge/flake8-checked-blueviolet)
 [![](https://img.shields.io/badge/mypy-checked-blue)](https://img.shields.io/badge/mypy-checked-blue)
 [![](https://img.shields.io/badge/license-LGPLv3%2B-blue)](./LICENSE)
