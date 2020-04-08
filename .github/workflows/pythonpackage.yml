@@ -1,4 +1,4 @@
-name: fondpddl Continuous Integration pipeline.
+name: fondpddl CI
 
 on:
   push:
