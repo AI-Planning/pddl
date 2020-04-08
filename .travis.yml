@@ -1,0 +1,20 @@
+dist: xenial   # required for Python >= 3.7
+language: python
+install: pip install -U tox-travis coveralls
+
+matrix:
+  include:
+    - python: 3.7
+      env: TOXENV=py37
+    - python: 3.7
+      env: TOXENV=flake8
+    - python: 3.7
+      env: TOXENV=mypy
+    - python: 3.7
+      env: TOXENV=docs
+
+script:
+  - tox
+
+after_success:
+  - coveralls

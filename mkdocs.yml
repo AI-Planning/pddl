@@ -1,0 +1,12 @@
+site_name: fondpddl
+nav:
+    - Home: index.md
+    - Credits: authors.md
+    - How to contribute: contributing.md
+    - Grammars: grammars.md
+    - References: references.md
+
+theme: readthedocs
+markdown_extensions:
+    - markdown_include.include:
+        base_path: docs
