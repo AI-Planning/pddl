@@ -1,10 +1,9 @@
 # fondpddl
 
-[![](https://img.shields.io/travis/whitemech/fond-parser.svg)](https://travis-ci.org/whitemech/fond-parser)
 [![](https://img.shields.io/pypi/pyversions/pythomata.svg)](https://pypi.python.org/pypi/pythomata)
 [![](https://img.shields.io/badge/docs-mkdocs-9cf)](https://www.mkdocs.org/)
 [![](https://img.shields.io/badge/status-development-orange.svg)](https://img.shields.io/badge/status-development-orange.svg)
-[![codecov](https://codecov.io/gh/whitemech/fondpddl/branch/master/graph/badge.svg)](https://codecov.io/gh/whitemech/fondpddl)
+[![codecov](https://codecov.io/gh/whitemech/fondpddl/branch/master/graph/badge.svg?token=FG3ATGP5P5)](https://codecov.io/gh/whitemech/fondpddl)
 ![fondpddl CI](https://github.com/whitemech/fondpddl/workflows/fondpddl%20CI/badge.svg)
 [![](https://img.shields.io/badge/flake8-checked-blueviolet)](https://img.shields.io/badge/flake8-checked-blueviolet)
 [![](https://img.shields.io/badge/mypy-checked-blue)](https://img.shields.io/badge/mypy-checked-blue)
