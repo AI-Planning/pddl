@@ -41,7 +41,6 @@ jobs:
         file: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
-        yml: ./codecov.yml
         fail_ci_if_error: true
     - name: Generate Documentation
       run: tox -e docs
