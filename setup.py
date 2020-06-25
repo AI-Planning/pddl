@@ -3,6 +3,7 @@
 
 """The setup script."""
 import os
+import glob
 
 from setuptools import setup, find_packages
 
@@ -33,14 +34,20 @@ setup(
     long_description_content_type="text/markdown",
     classifiers=[
         'Development Status :: 1 - Pre-Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License',
+        'Intended Audience :: Education',
+        'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     install_requires=install_requires,
     license=about["__license__"],
+    include_package_data=True,
+    data_files=[
+        ("fondpddl/parser", glob.glob("fondpddl/parser/*.lark")),
+    ],
     keywords='fondpddl',
     packages=find_packages(include=['fondpddl*']),
     test_suite='tests',

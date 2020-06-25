@@ -1,4 +1,4 @@
-name: fondpddl CI
+name: fondpddl CI pipeline.
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
         python-version: [3.6, 3.7, 3.8]
 
     timeout-minutes: 30
@@ -26,19 +26,22 @@ jobs:
     - name: Install dependencies
       run:  pip install tox
     - name: Code style check
-      run:  tox -e flake8
+      run: |
+        tox -e black
+        tox -e flake8
     - name: Static type check
-      run:  tox -e mypy
+      run: tox -e mypy
     - name: Unit tests and coverage
-      run:  tox -e py${{ matrix.python-version }}
-#    - name: Upload coverage to Codecov
-#      uses: codecov/codecov-action@v1
-#      with:
-#        token: ${{ secrets.CODECOV_TOKEN }}
-#        file: ./coverage.xml
-#        flags: unittests
-#        name: codecov-umbrella
-#        yml: ./codecov.yml
-#        fail_ci_if_error: true
+      run: |
+        tox -e py${{ matrix.python-version }}
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        yml: ./codecov.yml
+        fail_ci_if_error: true
     - name: Generate Documentation
       run: tox -e docs
