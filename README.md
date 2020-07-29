@@ -1,40 +1,38 @@
-# fondpddl
+# pddl
 
-[![](https://img.shields.io/pypi/v/fondpddl.svg)](https://pypi.python.org/pypi/fondpddl)
-[![](https://img.shields.io/pypi/pyversions/fondpddl.svg)](https://pypi.python.org/pypi/fondpddl)
-![fondpddl CI](https://github.com/whitemech/fondpddl/workflows/fondpddl%20CI/badge.svg)
+![pddl CI](https://github.com/whitemech/pddl/workflows/pddl%20CI/badge.svg)
 [![](https://img.shields.io/badge/docs-mkdocs-9cf)](https://www.mkdocs.org/)
 [![](https://img.shields.io/badge/status-development-orange.svg)](https://img.shields.io/badge/status-development-orange.svg)
-[![codecov](https://codecov.io/gh/whitemech/fondpddl/branch/master/graph/badge.svg?token=FG3ATGP5P5)](https://codecov.io/gh/whitemech/fondpddl)
+[![codecov](https://codecov.io/gh/whitemech/pddl/branch/master/graph/badge.svg?token=FG3ATGP5P5)](https://codecov.io/gh/whitemech/pddl)
 [![](https://img.shields.io/badge/flake8-checked-blueviolet)](https://img.shields.io/badge/flake8-checked-blueviolet)
 [![](https://img.shields.io/badge/mypy-checked-blue)](https://img.shields.io/badge/mypy-checked-blue)
 [![](https://img.shields.io/badge/license-LGPLv3%2B-blue)](./LICENSE)
 
-fondpddl aims at being the state-of-the-art parser for Fully Observable Non Deterministic (FOND) PDDL planning problems.
+pddl aims at being the state-of-the-art parser for Fully Observable Non Deterministic (FOND) PDDL planning problems.
 
 ## Prerequisites
 
 This tool is also based on the following libraries:
 
-- [lark-parser 0.8.5](https://pypi.org/project/lark-parser/)
+- [lark-parser 0.9.0](https://pypi.org/project/lark-parser/)
 
-It is automatically added while installing fondpddl.
+It is automatically added while installing pddl.
 
 ## Install
 
-- from [PyPI](https://pypi.org/project/fondpddl/):
+- from [PyPI](https://pypi.org/project/pddl/):
 ```
-pip install fondpddl
+pip install pddl
 ```
 - or, from source (`master` branch):
 ```
-pip install git+https://github.com/whitemech/fondpddl.git
+pip install git+https://github.com/whitemech/pddl.git
 ```
 
 - or, clone the repository and install:
 ```
-git clone https://github.com/whitemech/fondpddl.git
-cd fondpddl
+git clone https://github.com/whitemech/pddl.git
+cd pddl
 pip install .
 ```
 ## How To Use
@@ -60,7 +58,7 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 ## License
 
-LTL<sub>f</sub>2DFA is released under the GNU Lesser General Public License v3.0 or later (LGPLv3+).
+fond-pddl is released under the GNU Lesser General Public License v3.0 or later (LGPLv3+).
 
 Copyright 2018-2020 WhiteMech
 
