@@ -27,7 +27,8 @@ jobs:
       run:  pip install tox
     - name: Code style check
       run: |
-        tox -e black
+        tox -e black-check
+        tox -e isort-check
         tox -e flake8
     - name: Static type check
       run: tox -e mypy

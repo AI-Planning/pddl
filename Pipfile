@@ -16,7 +16,7 @@ flake8-docstrings = "*"
 pytest-cov = "*"
 mkdocs = "*"
 markdown-include = "*"
-v = {editable = true,version = "*"}
+isort = "*"
 
 [packages]
 lark-parser = "*"
