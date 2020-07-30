@@ -1,6 +1,8 @@
 # pddl
 
-![pddl CI](https://github.com/whitemech/pddl/workflows/pddl%20CI/badge.svg)
+![test](https://github.com/whitemech/pddl/workflows/test/badge.svg)
+![lint](https://github.com/whitemech/pddl/workflows/lint/badge.svg)
+![docs](https://github.com/whitemech/pddl/workflows/docs/badge.svg)
 [![](https://img.shields.io/badge/docs-mkdocs-9cf)](https://www.mkdocs.org/)
 [![](https://img.shields.io/badge/status-development-orange.svg)](https://img.shields.io/badge/status-development-orange.svg)
 [![codecov](https://codecov.io/gh/whitemech/pddl/branch/master/graph/badge.svg?token=FG3ATGP5P5)](https://codecov.io/gh/whitemech/pddl)
