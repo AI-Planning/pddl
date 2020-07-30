@@ -60,6 +60,9 @@ static: ## static type checking with mypy
 isort: ## sort import statements with isort
 	isort pddl tests
 
+isort-check: ## check import statements order with isort
+	isort --check-only pddl tests
+
 black: ## apply black formatting
 	black pddl tests
 
