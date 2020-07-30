@@ -1,4 +1,4 @@
-name: fondpddl CI pipeline.
+name: pddl CI pipeline.
 
 on:
   push:

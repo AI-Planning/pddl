@@ -15,7 +15,7 @@ with open('HISTORY.md') as history_file:
 
 here = os.path.abspath(os.path.dirname(__file__))
 about = {}
-with open(os.path.join(here, 'fondpddl', '__version__.py'), 'r') as f:
+with open(os.path.join(here, 'pddl', '__version__.py'), 'r') as f:
     exec(f.read(), about)
 
 
@@ -46,10 +46,10 @@ setup(
     license=about["__license__"],
     include_package_data=True,
     data_files=[
-        ("fondpddl/parser", glob.glob("fondpddl/parser/*.lark")),
+        ("pddl/parser", glob.glob("pddl/parser/*.lark")),
     ],
-    keywords='fondpddl',
-    packages=find_packages(include=['fondpddl*']),
+    keywords='pddl',
+    packages=find_packages(include=['pddl*']),
     test_suite='tests',
     tests_require=["pytest"],
     zip_safe=False,
