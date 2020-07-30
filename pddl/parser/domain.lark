@@ -1,24 +1,54 @@
 start: pddl_domain
 
-?pddl_domain:   LSEPARATOR DEFINE pddl_domain_def [pddl_require_def] [pddl_types_def] [pddl_constants_def] [pddl_predicates_def] (pddl_action_def)* RSEPARATOR
-?pddl_domain_def:  LSEPARATOR DOMAIN NAME RSEPARATOR
-?pddl_require_def: LSEPARATOR REQUIREMENTS (pddl_require_lst)+ RSEPARATOR
-?pddl_require_lst: (pddl_require_key)*
-?pddl_types_def: LSEPARATOR TYPES ((NAME)* | pddl_typed_lst) RSEPARATOR
-?pddl_constants_def: LSEPARATOR CONSTANTS ((NAME)* | pddl_typed_lst_name) RSEPARATOR
-?pddl_predicates_def: LSEPARATOR PREDICATES (pddl_atomic_formula_skeleton)+ RSEPARATOR
+pddl_domain:        "(" DEFINE pddl_domain_def [pddl_require_def] [pddl_types_def] [pddl_constants_def] [pddl_predicates_def] pddl_structure_def* ")"
+pddl_domain_def:    "(" DOMAIN NAME ")"
 
-?pddl_action_def: LSEPARATOR ACTION NAME PARAMETERS LSEPARATOR pddl_typed_lst_var RSEPARATOR pddl_action_body_def RSEPARATOR
-?pddl_action_body_def:
-
-?pddl_atomic_formula_skeleton: PREDICATE pddl_typed_lst_var
-?pddl_typed_lst_name: (NAME+ HYPHEN TYPE)*
-?pddl_typed_lst_var: ("?" NAME HYPHEN TYPE)*
+pddl_require_def:               "(" REQUIREMENTS pddl_require_key+ ")"
+pddl_require_key:               TYPING
+                |               STRIPS
+                |               EQUALITY
+pddl_types_def:                 "(" TYPES pddl_typed_list_name ")"
+pddl_constants_def:             "(" CONSTANTS pddl_typed_list_name ")"
+pddl_predicates_def:            "(" PREDICATES pddl_atomic_formula_skeleton+ ")"
+pddl_atomic_formula_skeleton:   "(" NAME pddl_typed_list_variable ")"
 
 
-// Symbols cannot contain uppercase letters, because these are reserved
-NAME: /[a-z][a-z0-9_]*/
+pddl_structure_def:     pddl_action_def
+pddl_action_def:        "(" ACTION NAME PARAMETERS "(" pddl_typed_list_variable ")" pddl_action_body_def ")"
+pddl_action_body_def:   [PRECONDITION pddl_emptyor_pregd] [EFFECT pddl_emptyor_effect]
+pddl_emptyor_pregd:     "()"
+                  |     pddl_pregd
+pddl_pregd:             pddl_prefgd
+          |             "(" AND pddl_pregd* ")"
+pddl_prefgd:            pddl_gd
+pddl_gd:                pddl_atomic_formula_term
+       |                "(" AND pddl_gd* ")"
+pddl_emptyor_effect:    "()"
+                   |    pddl_effect
+pddl_effect:            "(" AND pddl_c_effect* ")"
+           |            pddl_c_effect
+pddl_c_effect:          pddl_p_effect
+pddl_p_effect:          "(" NOT pddl_atomic_formula_term ")"
+             |          pddl_atomic_formula_term
+
+pddl_atomic_formula_term:   "(" NAME pddl_term* ")"
+                        |   "(" "=" pddl_term pddl_term ")"
+pddl_term:  NAME
+         |  pddl_variable
+
+pddl_typed_list_variable:   pddl_variable*
+                        |   pddl_variable+ "-" pddl_type_def (pddl_typed_list_variable)
+pddl_variable: "?" NAME
+
+pddl_typed_list_name:   NAME*
+                    |   NAME+ "-" pddl_type_def (pddl_typed_list_name)
+pddl_type_def:          "(" EITHER pddl_primitive_type+ ")"
+             |          pddl_primitive_type
+pddl_primitive_type:    NAME
+                   |    "object"
+
+
+NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
 
 %ignore /\s+/
 
-// %import .pl.prop_true -> prop_true
