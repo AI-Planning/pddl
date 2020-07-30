@@ -1,4 +1,4 @@
-name: pddl CI pipeline.
+name: test
 
 on:
   push:
@@ -25,12 +25,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run:  pip install tox
-    - name: Code style check
-      run: |
-        tox -e black
-        tox -e flake8
-    - name: Static type check
-      run: tox -e mypy
     - name: Unit tests and coverage
       run: |
         tox -e py${{ matrix.python-version }}
