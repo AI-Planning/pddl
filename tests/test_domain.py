@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This module is a dummy test."""
+"""This module contains tests for a PDDL domain."""
 from pddl.core import Domain
 
 
