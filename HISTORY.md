@@ -1,6 +1,6 @@
 # History
 
-## 0.1.0 (2020-06-26)
+## 0.0.1 (2020-07-30)
 
-* First release on PyPI.
+* First commit on the package.
 

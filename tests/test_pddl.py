@@ -2,6 +2,6 @@
 """This module is a dummy test."""
 
 
-def test_fondpddl():
+def test_pddl():
     """Dummy test."""
     pass

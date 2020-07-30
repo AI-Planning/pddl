@@ -1,6 +1,6 @@
 [run]
 branch = True
-source = fondpddl
+source = pddl
 
 [report]
 exclude_lines =

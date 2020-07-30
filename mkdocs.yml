@@ -1,4 +1,4 @@
-site_name: fondpddl
+site_name: pddl
 nav:
     - Home: index.md
     - Credits: authors.md

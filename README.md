@@ -12,19 +12,13 @@ pddl aims at being the state-of-the-art parser for Fully Observable Non Determin
 
 ## Prerequisites
 
-This tool is also based on the following libraries:
+pddl is based on the following libraries:
 
 - [lark-parser 0.9.0](https://pypi.org/project/lark-parser/)
 
-It is automatically added while installing pddl.
-
 ## Install
 
-- from [PyPI](https://pypi.org/project/pddl/):
-```
-pip install pddl
-```
-- or, from source (`master` branch):
+- from source (`master` branch):
 ```
 pip install git+https://github.com/whitemech/pddl.git
 ```
@@ -36,10 +30,12 @@ cd pddl
 pip install .
 ```
 ## How To Use
-
+TBA
 
 ## Features
 
+- Support for parsing [PDDL 3.1](https://helios.hud.ac.uk/scommv/IPC-14/repository/kovacs-pddl-3.1-2011.pdf)
+- Support for the `non-deterministic` key requirement ([6th IPC: Uncertainty Part](https://pdfs.semanticscholar.org/b3d5/3dcc8183048849788405be5bfbb08a364dc5.pdf))
 
 ## Tests
 
@@ -58,10 +54,11 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 ## License
 
-fond-pddl is released under the GNU Lesser General Public License v3.0 or later (LGPLv3+).
+pddl is released under the GNU Lesser General Public License v3.0 or later (LGPLv3+).
 
-Copyright 2018-2020 WhiteMech
+Copyright 2020 WhiteMech
 
-## Author
+## Authors
 
-[Francesco Fuggitti](https://francescofuggitti.github.io/)
+- [Marco Favorito](https://marcofavorito.github.io/)
+- [Francesco Fuggitti](https://francescofuggitti.github.io/)
