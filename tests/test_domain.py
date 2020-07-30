@@ -7,6 +7,7 @@ class TestDomainEmpty:
     """Test the empty domain."""
 
     def setup(self):
+        """Set up the tests."""
         self.domain = Domain("empty_domain")
 
     def test_name(self):

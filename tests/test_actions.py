@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+
+"""This module contains tests for PDDL actions."""
+
 from pddl.core import Action
 
 
 class TestActionSimpleInitialization:
-    """Test simple action inintialization"""
+    """Test simple action initialization."""
 
     def setup(self):
         """Set up the tests."""

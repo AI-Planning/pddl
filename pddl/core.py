@@ -77,7 +77,7 @@ class Predicate:
         return self._name
 
     @property
-    def variables(self) -> Tuple[str]:
+    def variables(self) -> Tuple[str, ...]:
         """Get the variable names."""
         return tuple(self._variables)
 
@@ -132,7 +132,7 @@ class Action:
         return self._name
 
     @property
-    def parameters(self) -> Tuple[str]:
+    def parameters(self) -> Tuple[str, ...]:
         """Get the parameters."""
         return tuple(self._parameters)
 
