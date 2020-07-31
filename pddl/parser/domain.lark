@@ -23,7 +23,7 @@ pddl_pregd:             pddl_prefgd
 pddl_prefgd:            pddl_gd
 pddl_gd:                pddl_atomic_formula_term
        |                "(" AND pddl_gd* ")"
-pddl_emptyor_effect:    "()"
+pddl_emptyor_effect:    "(" ")"
                    |    pddl_effect
 pddl_effect:            "(" AND pddl_c_effect* ")"
            |            pddl_c_effect
@@ -45,10 +45,26 @@ pddl_typed_list_name:   NAME*
 pddl_type_def:          "(" EITHER pddl_primitive_type+ ")"
              |          pddl_primitive_type
 pddl_primitive_type:    NAME
-                   |    "object"
+                   |    OBJECT
 
 
 NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
 
-%ignore /\s+/
+DEFINE: "define"
+DOMAIN: "domain"
+REQUIREMENTS: "requirements"
+TYPING: ":typing"
+EQUALITY: ":equality"
+STRIPS: ":strips"
+TYPES: ":types"
+CONSTANTS: ":constants"
+PREDICATES: ":predicates"
+ACTION: ":action"
+PARAMETERS: ":parameters"
+PRECONDITION: ":precondition"
+EFFECT: ":effect"
+OBJECT: "object"
+AND: "and"
+NOT: "not"
 
+%ignore /\s+/
