@@ -2,6 +2,7 @@
 """This module defines useful custom types."""
 
 import re
+from typing import Union
 
 from pddl.helpers import RegexConstrainedString
 
@@ -14,3 +15,6 @@ class name(RegexConstrainedString):
     """
 
     REGEX = re.compile("[A-Za-z][-_A-Za-z0-9]*")
+
+
+namelike = Union[name, str]

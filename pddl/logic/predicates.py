@@ -6,12 +6,13 @@ from typing import Sequence, Tuple
 from pddl.logic.base import Atomic
 from pddl.logic.terms import Term, Variable
 from pddl.types import name as name_type
+from pddl.types import namelike
 
 
 class Predicate(Atomic):
     """A class for a Predicate in PDDL."""
 
-    def __init__(self, name: name_type, variables: Sequence[Variable]):
+    def __init__(self, name: namelike, variables: Sequence[Variable]):
         """Initialize the predicate."""
         self._name = name_type(name)
         self._variables = variables

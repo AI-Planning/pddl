@@ -13,6 +13,7 @@ from pddl.logic.base import Formula, ensure_formula
 from pddl.logic.predicates import Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.types import name as name_type
+from pddl.types import namelike
 
 
 class Domain:
@@ -20,7 +21,7 @@ class Domain:
 
     def __init__(
         self,
-        name: name_type,
+        name: namelike,
         requirements: Optional[Set["Requirements"]] = None,
         constants: Optional[Set[Constant]] = None,
         predicates: Optional[Set["Predicate"]] = None,  # TODO cannot be non-empty
@@ -72,7 +73,7 @@ class Problem:
 
     def __init__(
         self,
-        name: name_type,
+        name: namelike,
         domain: Domain,
         requirements: Optional[Set["Requirements"]] = None,
         objects: Optional[Set[str]] = None,
@@ -125,7 +126,7 @@ class Action:
     # TODO add not for effects
     def __init__(
         self,
-        name: name_type,
+        name: namelike,
         parameters: Sequence[Variable],
         precondition: Optional[Formula] = None,
         effects: Optional[Set[Predicate]] = None,
