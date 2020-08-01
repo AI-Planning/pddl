@@ -76,7 +76,7 @@ class Problem:
         name: namelike,
         domain: Domain,
         requirements: Optional[Set["Requirements"]] = None,
-        objects: Optional[Set[str]] = None,
+        objects: Optional[Set[namelike]] = None,
         init: Optional[Set[Formula]] = None,
         goal: Optional[Set[Atomic]] = None,
     ):
@@ -84,7 +84,7 @@ class Problem:
         self._name = name_type(name)
         self._domain = domain
         self._requirements = ensure_set(requirements)
-        self._objects = ensure_set(objects)
+        self._objects = set(map(name_type, ensure_set(objects)))
         self._init = ensure_set(init)
         self._goal = ensure_set(goal)
         assert all(
@@ -107,7 +107,7 @@ class Problem:
         return self._requirements
 
     @property
-    def objects(self) -> Set[str]:
+    def objects(self) -> Set[name_type]:
         """Get the set of objects."""
         return self._objects
 
@@ -117,7 +117,7 @@ class Problem:
         return self._init
 
     @property
-    def goal(self) -> Set["Predicate"]:
+    def goal(self) -> Set[Atomic]:
         """Get the goal."""
         return self._goal
 
