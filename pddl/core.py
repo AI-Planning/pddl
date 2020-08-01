@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Optional, Sequence, Set, Tuple
 
 from pddl.helpers import ensure_set
-from pddl.logic.base import Formula, ensure_formula
+from pddl.logic.base import Atomic, Formula, is_literal
 from pddl.logic.predicates import Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.types import name as name_type
@@ -77,8 +77,8 @@ class Problem:
         domain: Domain,
         requirements: Optional[Set["Requirements"]] = None,
         objects: Optional[Set[str]] = None,
-        init: Set["Literal"] = None,
-        goal: Set["Predicate"] = None,
+        init: Optional[Set[Formula]] = None,
+        goal: Optional[Set[Atomic]] = None,
     ):
         """Initialize the PDDL problem."""
         self._name = name_type(name)
@@ -87,6 +87,9 @@ class Problem:
         self._objects = ensure_set(objects)
         self._init = ensure_set(init)
         self._goal = ensure_set(goal)
+        assert all(
+            map(is_literal, self.init)
+        ), "Not all formulas of initial condition are literals!"
 
     @property
     def name(self) -> name_type:
@@ -109,7 +112,7 @@ class Problem:
         return self._objects
 
     @property
-    def init(self) -> Set["Literal"]:
+    def init(self) -> Set[Formula]:
         """Get the initial state."""
         return self._init
 
@@ -123,19 +126,20 @@ class Action:
     """A class for the PDDL Action."""
 
     # TODO support for other requirements
-    # TODO add not for effects
+    # TODO 'effect' should be a formula
     def __init__(
         self,
         name: namelike,
         parameters: Sequence[Variable],
-        precondition: Optional[Formula] = None,
-        effects: Optional[Set[Predicate]] = None,
+        precondition: Optional[Set[Atomic]] = None,
+        effect: Optional[Set[Formula]] = None,
     ):
         """Initialize the formula."""
         self._name = name_type(name)
         self._parameters = parameters
-        self._precondition = ensure_formula(precondition, is_none_true=True)
-        self._effects = ensure_set(effects)
+        self._precondition = ensure_set(precondition)
+        self._effect = ensure_set(effect)
+        assert all(map(is_literal, self.effect)), "Some effects are not literals!"
 
     @property
     def name(self) -> name_type:
@@ -148,14 +152,14 @@ class Action:
         return tuple(self._parameters)
 
     @property
-    def precondition(self) -> Formula:
+    def precondition(self) -> Set[Atomic]:
         """Get the precondition."""
         return self._precondition
 
     @property
-    def effects(self) -> Set[Predicate]:
-        """Get the effects."""
-        return self._effects
+    def effect(self) -> Set[Formula]:
+        """Get the effect."""
+        return self._effect
 
     def __str__(self):
         """Get the string."""
@@ -164,7 +168,7 @@ class Action:
             " ".join(map(str, self.parameters))
         )
         operator_str += "\t:precondition {0}\n".format(self.precondition)
-        operator_str += "\t:effect {0}\n".format(self.effects)
+        operator_str += "\t:effect {0}\n".format(self.effect)
         return operator_str
 
     def __eq__(self, other):
@@ -174,68 +178,12 @@ class Action:
             and self.name == other.name
             and self.parameters == other.parameters
             and self.precondition == other.precondition
-            and self.effects == other.effects
+            and self.effect == other.effect
         )
 
     def __hash__(self):
         """Get the hash."""
-        return hash((self.name, self.parameters, self.precondition, self.effects))
-
-
-class Literal:
-    """A class for a Literal."""
-
-    def __init__(self, predicate: Predicate, value: bool = True):
-        """Initialize the Literal."""
-        self.predicate = predicate
-        self._value = value
-
-    @property
-    def is_positive(self) -> bool:
-        """Check if the Literal is positive."""
-        return self._value
-
-    @classmethod
-    def positive(cls, predicate):
-        """Return a positive Literal."""
-        return Literal(predicate, True)
-
-    @classmethod
-    def negative(cls, predicate):
-        """Return a negative Literal."""
-        return Literal(predicate, False)
-
-    @property
-    def variables(self) -> Tuple[Variable, ...]:
-        """Get the variables."""
-        return self.predicate.variables
-
-    def __repr__(self):
-        """Get the representation."""
-        return str(self)
-
-    def __str__(self):
-        """Represent the Literal as string."""
-        if self.is_positive:
-            return str(self.predicate)
-        if not self.is_positive and self.predicate.name == "=":
-            lhs = str(self.variables[0])
-            rhs = str(self.variables[1])
-            return "(not (= {0} {1}))".format(lhs, rhs)
-        if not self.is_positive:
-            return "(not {})".format(str(self.predicate))
-
-    def __eq__(self, other):
-        """Check the equality between two Literals."""
-        return (
-            isinstance(other, Literal)
-            and self.predicate == other.predicate
-            and self.is_positive == other.is_positive
-        )
-
-    def __hash__(self):
-        """Get the hash of a Literal."""
-        return hash((self.predicate, self.is_positive))
+        return hash((self.name, self.parameters, self.precondition, self.effect))
 
 
 # TODO add other requirements

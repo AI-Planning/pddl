@@ -29,3 +29,10 @@ class TestDomainEmpty:
     def test_actions(self):
         """Test the actions getter."""
         assert self.domain.actions == set()
+
+
+class TestSimpleDomain:
+    """Test a simple PDDL domain."""
+
+    def setup(self):
+        """Set up the test."""

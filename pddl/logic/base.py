@@ -125,3 +125,21 @@ def ensure_formula(f: Optional[Formula], is_none_true: bool) -> Formula:
     :return: the same set, or an empty set if the arg was None.
     """
     return f if f is not None else TrueFormula() if is_none_true else FalseFormula()
+
+
+def is_literal(formula: Formula) -> bool:
+    """
+    Check whether a formula is a literal.
+
+    That is, whether it is one of the following:
+    - an atomic formula,
+    - a Not formula whose argument is an atomic formula.
+
+    :param formula: the formula.
+    :return True if the formula is a literal; False otherwise.
+    """
+    return (
+        isinstance(formula, Atomic)
+        or isinstance(formula, Not)
+        and isinstance(formula.argument, Atomic)
+    )
