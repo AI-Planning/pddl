@@ -24,7 +24,7 @@ class Constant(Term):
         self._name = name_type(name)
 
     @property
-    def name(self) -> name_type:
+    def name(self) -> str:
         """Get the name."""
         return self._name
 
@@ -53,7 +53,7 @@ class Variable(Term):
         self._name = name_type(name)
 
     @property
-    def name(self) -> name_type:
+    def name(self) -> str:
         """Get the name."""
         return self._name
 

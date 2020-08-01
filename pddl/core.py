@@ -24,7 +24,7 @@ class Domain:
         name: namelike,
         requirements: Optional[Set["Requirements"]] = None,
         constants: Optional[Set[Constant]] = None,
-        predicates: Optional[Set["Predicate"]] = None,  # TODO cannot be non-empty
+        predicates: Optional[Set[Predicate]] = None,  # TODO cannot be non-empty
         actions: Optional[Set["Action"]] = None,
     ):
         """
@@ -43,7 +43,7 @@ class Domain:
         self._actions = ensure_set(actions)
 
     @property
-    def name(self) -> name_type:
+    def name(self) -> str:
         """Get the name."""
         return self._name
 
@@ -53,17 +53,17 @@ class Domain:
         return self._requirements
 
     @property
-    def constants(self) -> Set:
+    def constants(self) -> Set[Constant]:
         """Get the constants."""
         return self._constants
 
     @property
-    def predicates(self) -> Set:
+    def predicates(self) -> Set[Predicate]:
         """Get the predicates."""
         return self._predicates
 
     @property
-    def actions(self) -> Set:
+    def actions(self) -> Set["Action"]:
         """Get the actions."""
         return self._actions
 
@@ -92,7 +92,7 @@ class Problem:
         ), "Not all formulas of initial condition are literals!"
 
     @property
-    def name(self) -> name_type:
+    def name(self) -> str:
         """Get the name."""
         return self._name
 
@@ -142,7 +142,7 @@ class Action:
         assert all(map(is_literal, self.effect)), "Some effects are not literals!"
 
     @property
-    def name(self) -> name_type:
+    def name(self) -> str:
         """Get the name."""
         return self._name
 

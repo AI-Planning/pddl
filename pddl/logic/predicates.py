@@ -18,7 +18,7 @@ class Predicate(Atomic):
         self._variables = variables
 
     @property
-    def name(self) -> name_type:
+    def name(self) -> str:
         """Get the name."""
         return self._name
 
