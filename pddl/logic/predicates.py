@@ -4,24 +4,25 @@
 from typing import Sequence, Tuple
 
 from pddl.logic.base import Atomic
-from pddl.logic.terms import Term
+from pddl.logic.terms import Term, Variable
+from pddl.types import name as name_type
 
 
 class Predicate(Atomic):
     """A class for a Predicate in PDDL."""
 
-    def __init__(self, name: str, variables: Sequence[str]):
+    def __init__(self, name: name_type, variables: Sequence[Variable]):
         """Initialize the predicate."""
-        self._name = name
+        self._name = name_type(name)
         self._variables = variables
 
     @property
-    def name(self) -> str:
+    def name(self) -> name_type:
         """Get the name."""
         return self._name
 
     @property
-    def variables(self) -> Tuple[str, ...]:
+    def variables(self) -> Tuple[Variable, ...]:
         """Get the variable names."""
         return tuple(self._variables)
 
@@ -44,7 +45,7 @@ class Predicate(Atomic):
         return (
             isinstance(other, Predicate)
             and self.name == other.name
-            and self.arity == other.arity
+            and self.variables == other.variables
         )
 
     def __hash__(self):

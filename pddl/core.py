@@ -9,8 +9,10 @@ from enum import Enum
 from typing import Optional, Sequence, Set, Tuple
 
 from pddl.helpers import ensure_set
+from pddl.logic.base import Formula, ensure_formula
 from pddl.logic.predicates import Predicate
 from pddl.logic.terms import Constant, Variable
+from pddl.types import name as name_type
 
 
 class Domain:
@@ -18,7 +20,7 @@ class Domain:
 
     def __init__(
         self,
-        name: str,
+        name: name_type,
         requirements: Optional[Set["Requirements"]] = None,
         constants: Optional[Set[Constant]] = None,
         predicates: Optional[Set["Predicate"]] = None,  # TODO cannot be non-empty
@@ -33,14 +35,14 @@ class Domain:
         :param predicates: the predicates.
         :param actions: the actions.
         """
-        self._name = name
+        self._name = name_type(name)
         self._requirements = ensure_set(requirements)
         self._constants = ensure_set(constants)
         self._predicates = ensure_set(predicates)
         self._actions = ensure_set(actions)
 
     @property
-    def name(self) -> str:
+    def name(self) -> name_type:
         """Get the name."""
         return self._name
 
@@ -70,7 +72,7 @@ class Problem:
 
     def __init__(
         self,
-        name: str,
+        name: name_type,
         domain: Domain,
         requirements: Optional[Set["Requirements"]] = None,
         objects: Optional[Set[str]] = None,
@@ -78,7 +80,7 @@ class Problem:
         goal: Set["Predicate"] = None,
     ):
         """Initialize the PDDL problem."""
-        self._name = name
+        self._name = name_type(name)
         self._domain = domain
         self._requirements = ensure_set(requirements)
         self._objects = ensure_set(objects)
@@ -86,7 +88,7 @@ class Problem:
         self._goal = ensure_set(goal)
 
     @property
-    def name(self) -> str:
+    def name(self) -> name_type:
         """Get the name."""
         return self._name
 
@@ -123,31 +125,31 @@ class Action:
     # TODO add not for effects
     def __init__(
         self,
-        name: str,
+        name: name_type,
         parameters: Sequence[Variable],
-        preconditions: Optional[Set[Predicate]] = None,
+        precondition: Optional[Formula] = None,
         effects: Optional[Set[Predicate]] = None,
     ):
         """Initialize the formula."""
-        self._name = name
+        self._name = name_type(name)
         self._parameters = parameters
-        self._preconditions = ensure_set(preconditions)
+        self._precondition = ensure_formula(precondition, is_none_true=True)
         self._effects = ensure_set(effects)
 
     @property
-    def name(self) -> str:
+    def name(self) -> name_type:
         """Get the name."""
         return self._name
 
     @property
-    def parameters(self) -> Tuple[str, ...]:
+    def parameters(self) -> Tuple[Variable, ...]:
         """Get the parameters."""
         return tuple(self._parameters)
 
     @property
-    def preconditions(self) -> Set[Predicate]:
-        """Get the preconditions."""
-        return self._preconditions
+    def precondition(self) -> Formula:
+        """Get the precondition."""
+        return self._precondition
 
     @property
     def effects(self) -> Set[Predicate]:
@@ -160,7 +162,7 @@ class Action:
         operator_str += "\t:parameters ({0})\n".format(
             " ".join(map(str, self.parameters))
         )
-        operator_str += "\t:precondition {0}\n".format(self.preconditions)
+        operator_str += "\t:precondition {0}\n".format(self.precondition)
         operator_str += "\t:effect {0}\n".format(self.effects)
         return operator_str
 
@@ -170,13 +172,13 @@ class Action:
             isinstance(other, Action)
             and self.name == other.name
             and self.parameters == other.parameters
-            and self.preconditions == other.preconditions
+            and self.precondition == other.precondition
             and self.effects == other.effects
         )
 
     def __hash__(self):
         """Get the hash."""
-        return hash((self.name, self.parameters, self.preconditions, self.effects))
+        return hash((self.name, self.parameters, self.precondition, self.effects))
 
 
 class Literal:
@@ -203,7 +205,7 @@ class Literal:
         return Literal(predicate, False)
 
     @property
-    def variables(self) -> Tuple[str, ...]:
+    def variables(self) -> Tuple[Variable, ...]:
         """Get the variables."""
         return self.predicate.variables
 

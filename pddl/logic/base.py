@@ -4,6 +4,7 @@
 
 """Base classes for PDDL logic formulas."""
 from abc import ABC
+from typing import Optional
 
 
 class Formula(ABC):
@@ -73,6 +74,30 @@ class Atomic(Formula):
     """Atomic formula."""
 
 
+class TrueFormula(Formula):
+    """A tautology."""
+
+    def __eq__(self, other):
+        """Compare with another object."""
+        return isinstance(other, TrueFormula)
+
+    def __hash__(self):
+        """Hash the object."""
+        return hash(TrueFormula)
+
+
+class FalseFormula(Formula):
+    """A contradiction."""
+
+    def __eq__(self, other):
+        """Compare with another object."""
+        return isinstance(other, FalseFormula)
+
+    def __hash__(self):
+        """Hash the object."""
+        return hash(FalseFormula)
+
+
 class And(BinaryOp):
     """And operator."""
 
@@ -89,3 +114,14 @@ class Not(UnaryOp):
     """Not operator."""
 
     SYMBOL = "~"
+
+
+def ensure_formula(f: Optional[Formula], is_none_true: bool) -> Formula:
+    """
+    Ensure the argument is a formula.
+
+    :param f: the formula, or None.
+    :param is_none_true: if true, None reduces to TrueFormula; FalseFormula otherwise.
+    :return: the same set, or an empty set if the arg was None.
+    """
+    return f if f is not None else TrueFormula() if is_none_true else FalseFormula()
