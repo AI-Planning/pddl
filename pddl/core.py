@@ -10,6 +10,7 @@ from typing import Optional, Sequence, Set, Tuple
 
 from pddl.helpers import ensure_set
 from pddl.logic.predicates import Predicate
+from pddl.logic.terms import Constant, Variable
 
 
 class Domain:
@@ -19,8 +20,8 @@ class Domain:
         self,
         name: str,
         requirements: Optional[Set["Requirements"]] = None,
-        constants: Optional[Set[str]] = None,
-        predicates: Optional[Set["Predicate"]] = None,
+        constants: Optional[Set[Constant]] = None,
+        predicates: Optional[Set["Predicate"]] = None,  # TODO cannot be non-empty
         actions: Optional[Set["Action"]] = None,
     ):
         """
@@ -123,7 +124,7 @@ class Action:
     def __init__(
         self,
         name: str,
-        parameters: Sequence[str],
+        parameters: Sequence[Variable],
         preconditions: Optional[Set[Predicate]] = None,
         effects: Optional[Set[Predicate]] = None,
     ):
