@@ -9,6 +9,7 @@ from enum import Enum
 from typing import Optional, Sequence, Set, Tuple
 
 from pddl.helpers import ensure_set
+from pddl.logic.predicates import Predicate
 
 
 class Domain:
@@ -112,51 +113,6 @@ class Problem:
     def goal(self) -> Set["Predicate"]:
         """Get the goal."""
         return self._goal
-
-
-class Predicate:
-    """A class for a Predicate in PDDL."""
-
-    def __init__(self, name: str, variables: Sequence[str]):
-        """Initialize the predicate."""
-        self._name = name
-        self._variables = variables
-
-    @property
-    def name(self) -> str:
-        """Get the name."""
-        return self._name
-
-    @property
-    def variables(self) -> Tuple[str, ...]:
-        """Get the variable names."""
-        return tuple(self._variables)
-
-    @property
-    def arity(self) -> int:
-        """Get the arity of the predicate."""
-        return len(self.variables)
-
-    def __str__(self) -> str:
-        """Get the string."""
-        if self.name == "=":
-            return "(= {0} {1})".format(str(self.variables[0]), str(self.variables[1]))
-        elif self.arity == 0:
-            return "(" + self.name + ")"
-        else:
-            return "({0} {1})".format(self.name, " ".join(map(str, self.variables)))
-
-    def __eq__(self, other):
-        """Override equal operator."""
-        return (
-            isinstance(other, Predicate)
-            and self.name == other.name
-            and self.arity == other.arity
-        )
-
-    def __hash__(self):
-        """Get the has of a Predicate."""
-        return hash((self.name, self.arity))
 
 
 class Action:
