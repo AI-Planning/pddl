@@ -186,8 +186,7 @@ class Action:
         return hash((self.name, self.parameters, self.precondition, self.effect))
 
 
-# TODO add other requirements
 class Requirements(Enum):
     """Enum class for the requirements."""
 
-    pass
+    EQUALITY = "equality"
