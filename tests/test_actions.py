@@ -20,10 +20,10 @@ class TestActionSimpleInitialization:
         """Test the parameters getter."""
         assert self.action.parameters == tuple()
 
-    def test_preconditions(self):
-        """Test the preconditions getter."""
-        assert self.action.preconditions == set()
+    def test_precondition(self):
+        """Test the precondition getter."""
+        assert self.action.precondition == set()
 
     def test_effects(self):
         """Test the effects getter."""
-        assert self.action.effects == set()
+        assert self.action.effect == set()

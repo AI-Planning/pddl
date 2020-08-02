@@ -9,6 +9,11 @@ from enum import Enum
 from typing import Optional, Sequence, Set, Tuple
 
 from pddl.helpers import ensure_set
+from pddl.logic.base import Atomic, Formula, is_literal
+from pddl.logic.predicates import Predicate
+from pddl.logic.terms import Constant, Variable
+from pddl.types import name as name_type
+from pddl.types import namelike
 
 
 class Domain:
@@ -16,10 +21,10 @@ class Domain:
 
     def __init__(
         self,
-        name: str,
+        name: namelike,
         requirements: Optional[Set["Requirements"]] = None,
-        constants: Optional[Set[str]] = None,
-        predicates: Optional[Set["Predicate"]] = None,
+        constants: Optional[Set[Constant]] = None,
+        predicates: Optional[Set[Predicate]] = None,  # TODO cannot be empty
         actions: Optional[Set["Action"]] = None,
     ):
         """
@@ -31,7 +36,7 @@ class Domain:
         :param predicates: the predicates.
         :param actions: the actions.
         """
-        self._name = name
+        self._name = name_type(name)
         self._requirements = ensure_set(requirements)
         self._constants = ensure_set(constants)
         self._predicates = ensure_set(predicates)
@@ -48,17 +53,17 @@ class Domain:
         return self._requirements
 
     @property
-    def constants(self) -> Set:
+    def constants(self) -> Set[Constant]:
         """Get the constants."""
         return self._constants
 
     @property
-    def predicates(self) -> Set:
+    def predicates(self) -> Set[Predicate]:
         """Get the predicates."""
         return self._predicates
 
     @property
-    def actions(self) -> Set:
+    def actions(self) -> Set["Action"]:
         """Get the actions."""
         return self._actions
 
@@ -68,20 +73,23 @@ class Problem:
 
     def __init__(
         self,
-        name: str,
+        name: namelike,
         domain: Domain,
         requirements: Optional[Set["Requirements"]] = None,
-        objects: Optional[Set[str]] = None,
-        init: Set["Literal"] = None,
-        goal: Set["Predicate"] = None,
+        objects: Optional[Set[namelike]] = None,
+        init: Optional[Set[Formula]] = None,
+        goal: Optional[Set[Atomic]] = None,
     ):
         """Initialize the PDDL problem."""
-        self._name = name
+        self._name = name_type(name)
         self._domain = domain
         self._requirements = ensure_set(requirements)
-        self._objects = ensure_set(objects)
+        self._objects = set(map(name_type, ensure_set(objects)))
         self._init = ensure_set(init)
         self._goal = ensure_set(goal)
+        assert all(
+            map(is_literal, self.init)
+        ), "Not all formulas of initial condition are literals!"
 
     @property
     def name(self) -> str:
@@ -99,83 +107,39 @@ class Problem:
         return self._requirements
 
     @property
-    def objects(self) -> Set[str]:
+    def objects(self) -> Set[name_type]:
         """Get the set of objects."""
         return self._objects
 
     @property
-    def init(self) -> Set["Literal"]:
+    def init(self) -> Set[Formula]:
         """Get the initial state."""
         return self._init
 
     @property
-    def goal(self) -> Set["Predicate"]:
+    def goal(self) -> Set[Atomic]:
         """Get the goal."""
         return self._goal
-
-
-class Predicate:
-    """A class for a Predicate in PDDL."""
-
-    def __init__(self, name: str, variables: Sequence[str]):
-        """Initialize the predicate."""
-        self._name = name
-        self._variables = variables
-
-    @property
-    def name(self) -> str:
-        """Get the name."""
-        return self._name
-
-    @property
-    def variables(self) -> Tuple[str, ...]:
-        """Get the variable names."""
-        return tuple(self._variables)
-
-    @property
-    def arity(self) -> int:
-        """Get the arity of the predicate."""
-        return len(self.variables)
-
-    def __str__(self) -> str:
-        """Get the string."""
-        if self.name == "=":
-            return "(= {0} {1})".format(str(self.variables[0]), str(self.variables[1]))
-        elif self.arity == 0:
-            return "(" + self.name + ")"
-        else:
-            return "({0} {1})".format(self.name, " ".join(map(str, self.variables)))
-
-    def __eq__(self, other):
-        """Override equal operator."""
-        return (
-            isinstance(other, Predicate)
-            and self.name == other.name
-            and self.arity == other.arity
-        )
-
-    def __hash__(self):
-        """Get the has of a Predicate."""
-        return hash((self.name, self.arity))
 
 
 class Action:
     """A class for the PDDL Action."""
 
     # TODO support for other requirements
-    # TODO add not for effects
+    # TODO 'effect' should be a formula
     def __init__(
         self,
-        name: str,
-        parameters: Sequence[str],
-        preconditions: Optional[Set[Predicate]] = None,
-        effects: Optional[Set[Predicate]] = None,
+        name: namelike,
+        parameters: Sequence[Variable],
+        precondition: Optional[Set[Atomic]] = None,
+        effect: Optional[Set[Formula]] = None,
     ):
         """Initialize the formula."""
-        self._name = name
+        self._name = name_type(name)
         self._parameters = parameters
-        self._preconditions = ensure_set(preconditions)
-        self._effects = ensure_set(effects)
+        self._precondition = ensure_set(precondition)
+        self._effect = ensure_set(effect)
+        assert all(map(is_literal, self.effect)), "Some effects are not literals!"
 
     @property
     def name(self) -> str:
@@ -183,19 +147,19 @@ class Action:
         return self._name
 
     @property
-    def parameters(self) -> Tuple[str, ...]:
+    def parameters(self) -> Tuple[Variable, ...]:
         """Get the parameters."""
         return tuple(self._parameters)
 
     @property
-    def preconditions(self) -> Set[Predicate]:
-        """Get the preconditions."""
-        return self._preconditions
+    def precondition(self) -> Set[Atomic]:
+        """Get the precondition."""
+        return self._precondition
 
     @property
-    def effects(self) -> Set[Predicate]:
-        """Get the effects."""
-        return self._effects
+    def effect(self) -> Set[Formula]:
+        """Get the effect."""
+        return self._effect
 
     def __str__(self):
         """Get the string."""
@@ -203,8 +167,8 @@ class Action:
         operator_str += "\t:parameters ({0})\n".format(
             " ".join(map(str, self.parameters))
         )
-        operator_str += "\t:precondition {0}\n".format(self.preconditions)
-        operator_str += "\t:effect {0}\n".format(self.effects)
+        operator_str += "\t:precondition {0}\n".format(self.precondition)
+        operator_str += "\t:effect {0}\n".format(self.effect)
         return operator_str
 
     def __eq__(self, other):
@@ -213,73 +177,16 @@ class Action:
             isinstance(other, Action)
             and self.name == other.name
             and self.parameters == other.parameters
-            and self.preconditions == other.preconditions
-            and self.effects == other.effects
+            and self.precondition == other.precondition
+            and self.effect == other.effect
         )
 
     def __hash__(self):
         """Get the hash."""
-        return hash((self.name, self.parameters, self.preconditions, self.effects))
+        return hash((self.name, self.parameters, self.precondition, self.effect))
 
 
-class Literal:
-    """A class for a Literal."""
-
-    def __init__(self, predicate: Predicate, value: bool = True):
-        """Initialize the Literal."""
-        self.predicate = predicate
-        self._value = value
-
-    @property
-    def is_positive(self) -> bool:
-        """Check if the Literal is positive."""
-        return self._value
-
-    @classmethod
-    def positive(cls, predicate):
-        """Return a positive Literal."""
-        return Literal(predicate, True)
-
-    @classmethod
-    def negative(cls, predicate):
-        """Return a negative Literal."""
-        return Literal(predicate, False)
-
-    @property
-    def variables(self) -> Tuple[str, ...]:
-        """Get the variables."""
-        return self.predicate.variables
-
-    def __repr__(self):
-        """Get the representation."""
-        return str(self)
-
-    def __str__(self):
-        """Represent the Literal as string."""
-        if self.is_positive:
-            return str(self.predicate)
-        if not self.is_positive and self.predicate.name == "=":
-            lhs = str(self.variables[0])
-            rhs = str(self.variables[1])
-            return "(not (= {0} {1}))".format(lhs, rhs)
-        if not self.is_positive:
-            return "(not {})".format(str(self.predicate))
-
-    def __eq__(self, other):
-        """Check the equality between two Literals."""
-        return (
-            isinstance(other, Literal)
-            and self.predicate == other.predicate
-            and self.is_positive == other.is_positive
-        )
-
-    def __hash__(self):
-        """Get the hash of a Literal."""
-        return hash((self.predicate, self.is_positive))
-
-
-# TODO add other requirements
 class Requirements(Enum):
     """Enum class for the requirements."""
 
-    pass
+    EQUALITY = "equality"

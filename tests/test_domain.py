@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """This module contains tests for a PDDL domain."""
-from pddl.core import Domain
+from pddl.core import Action, Domain
+from pddl.logic.base import Not
+from pddl.logic.helpers import constants, variables
+from pddl.logic.predicates import Predicate
 
 
 class TestDomainEmpty:
@@ -29,3 +32,16 @@ class TestDomainEmpty:
     def test_actions(self):
         """Test the actions getter."""
         assert self.domain.actions == set()
+
+
+def build_simple_domain():
+    """Test a simple PDDL domain."""
+    a, b, c = constants("a b c")
+    x, y, z = variables("x y z")
+    p = Predicate("p", [x, y, z])
+    action_1 = Action("action_1", [x, y, z], precondition={p}, effect={Not(p)})
+    domain = Domain(
+        "simple_domain", constants={a, b, c}, predicates={p}, actions={action_1}
+    )
+
+    assert domain
