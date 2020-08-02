@@ -34,12 +34,16 @@ class Predicate(Atomic):
 
     def __str__(self) -> str:
         """Get the string."""
-        if self.name == "=":
-            return "(= {0} {1})".format(str(self.variables[0]), str(self.variables[1]))
-        elif self.arity == 0:
-            return "(" + self.name + ")"
+        if self.arity == 0:
+            return self.name
         else:
-            return "({0} {1})".format(self.name, " ".join(map(str, self.variables)))
+            return f"({self.name} {' '.join(map(str, self.variables))})"
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return (
+            f"{type(self).__name__}({self.name}, {', '.join(map(str, self.variables))})"
+        )
 
     def __eq__(self, other):
         """Override equal operator."""
@@ -84,3 +88,11 @@ class EqualTo(Atomic):
             and self.left == other.left
             and self.right == other.right
         )
+
+    def __hash__(self) -> int:
+        """Get the hash."""
+        return hash((EqualTo, self.left, self.right))
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return f"(= {self.left} {self.right})"

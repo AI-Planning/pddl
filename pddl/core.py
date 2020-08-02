@@ -24,7 +24,7 @@ class Domain:
         name: namelike,
         requirements: Optional[Set["Requirements"]] = None,
         constants: Optional[Set[Constant]] = None,
-        predicates: Optional[Set[Predicate]] = None,  # TODO cannot be non-empty
+        predicates: Optional[Set[Predicate]] = None,  # TODO cannot be empty
         actions: Optional[Set["Action"]] = None,
     ):
         """

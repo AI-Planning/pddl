@@ -52,9 +52,19 @@ class BinaryOp(Formula):
         """Get the right operand."""
         return self._right
 
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return f"({self.SYMBOL} {self.left} {self.right})"
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return f"{type(self).__name__}({repr(self.left)}, {repr(self.right)})"
+
 
 class UnaryOp(Formula):
     """Unary operator."""
+
+    SYMBOL: str
 
     def __init__(self, arg: Formula):
         """
@@ -69,6 +79,14 @@ class UnaryOp(Formula):
         """Get the argument."""
         return self._arg
 
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return f"({self.SYMBOL} {self.argument})"
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return f"{type(self).__name__}({repr(self.argument)})"
+
 
 class Atomic(Formula):
     """Atomic formula."""
@@ -76,6 +94,14 @@ class Atomic(Formula):
 
 class TrueFormula(Formula):
     """A tautology."""
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return "(true)"
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return "TrueFormula()"
 
     def __eq__(self, other):
         """Compare with another object."""
@@ -89,6 +115,14 @@ class TrueFormula(Formula):
 class FalseFormula(Formula):
     """A contradiction."""
 
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return "(false)"
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return "FalseFormula()"
+
     def __eq__(self, other):
         """Compare with another object."""
         return isinstance(other, FalseFormula)
@@ -101,19 +135,19 @@ class FalseFormula(Formula):
 class And(BinaryOp):
     """And operator."""
 
-    SYMBOL = "&"
+    SYMBOL = "and"
 
 
 class Or(BinaryOp):
     """Or operator."""
 
-    SYMBOL = "|"
+    SYMBOL = "or"
 
 
 class Not(UnaryOp):
     """Not operator."""
 
-    SYMBOL = "~"
+    SYMBOL = "not"
 
 
 def ensure_formula(f: Optional[Formula], is_none_true: bool) -> Formula:
