@@ -3,7 +3,7 @@
 
 import pytest
 
-from pddl.types import name
+from pddl.custom_types import name
 
 
 def test_name_string():
