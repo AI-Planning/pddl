@@ -6,12 +6,12 @@ Core module of the package.
 It contains the class definitions to build and modify PDDL domains or problems.
 """
 from enum import Enum
-from typing import AbstractSet, Collection, Optional, Sequence, Set
+from typing import AbstractSet, Collection, Optional, Sequence
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names
-from pddl.helpers import _assert, ensure_sequence, ensure_set
-from pddl.logic.base import Atomic, Formula, is_literal
+from pddl.helpers import _assert, ensure, ensure_sequence, ensure_set
+from pddl.logic.base import FalseFormula, Formula, TrueFormula, is_literal
 from pddl.logic.predicates import Predicate
 from pddl.logic.terms import Constant, Variable
 
@@ -86,15 +86,24 @@ class Problem:
         requirements: Optional[AbstractSet["Requirements"]] = None,
         objects: Optional[AbstractSet["Object"]] = None,
         init: Optional[AbstractSet[Formula]] = None,
-        goal: Optional[AbstractSet[Atomic]] = None,
+        goal: Optional[Formula] = None,
     ):
-        """Initialize the PDDL problem."""
-        self._name = name_type(name)
-        self._domain = domain
-        self._requirements = ensure_set(requirements)
-        self._objects = set(to_names(ensure_set(objects)))
-        self._init = ensure_set(init)
-        self._goal = ensure_set(goal)
+        """
+        Initialize the PDDL problem.
+
+        :param name: the name of the PDDL problem.
+        :param domain: the PDDL domain.
+        :param requirements: the set of PDDL requirements.
+        :param objects: the set of objects.
+        :param init: the initial condition.
+        :param goal: the goal condition.
+        """
+        self._name: str = name_type(name)
+        self._domain: Domain = domain
+        self._requirements: AbstractSet[Requirements] = ensure_set(requirements)
+        self._objects: AbstractSet[Object] = set(ensure_set(objects))
+        self._init: AbstractSet[Formula] = ensure_set(init)
+        self._goal: Formula = ensure(goal, TrueFormula())
         _assert(
             all(map(is_literal, self.init)),
             "Not all formulas of initial condition are literals!",
@@ -116,7 +125,7 @@ class Problem:
         return self._requirements
 
     @property
-    def objects(self) -> AbstractSet[name_type]:
+    def objects(self) -> AbstractSet["Object"]:
         """Get the set of objects."""
         return self._objects
 
@@ -126,7 +135,7 @@ class Problem:
         return self._init
 
     @property
-    def goal(self) -> AbstractSet[Atomic]:
+    def goal(self) -> Formula:
         """Get the goal."""
         return self._goal
 
@@ -134,21 +143,25 @@ class Problem:
 class Action:
     """A class for the PDDL Action."""
 
-    # TODO support for other requirements
-    # TODO 'effect' should be a formula
     def __init__(
         self,
         name: namelike,
         parameters: Sequence[Variable],
-        precondition: Optional[Set[Atomic]] = None,
-        effect: Optional[Set[Formula]] = None,
+        precondition: Optional[Formula] = None,
+        effect: Optional[Formula] = None,
     ):
-        """Initialize the formula."""
-        self._name = name_type(name)
-        self._parameters = ensure_sequence(parameters)
-        self._precondition = ensure_set(precondition)
-        self._effect = ensure_set(effect)
-        _assert(all(map(is_literal, self.effect)), "Some effects are not literals!")
+        """
+        Initialize the action.
+
+        :param name: the action name.
+        :param parameters: the action parameters.
+        :param precondition: the action precondition.
+        :param effect: the action effect.
+        """
+        self._name: str = name_type(name)
+        self._parameters: Sequence[Variable] = ensure_sequence(parameters)
+        self._precondition: Formula = ensure(precondition, FalseFormula())
+        self._effect: Formula = ensure(effect, FalseFormula())
 
     @property
     def name(self) -> str:
@@ -161,12 +174,12 @@ class Action:
         return self._parameters
 
     @property
-    def precondition(self) -> AbstractSet[Atomic]:
+    def precondition(self) -> Formula:
         """Get the precondition."""
         return self._precondition
 
     @property
-    def effect(self) -> AbstractSet[Formula]:
+    def effect(self) -> Formula:
         """Get the effect."""
         return self._effect
 
@@ -246,3 +259,4 @@ class Requirements(Enum):
 
     EQUALITY = "equality"
     TYPING = "typing"
+    NON_DETERMINISTIC = "non-deterministic"

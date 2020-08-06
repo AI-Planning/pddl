@@ -144,6 +144,12 @@ class Or(BinaryOp):
     SYMBOL = "or"
 
 
+class OneOf(BinaryOp):
+    """OneOf operator."""
+
+    SYMBOL = "oneof"
+
+
 class Not(UnaryOp):
     """Not operator."""
 

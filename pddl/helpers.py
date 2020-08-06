@@ -4,13 +4,27 @@
 
 
 import re
-from typing import AbstractSet, Callable, Collection, Optional, Sequence
+from pathlib import Path
+from typing import AbstractSet, Any, Callable, Collection, Optional, Sequence
+
+
+def _get_current_path() -> Path:
+    """Get the path to the file where the function is called."""
+    import inspect
+    import os
+
+    return Path(os.path.dirname(inspect.getfile(inspect.currentframe())))  # type: ignore
 
 
 def _assert(condition: bool, message: str = ""):
     """User-defined assert."""
     if not condition:
         raise AssertionError(message)
+
+
+def ensure(arg: Optional[Any], default: Any):
+    """Ensure an object is not None, or return a default."""
+    return arg if arg is not None else default
 
 
 def ensure_set(arg: Optional[Collection], immutable: bool = True) -> AbstractSet:

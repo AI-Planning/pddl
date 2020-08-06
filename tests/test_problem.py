@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 
 from pddl.core import Domain, Problem
-from pddl.logic.base import Not
+from pddl.logic.base import Not, TrueFormula
 from pddl.logic.helpers import variables
 from pddl.logic.predicates import Predicate
 
@@ -34,7 +34,7 @@ class TestProblemEmpty:
 
     def test_goal(self):
         """Test the goal getter."""
-        assert self.problem.goal == set()
+        assert self.problem.goal == TrueFormula()
 
 
 def build_simple_problem():
