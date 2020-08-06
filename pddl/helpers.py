@@ -4,7 +4,18 @@
 
 
 import re
-from typing import Optional, Set
+from typing import Optional, Set, List, Any
+
+
+def _assert(condition: bool, message: str = ""):
+    """User-defined assert."""
+    if condition:
+        raise AssertionError(message)
+
+
+def _ensure(arg: Optional[Any], default: Any):
+    """Ensure the argument is not None, else return the default."""
+    return arg if arg is not None else default
 
 
 def ensure_set(s: Optional[Set]) -> Set:
@@ -14,7 +25,17 @@ def ensure_set(s: Optional[Set]) -> Set:
     :param s: the set, or None.
     :return: the same set, or an empty set if the arg was None.
     """
-    return s if s is not None else set()
+    return _ensure(s, set())
+
+
+def ensure_list(s: Optional[List]) -> List:
+    """
+    Ensure the argument is a list.
+
+    :param s: the list, or None.
+    :return: the same list, or an empty list if the arg was None.
+    """
+    return _ensure(s, list())
 
 
 class RegexConstrainedString(str):

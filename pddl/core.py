@@ -6,9 +6,9 @@ Core module of the package.
 It contains the class definitions to build and modify PDDL domains or problems.
 """
 from enum import Enum
-from typing import Optional, Sequence, Set, Tuple
+from typing import Optional, Sequence, Set, Tuple, List
 
-from pddl.helpers import ensure_set
+from pddl.helpers import ensure_set, _assert
 from pddl.logic.base import Atomic, Formula, is_literal
 from pddl.logic.predicates import Predicate
 from pddl.logic.terms import Constant, Variable
@@ -26,6 +26,7 @@ class Domain:
         constants: Optional[Set[Constant]] = None,
         predicates: Optional[Set[Predicate]] = None,  # TODO cannot be empty
         actions: Optional[Set["Action"]] = None,
+        types_def: Optional[Sequence[str]] = None,
     ):
         """
         Initialize a PDDL domain.
@@ -41,6 +42,7 @@ class Domain:
         self._constants = ensure_set(constants)
         self._predicates = ensure_set(predicates)
         self._actions = ensure_set(actions)
+        self._types_def = types_def
 
     @property
     def name(self) -> str:
@@ -67,6 +69,12 @@ class Domain:
         """Get the actions."""
         return self._actions
 
+    @property
+    def types_def(self) -> List[str]:
+        """Get the type definition, if defined. Else, raise error."""
+        _assert(self._types_def is not None, "Types def not defined.")
+        return list(self._types_def)
+
 
 class Problem:
     """A class for a PDDL problem file."""
@@ -87,9 +95,10 @@ class Problem:
         self._objects = set(map(name_type, ensure_set(objects)))
         self._init = ensure_set(init)
         self._goal = ensure_set(goal)
-        assert all(
-            map(is_literal, self.init)
-        ), "Not all formulas of initial condition are literals!"
+        _assert(
+            all(map(is_literal, self.init)),
+            "Not all formulas of initial condition are literals!",
+        )
 
     @property
     def name(self) -> str:
@@ -139,7 +148,7 @@ class Action:
         self._parameters = parameters
         self._precondition = ensure_set(precondition)
         self._effect = ensure_set(effect)
-        assert all(map(is_literal, self.effect)), "Some effects are not literals!"
+        _assert(all(map(is_literal, self.effect)), "Some effects are not literals!")
 
     @property
     def name(self) -> str:
@@ -190,3 +199,4 @@ class Requirements(Enum):
     """Enum class for the requirements."""
 
     EQUALITY = "equality"
+    TYPING = "typing"
