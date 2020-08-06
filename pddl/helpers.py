@@ -4,7 +4,7 @@
 
 
 import re
-from typing import Collection, List, Optional, Set
+from typing import AbstractSet, Callable, Collection, Optional, Sequence
 
 
 def _assert(condition: bool, message: str = ""):
@@ -13,24 +13,28 @@ def _assert(condition: bool, message: str = ""):
         raise AssertionError(message)
 
 
-def ensure_set(arg: Optional[Collection]) -> Set:
+def ensure_set(arg: Optional[Collection], immutable: bool = True) -> AbstractSet:
     """
     Ensure the argument is a set.
 
     :param arg: the set, or None.
+    :param immutable: whether the collection should be immutable.
     :return: the same set, or an empty set if the arg was None.
     """
-    return set(arg) if arg is not None else set()
+    op = frozenset if immutable else set
+    return op(arg) if arg is not None else op()
 
 
-def ensure_list(arg: Optional[List]) -> List:
+def ensure_sequence(arg: Optional[Sequence], immutable: bool = True) -> Sequence:
     """
-    Ensure the argument is a list.
+    Ensure the argument is a sequence.
 
     :param arg: the list, or None.
+    :param immutable: whether the collection should be immutable.
     :return: the same list, or an empty list if the arg was None.
     """
-    return list(arg) if arg is not None else list()
+    op: Callable = tuple if immutable else list
+    return op(arg) if arg is not None else op()
 
 
 class RegexConstrainedString(str):

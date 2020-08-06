@@ -2,10 +2,10 @@
 """This modules implements PDDL terms."""
 
 from abc import ABC
-from typing import Collection, Optional, Set
+from typing import AbstractSet, Collection, Optional
 
 from pddl.custom_types import name as name_type
-from pddl.custom_types import namelike
+from pddl.custom_types import namelike, to_names
 from pddl.helpers import ensure_set
 
 
@@ -18,10 +18,10 @@ class Term(ABC):
 
         :param type_tags: the type tags associated to this term.
         """
-        self._type_tags = ensure_set(type_tags)
+        self._type_tags = set(to_names(ensure_set(type_tags)))
 
     @property
-    def type_tags(self) -> Set[name_type]:
+    def type_tags(self) -> AbstractSet[name_type]:
         """Get a set of type tags for this term."""
         return self._type_tags
 
