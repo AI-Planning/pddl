@@ -2,25 +2,43 @@
 """This modules implements PDDL terms."""
 
 from abc import ABC
+from typing import Collection, Optional, Set
 
-from pddl.types import name as name_type
-from pddl.types import namelike
+from pddl.custom_types import name as name_type
+from pddl.custom_types import namelike
+from pddl.helpers import ensure_set
 
 
 class Term(ABC):
     """A term in a formula."""
+
+    def __init__(self, type_tags: Optional[Collection[namelike]] = None):
+        """
+        Initialize a term.
+
+        :param type_tags: the type tags associated to this term.
+        """
+        self._type_tags = ensure_set(type_tags)
+
+    @property
+    def type_tags(self) -> Set[name_type]:
+        """Get a set of type tags for this term."""
+        return self._type_tags
 
 
 # TODO check correctness
 class Constant(Term):
     """A constant term."""
 
-    def __init__(self, name: namelike):
+    def __init__(
+        self, name: namelike, type_tags: Optional[Collection[namelike]] = None
+    ):
         """
         Initialize a constant.
 
         :param name: the name.
         """
+        super().__init__(type_tags=type_tags)
         self._name = name_type(name)
 
     @property
@@ -48,12 +66,15 @@ class Constant(Term):
 class Variable(Term):
     """A variable term."""
 
-    def __init__(self, name: namelike):
+    def __init__(
+        self, name: namelike, type_tags: Optional[Collection[namelike]] = None
+    ):
         """
         Initialize the variable.
 
         :param name: the name.
         """
+        super().__init__(type_tags=type_tags)
         self._name = name_type(name)
 
     @property

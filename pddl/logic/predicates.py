@@ -3,10 +3,10 @@
 """This class implements PDDL predicates."""
 from typing import Sequence, Tuple
 
+from pddl.custom_types import name as name_type
+from pddl.custom_types import namelike
 from pddl.logic.base import Atomic
 from pddl.logic.terms import Term, Variable
-from pddl.types import name as name_type
-from pddl.types import namelike
 
 
 class Predicate(Atomic):

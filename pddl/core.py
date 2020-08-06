@@ -6,14 +6,14 @@ Core module of the package.
 It contains the class definitions to build and modify PDDL domains or problems.
 """
 from enum import Enum
-from typing import Optional, Sequence, Set, Tuple, List
+from typing import Collection, Optional, Sequence, Set, Tuple
 
-from pddl.helpers import ensure_set, _assert
+from pddl.custom_types import name as name_type
+from pddl.custom_types import namelike, to_names
+from pddl.helpers import _assert, ensure_set
 from pddl.logic.base import Atomic, Formula, is_literal
 from pddl.logic.predicates import Predicate
 from pddl.logic.terms import Constant, Variable
-from pddl.types import name as name_type
-from pddl.types import namelike
 
 
 class Domain:
@@ -22,11 +22,11 @@ class Domain:
     def __init__(
         self,
         name: namelike,
-        requirements: Optional[Set["Requirements"]] = None,
-        constants: Optional[Set[Constant]] = None,
-        predicates: Optional[Set[Predicate]] = None,  # TODO cannot be empty
-        actions: Optional[Set["Action"]] = None,
-        types_def: Optional[Sequence[str]] = None,
+        requirements: Optional[Collection["Requirements"]] = None,
+        constants: Optional[Collection[Constant]] = None,
+        predicates: Optional[Collection[Predicate]] = None,  # TODO cannot be empty
+        actions: Optional[Collection["Action"]] = None,
+        types: Optional[Collection[namelike]] = None,
     ):
         """
         Initialize a PDDL domain.
@@ -36,13 +36,14 @@ class Domain:
         :param constants: the constants.
         :param predicates: the predicates.
         :param actions: the actions.
+        :param types: the list of supported types.
         """
         self._name = name_type(name)
         self._requirements = ensure_set(requirements)
         self._constants = ensure_set(constants)
         self._predicates = ensure_set(predicates)
         self._actions = ensure_set(actions)
-        self._types_def = types_def
+        self._types = set(to_names(ensure_set(types)))
 
     @property
     def name(self) -> str:
@@ -70,10 +71,11 @@ class Domain:
         return self._actions
 
     @property
-    def types_def(self) -> List[str]:
-        """Get the type definition, if defined. Else, raise error."""
-        _assert(self._types_def is not None, "Types def not defined.")
-        return list(self._types_def)
+    def types(self) -> Tuple[name_type, ...]:
+        """Get the type definitions, if defined. Else, raise error."""
+        # TODO instead of None, check whether the requirements typing is present.
+        _assert(self._types is not None, "Types not defined.")
+        return tuple(self._types)
 
 
 class Problem:
