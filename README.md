@@ -18,9 +18,9 @@
   <a href="">
     <img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/yarllib">
   </a>
-  <a href="./LICENSE">
-    <img alt="" src="https://img.shields.io/badge/license-LGPLv3%2B-blue">
-  </a>  
+  <a href="https://github.com/whitemech/pddl/blob/master/LICENSE">
+    <img alt="GitHub" src="https://img.shields.io/github/license/whitemech/pddl">
+  </a>
 </p>
 <p align="center">
   <a href="">
