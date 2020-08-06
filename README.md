@@ -1,16 +1,57 @@
-# pddl
+<h1 align="center">
+  <b>pddl</b>
+</h1>
 
-![test](https://github.com/whitemech/pddl/workflows/test/badge.svg)
-![lint](https://github.com/whitemech/pddl/workflows/lint/badge.svg)
-![docs](https://github.com/whitemech/pddl/workflows/docs/badge.svg)
-[![](https://img.shields.io/badge/docs-mkdocs-9cf)](https://www.mkdocs.org/)
-[![](https://img.shields.io/badge/status-development-orange.svg)](https://img.shields.io/badge/status-development-orange.svg)
-[![codecov](https://codecov.io/gh/whitemech/pddl/branch/master/graph/badge.svg?token=FG3ATGP5P5)](https://codecov.io/gh/whitemech/pddl)
-[![](https://img.shields.io/badge/flake8-checked-blueviolet)](https://img.shields.io/badge/flake8-checked-blueviolet)
-[![](https://img.shields.io/badge/mypy-checked-blue)](https://img.shields.io/badge/mypy-checked-blue)
-[![](https://img.shields.io/badge/license-LGPLv3%2B-blue)](./LICENSE)
+<p align="center">
+  <a href="https://pypi.org/project/yarllib">
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/yarllib">
+  </a>
+  <a href="https://pypi.org/project/yarllib">
+    <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/yarllib" />
+  </a>
+  <a href="">
+    <img alt="PyPI - Status" src="https://img.shields.io/pypi/status/yarllib" />
+  </a>
+  <a href="">
+    <img alt="PyPI - Implementation" src="https://img.shields.io/pypi/implementation/yarllib">
+  </a>
+  <a href="">
+    <img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/yarllib">
+  </a>
+  <a href="https://github.com/whitemech/pddl/blob/master/LICENSE">
+    <img alt="GitHub" src="https://img.shields.io/github/license/whitemech/pddl">
+  </a>
+</p>
+<p align="center">
+  <a href="">
+    <img alt="test" src="https://github.com/whitemech/pddl/workflows/test/badge.svg">
+  </a>
+  <a href="">
+    <img alt="lint" src="https://github.com/whitemech/pddl/workflows/lint/badge.svg">
+  </a>
+  <a href="">
+    <img alt="docs" src="https://github.com/whitemech/pddl/workflows/docs/badge.svg">
+  </a>
+  <a href="https://codecov.io/gh/whitemech/pddl">
+    <img alt="codecov" src="https://codecov.io/gh/whitemech/pddl/branch/master/graph/badge.svg?token=FG3ATGP5P5">
+  </a>
+</p>
+<p align="center">
+  <a href="https://img.shields.io/badge/flake8-checked-blueviolet">
+    <img alt="" src="https://img.shields.io/badge/flake8-checked-blueviolet">
+  </a>
+  <a href="https://img.shields.io/badge/mypy-checked-blue">
+    <img alt="" src="https://img.shields.io/badge/mypy-checked-blue">
+  </a>
+  <a href="https://img.shields.io/badge/code%20style-black-black">
+    <img alt="black" src="https://img.shields.io/badge/code%20style-black-black" />
+  </a>
+  <a href="https://www.mkdocs.org/">
+    <img alt="" src="https://img.shields.io/badge/docs-mkdocs-9cf">
+  </a>
+</p>
 
-pddl aims at being the state-of-the-art parser for Fully Observable Non Deterministic (FOND) PDDL planning problems.
+`pddl` aims to be an unquestionable and complete parser for PDDL 3.1.
 
 ## Prerequisites
 
@@ -36,8 +77,29 @@ TBA
 
 ## Features
 
-- Support for parsing [PDDL 3.1](https://helios.hud.ac.uk/scommv/IPC-14/repository/kovacs-pddl-3.1-2011.pdf)
-- Support for the `non-deterministic` key requirement ([6th IPC: Uncertainty Part](https://pdfs.semanticscholar.org/b3d5/3dcc8183048849788405be5bfbb08a364dc5.pdf))
+Supported [PDDL 3.1](https://helios.hud.ac.uk/scommv/IPC-14/repository/kovacs-pddl-3.1-2011.pdf) 
+requirements:
+- [ ] `:strips`
+- [X] `:typing`
+- [ ] `:negative-preconditions`
+- [ ] `:disjunctive-preconditions`
+- [X] `:equality`
+- [ ] `:existential-preconditions`
+- [ ] `:universal-preconditions`
+- [ ] `:quantified-preconditions`
+- [ ] `:conditional-effects`
+- [ ] `:fluents`
+- [ ] `:numeric-fluents`
+- [X] `:non-deterministic` (see [6th IPC: Uncertainty Part](https://pdfs.semanticscholar.org/b3d5/3dcc8183048849788405be5bfbb08a364dc5.pdf))
+- [ ] `:adl`
+- [ ] `:durative-actions`
+- [ ] `:duration-inequalities`
+- [ ] `:derived-predicates`
+- [ ] `:timed-initial-literals`
+- [ ] `:preferences`
+- [ ] `:constraints`
+- [ ] `:action-costs`
+
 
 ## Tests
 

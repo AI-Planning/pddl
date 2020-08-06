@@ -20,7 +20,7 @@ with open(os.path.join(here, 'pddl', '__version__.py'), 'r') as f:
 
 
 install_requires = [
-    "lark-parser"
+    "lark-parser>=0.9.0,<1"
 ]
 
 setup(
