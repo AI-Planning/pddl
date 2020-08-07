@@ -23,27 +23,27 @@ class Domain:
         self,
         name: namelike,
         requirements: Optional[Collection["Requirements"]] = None,
+        types: Optional[Collection[namelike]] = None,
         constants: Optional[Collection[Constant]] = None,
         predicates: Optional[Collection[Predicate]] = None,  # TODO cannot be empty
         actions: Optional[Collection["Action"]] = None,
-        types: Optional[Collection[namelike]] = None,
     ):
         """
         Initialize a PDDL domain.
 
         :param name: the name of the domain.
         :param requirements: the requirements supported.
+        :param types: the list of supported types.
         :param constants: the constants.
         :param predicates: the predicates.
         :param actions: the actions.
-        :param types: the list of supported types.
         """
         self._name = name_type(name)
         self._requirements = ensure_set(requirements)
+        self._types = set(to_names(ensure_set(types)))
         self._constants = ensure_set(constants)
         self._predicates = ensure_set(predicates)
         self._actions = ensure_set(actions)
-        self._types = set(to_names(ensure_set(types)))
 
     @property
     def name(self) -> str:
@@ -74,6 +74,18 @@ class Domain:
     def types(self) -> AbstractSet[name_type]:
         """Get the type definitions, if defined. Else, raise error."""
         return self._types
+
+    def __eq__(self, other):
+        """Compare with another object."""
+        return (
+            isinstance(other, Domain)
+            and self.name == other.name
+            and self.requirements == other.requirements
+            and self.types == other.types
+            and self.constants == other.constants
+            and self.predicates == other.predicates
+            and self.actions == other.actions
+        )
 
 
 class Problem:
@@ -260,3 +272,11 @@ class Requirements(Enum):
     EQUALITY = "equality"
     TYPING = "typing"
     NON_DETERMINISTIC = "non-deterministic"
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return f":{self.value}"
+
+    def __repr__(self) -> str:
+        """Get an unambiguous representation."""
+        return f"Requirements{self.name}"

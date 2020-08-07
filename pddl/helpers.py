@@ -51,6 +51,30 @@ def ensure_sequence(arg: Optional[Sequence], immutable: bool = True) -> Sequence
     return op(arg) if arg is not None else op()
 
 
+def safe_index(seq: Sequence, *args, **kwargs):
+    """Find element, safe."""
+    try:
+        return seq.index(*args, **kwargs)
+    except ValueError:
+        return None
+
+
+def safe_get(seq: Sequence, index: int, default=None):
+    """Get element at index, safe."""
+    return seq[index] if index < len(seq) else default
+
+
+def find(seq: Sequence, condition: Callable[[Any], bool]) -> int:
+    """
+    Find the index of the first element that safisfies a condition.
+
+    :param seq: the sequence.
+    :param condition: the condition.
+    :return: the index, or -1 if no element satisfies the condition.
+    """
+    return next((i for i, x in enumerate(seq) if condition(x)), -1)
+
+
 class RegexConstrainedString(str):
     """
     A string that is constrained by a regex.

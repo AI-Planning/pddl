@@ -1,22 +1,23 @@
 start: domain
 
-domain:        LPAR DEFINE domain_def [require_def] [types_def] [constants_def] [predicates_def] structure_def* RPAR
+domain:        LPAR DEFINE domain_def [requirements] [types] [constants] [predicates] structure_def* RPAR
 domain_def:    LPAR DOMAIN NAME RPAR
 
-require_def:               LPAR REQUIREMENTS require_key+ RPAR
-require_key:               TYPING
-           |               STRIPS
-           |               EQUALITY
-           |               NON_DETERMINISTIC
-types_def:                 LPAR TYPES typed_list_name RPAR
-constants_def:             LPAR CONSTANTS typed_list_name RPAR
-predicates_def:            LPAR PREDICATES atomic_formula_skeleton+ RPAR
+requirements:              LPAR REQUIREMENTS require_key+ RPAR
+?require_key:              TYPING
+            |              STRIPS
+            |              EQUALITY
+            |              NON_DETERMINISTIC
+types:                 LPAR TYPES typed_list_name RPAR
+constants:             LPAR CONSTANTS typed_list_name RPAR
+predicates:            LPAR PREDICATES atomic_formula_skeleton+ RPAR
 atomic_formula_skeleton:   LPAR NAME typed_list_variable RPAR
 
 
-structure_def:     action_def
-action_def:        LPAR ACTION NAME PARAMETERS LPAR typed_list_variable RPAR action_body_def RPAR
-action_body_def:   [PRECONDITION emptyor_pregd] [EFFECT emptyor_effect]
+?structure_def:    action_def
+action_def:        LPAR ACTION NAME PARAMETERS action_parameters action_body_def RPAR
+action_parameters: LPAR typed_list_variable RPAR
+?action_body_def:  [PRECONDITION emptyor_pregd] [EFFECT emptyor_effect]
 
 // preconditions
 emptyor_pregd:     LPAR RPAR
@@ -37,21 +38,21 @@ p_effect:          LPAR NOT atomic_formula_term RPAR
 
 atomic_formula_term:   LPAR predicate term* RPAR
                    |   LPAR EQUAL_OP term term RPAR
-term:  constant
-    |  variable
-predicate: NAME
+?term:  constant
+     |  variable
+?predicate: NAME
 constant: NAME
 
 typed_list_variable:   variable*
-                   |   variable+ "-" type_def (typed_list_variable)
-variable: "?" NAME
+                   |   variable+ TYPE_SEP type_def (typed_list_variable)
+?variable: "?" NAME
 
 typed_list_name:   NAME*
-               |   NAME+ "-" type_def (typed_list_name)
+               |   NAME+ TYPE_SEP type_def (typed_list_name)
 type_def:          LPAR EITHER primitive_type+ RPAR
         |          primitive_type
-primitive_type:    NAME
-              |    OBJECT
+?primitive_type:    NAME
+               |    OBJECT
 
 
 NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
@@ -82,5 +83,6 @@ NON_DETERMINISTIC: ":non-deterministic"
 // others
 LPAR : "("
 RPAR : ")"
+TYPE_SEP: "-"
 
 %ignore /\s+/

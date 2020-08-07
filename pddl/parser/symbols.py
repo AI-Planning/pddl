@@ -40,7 +40,7 @@ class Symbols(Enum):
     EFFECT = ":effect"
     ROUND_BRACKET_LEFT = "("
     ROUND_BRACKET_RIGHT = ")"
-    HYPHEN = "-"
+    TYPE_SEP = "-"
     EQUAL = "="
 
 

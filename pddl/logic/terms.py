@@ -12,13 +12,22 @@ from pddl.helpers import ensure_set
 class Term(ABC):
     """A term in a formula."""
 
-    def __init__(self, type_tags: Optional[Collection[namelike]] = None):
+    def __init__(
+        self, name: namelike, type_tags: Optional[Collection[namelike]] = None
+    ):
         """
         Initialize a term.
 
+        :param name: the name for the term.
         :param type_tags: the type tags associated to this term.
         """
+        self._name = name_type(name)
         self._type_tags = set(to_names(ensure_set(type_tags)))
+
+    @property
+    def name(self) -> str:
+        """Get the name."""
+        return self._name
 
     @property
     def type_tags(self) -> AbstractSet[name_type]:
@@ -38,13 +47,7 @@ class Constant(Term):
 
         :param name: the name.
         """
-        super().__init__(type_tags=type_tags)
-        self._name = name_type(name)
-
-    @property
-    def name(self) -> str:
-        """Get the name."""
-        return self._name
+        super().__init__(name, type_tags=type_tags)
 
     def __str__(self) -> str:
         """Get the string representation."""
@@ -74,17 +77,11 @@ class Variable(Term):
 
         :param name: the name.
         """
-        super().__init__(type_tags=type_tags)
-        self._name = name_type(name)
-
-    @property
-    def name(self) -> str:
-        """Get the name."""
-        return self._name
+        super().__init__(name, type_tags=type_tags)
 
     def __str__(self) -> str:
-        """Get the stirng representation."""
-        return self._name
+        """Get the string representation."""
+        return f"?{self._name}"
 
     def __repr__(self):
         """Get a unique representation of the object."""

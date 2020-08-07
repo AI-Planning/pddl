@@ -1,22 +1,26 @@
 # -*- coding: utf-8 -*-
 """This module contains functions to simplify formulas creation."""
 
-from typing import List
+from typing import Collection, List, Optional
 
+from pddl.custom_types import namelike
+from pddl.helpers import ensure_set
 from pddl.logic.terms import Constant, Variable
 
 
-def variables(s: str) -> List[Variable]:
+def variables(s: str, types: Optional[Collection[namelike]] = None) -> List[Variable]:
     """
-    Return a list of variables.
+    Return a list of terms.
 
-    >>> variables("a b c")
+    >>> variables("a b c", types=["type_1", "type_2"])
     [Variable(a), Variable(b), Variable(c)]
 
     :param s: a string with space-separated valid names.
-    :return: a list of variables.
+    :param types: a list of types.
+    :return: a list of terms.
     """
-    return list(map(Variable, s.split()))
+    types = ensure_set(types)
+    return [Variable(x, types) for x in s.split()]
 
 
 def constants(s: str) -> List[Constant]:
