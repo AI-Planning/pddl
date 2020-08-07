@@ -1,27 +1,23 @@
-start: pddl_problem
+start: problem
 
-pddl_domain:            "(" DEFINE pddl_problem_def pddl_problem_domain [pddl_require_def] [pddl_object_decl] pddl_init pddl_goal ")"
-pddl_problem_def:       "(" PROBLEM NAME ")"
-pddl_problem_domain:    "(" DOMAIN_P NAME ")"
+problem:           LPAR DEFINE problem_def problem_domain [requirements] [objects] init goal RPAR
+problem_def:       LPAR PROBLEM NAME RPAR
+problem_domain:    LPAR DOMAIN_P NAME RPAR
 
-pddl_object_decl:   "(" OBJECTS pddl_typed_list_name ")"
+objects:   LPAR OBJECTS typed_list_name RPAR
 
-pddl_init:                  "(" INIT pddl_init_el*)
-pddl_init_el:               pddl_literal_name
-pddl_literal_name:          pddl_atomic_formula_name
-                 |          "(" NOT pddl_atomic_formula_name ")"
-pddl_atomic_formula_name:   "(" pddl_predicate NAME* ")"
-                        |   "(" "=" NAME NAME ")"
+init:                  LPAR INIT init_el* RPAR
+?init_el:              literal_name
+literal_name:          atomic_formula_name
+            |          LPAR NOT atomic_formula_name RPAR
+atomic_formula_name:   LPAR predicate NAME* RPAR
+                   |   LPAR EQUAL_OP NAME NAME RPAR
 
-pddl_goal:  "(" GOAL pddl_pregd ")"
+goal:  LPAR GOAL gd_name RPAR
 
-
-%import .domain.pddl_require_def -> pddl_require_def
-%import .domain.pddl_typed_list_name -> pddl_typed_list_name
-%import .domain.pddl_pregd -> pddl_pregd
-%import .doamin.DEFINE -> DEFINE
-%import .doamin.NAME -> NAME
-%import .doamin.NOT -> NOT
+gd_name:    atomic_formula_name
+       |    LPAR NOT atomic_formula_name RPAR
+       |    LPAR AND gd_name* RPAR
 
 DOMAIN_P: ":domain"
 PROBLEM: "problem"
@@ -30,3 +26,32 @@ INIT: ":init"
 GOAL: ":goal"
 
 %ignore /\s+/
+
+%import .domain.requirements -> requirements
+%import .domain.typed_list_name -> typed_list_name
+%import .domain.gd -> gd
+%import .domain.predicate -> predicate
+%import .common.NAME -> NAME
+%import .common.DEFINE -> DEFINE
+%import .common.DOMAIN -> DOMAIN
+%import .common.REQUIREMENTS -> REQUIREMENTS
+%import .common.TYPES -> TYPES
+%import .common.CONSTANTS -> CONSTANTS
+%import .common.PREDICATES -> PREDICATES
+%import .common.ACTION -> ACTION
+%import .common.PARAMETERS -> PARAMETERS
+%import .common.PRECONDITION -> PRECONDITION
+%import .common.EFFECT -> EFFECT
+%import .common.OBJECT -> OBJECT
+%import .common.AND -> AND
+%import .common.NOT -> NOT
+%import .common.EITHER -> EITHER
+%import .common.ONEOF -> ONEOF
+%import .common.EQUAL_OP -> EQUAL_OP
+%import .common.TYPING -> TYPING
+%import .common.EQUALITY -> EQUALITY
+%import .common.STRIPS -> STRIPS
+%import .common.NON_DETERMINISTIC -> NON_DETERMINISTIC
+%import .common.LPAR -> LPAR
+%import .common.RPAR -> RPAR
+%import .common.TYPE_SEP -> TYPE_SEP

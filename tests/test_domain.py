@@ -38,8 +38,8 @@ def build_simple_domain():
     """Test a simple PDDL domain."""
     a, b, c = constants("a b c")
     x, y, z = variables("x y z")
-    p = Predicate("p", [x, y, z])
-    action_1 = Action("action_1", [x, y, z], precondition={p}, effect={Not(p)})
+    p = Predicate("p", x, y, z)
+    action_1 = Action("action_1", [x, y, z], precondition=p, effect=Not(p))
     domain = Domain(
         "simple_domain", constants={a, b, c}, predicates={p}, actions={action_1}
     )

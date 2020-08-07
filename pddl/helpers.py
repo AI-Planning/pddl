@@ -4,13 +4,27 @@
 
 
 import re
-from typing import AbstractSet, Callable, Collection, Optional, Sequence
+from pathlib import Path
+from typing import AbstractSet, Any, Callable, Collection, Optional, Sequence
+
+
+def _get_current_path() -> Path:
+    """Get the path to the file where the function is called."""
+    import inspect
+    import os
+
+    return Path(os.path.dirname(inspect.getfile(inspect.currentframe())))  # type: ignore
 
 
 def _assert(condition: bool, message: str = ""):
     """User-defined assert."""
     if not condition:
         raise AssertionError(message)
+
+
+def ensure(arg: Optional[Any], default: Any):
+    """Ensure an object is not None, or return a default."""
+    return arg if arg is not None else default
 
 
 def ensure_set(arg: Optional[Collection], immutable: bool = True) -> AbstractSet:
@@ -35,6 +49,30 @@ def ensure_sequence(arg: Optional[Sequence], immutable: bool = True) -> Sequence
     """
     op: Callable = tuple if immutable else list
     return op(arg) if arg is not None else op()
+
+
+def safe_index(seq: Sequence, *args, **kwargs):
+    """Find element, safe."""
+    try:
+        return seq.index(*args, **kwargs)
+    except ValueError:
+        return None
+
+
+def safe_get(seq: Sequence, index: int, default=None):
+    """Get element at index, safe."""
+    return seq[index] if index < len(seq) else default
+
+
+def find(seq: Sequence, condition: Callable[[Any], bool]) -> int:
+    """
+    Find the index of the first element that safisfies a condition.
+
+    :param seq: the sequence.
+    :param condition: the condition.
+    :return: the index, or -1 if no element satisfies the condition.
+    """
+    return next((i for i, x in enumerate(seq) if condition(x)), -1)
 
 
 class RegexConstrainedString(str):

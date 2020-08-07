@@ -12,3 +12,6 @@ from .__version__ import (
     __url__,
     __version__,
 )
+from .helpers import _get_current_path
+
+_ROOT_PATH = _get_current_path()

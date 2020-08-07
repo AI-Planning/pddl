@@ -1,140 +1,115 @@
 # -*- coding: utf-8 -*-
 """Implementation of the PDDL problem parser."""
+from typing import Dict
 
-# from pathlib import Path
-#
-# from lark import Lark, Transformer
+from lark import Lark, ParseError, Transformer
 
-# from ltlf2dfa.helpers import ParsingError
-# from ltlf2dfa.parser import CUR_DIR
-# from ltlf2dfa.pl import (
-#     PLNot,
-#     PLAtomic,
-#     PLOr,
-#     PLAnd,
-#     PLImplies,
-#     PLEquivalence,
-#     PLTrue,
-#     PLFalse,
-# )
+from pddl.core import Problem, Requirements
+from pddl.logic.base import And, Not
+from pddl.logic.predicates import EqualTo, Predicate
+from pddl.logic.terms import Constant
+from pddl.parser import PROBLEM_GRAMMAR_FILE
+from pddl.parser.domain import DomainTransformer
+from pddl.parser.symbols import Symbols
 
 
-# class PLTransformer(Transformer):
-#     """PL Transformer."""
-#
-#     def start(self, args):
-#         """Entry point."""
-#         return args[0]
-#
-#     def propositional_formula(self, args):
-#         """Parse Propositional formula."""
-#         assert len(args) == 1
-#         return args[0]
-#
-#     def prop_equivalence(self, args):
-#         """Parse Propositional Equivalence."""
-#         if len(args) == 1:
-#             return args[0]
-#         elif (len(args) - 1) % 2 == 0:
-#             subformulas = args[::2]
-#             return PLEquivalence(subformulas)
-#         else:
-#             raise ParsingError
-#
-#     def prop_implication(self, args):
-#         """Parse Propositional Implication."""
-#         if len(args) == 1:
-#             return args[0]
-#         elif (len(args) - 1) % 2 == 0:
-#             subformulas = args[::2]
-#             return PLImplies(subformulas)
-#         else:
-#             raise ParsingError
-#
-#     def prop_or(self, args):
-#         """Parse Propositional Or."""
-#         if len(args) == 1:
-#             return args[0]
-#         elif (len(args) - 1) % 2 == 0:
-#             subformulas = args[::2]
-#             return PLOr(subformulas)
-#         else:
-#             raise ParsingError
-#
-#     def prop_and(self, args):
-#         """Parse Propositional And."""
-#         if len(args) == 1:
-#             return args[0]
-#         elif (len(args) - 1) % 2 == 0:
-#             subformulas = args[::2]
-#             return PLAnd(subformulas)
-#         else:
-#             raise ParsingError
-#
-#     def prop_not(self, args):
-#         """Parse Propositional Not."""
-#         if len(args) == 1:
-#             return args[0]
-#         else:
-#             f = args[-1]
-#             for _ in args[:-1]:
-#                 f = PLNot(f)
-#             return f
-#
-#     def prop_wrapped(self, args):
-#         """Parse Propositional wrapped formula."""
-#         if len(args) == 1:
-#             return args[0]
-#         elif len(args) == 3:
-#             _, f, _ = args
-#             return f
-#         else:
-#             raise ParsingError
-#
-#     def prop_atom(self, args):
-#         """Parse Propositional Atom."""
-#         assert len(args) == 1
-#         return args[0]
-#
-#     def prop_true(self, args):
-#         """Parse Propositional True."""
-#         assert len(args) == 1
-#         return PLTrue()
-#
-#     def prop_false(self, args):
-#         """Parse Propositional False."""
-#         assert len(args) == 1
-#         return PLFalse()
-#
-#     def atom(self, args):
-#         """Parse Atom."""
-#         assert len(args) == 1
-#         return PLAtomic(str(args[0]))
-#
-#
-# class PLParser:
-#     """PL Parser class."""
-#
-#     def __init__(self):
-#         """Initialize."""
-#         self._transformer = PLTransformer()
-#         self._parser = Lark(open(str(Path(CUR_DIR, "pl.lark"))), parser="lalr")
-#
-#     def __call__(self, text):
-#         """Call."""
-#         tree = self._parser.parse(text)
-#         formula = self._transformer.transform(tree)
-#         return formula
-#
-#
-# if __name__ == "__main__":
-#     parser = PLParser()
-#     while True:
-#         try:
-#             s = input("pl > ")
-#         except EOFError:
-#             break
-#         if not s:
-#             continue
-#         result = parser(s)
-#         print(result)
+class ProblemTransformer(Transformer):
+    """Problem Transformer."""
+
+    def __init__(self):
+        """Initialize the problem transformer."""
+        super().__init__()
+
+        self._domain_transformer = DomainTransformer()
+        self._objects_by_name: Dict[str, Constant] = {}
+
+    def start(self, args):
+        """Process the rule 'start'."""
+        return args[0]
+
+    def problem(self, args):
+        """Process the 'problem' rule."""
+        return Problem(**dict(args[2:-1]))
+
+    def problem_def(self, args):
+        """Process the 'problem_def' rule."""
+        return "name", args[2]
+
+    def problem_domain(self, args):
+        """Process the 'problem_domain' rule."""
+        return "domain_name", args[2]
+
+    def requirements(self, args):
+        """Process the 'requirements' rule."""
+        return "requirements", {Requirements(r[1:]) for r in args[2:-1]}
+
+    def objects(self, args):
+        """Process the 'problem_domain' rule."""
+        object_names = args[2]
+        self._objects_by_name = {
+            name: Constant(name, type_tags=types)
+            for name, types in object_names.items()
+        }
+        return "objects", list(self._objects_by_name.values())
+
+    def typed_list_name(self, args):
+        """
+        Process the 'typed_list_name' rule.
+
+        Return a dictionary with as keys the names and as value a set of types for each name.
+        """
+        return self._domain_transformer._typed_list_x(args)
+
+    def init(self, args):
+        """Process the 'init' rule."""
+        return "init", set(args[2:-1])
+
+    def literal_name(self, args):
+        """Process the 'literal_name' rule."""
+        if len(args) == 1:
+            return args[0]
+        elif args[1] == Symbols.NOT.value:
+            return Not(args[2])
+        else:
+            raise ParseError
+
+    def goal(self, args):
+        """Process the 'goal' rule."""
+        return "goal", args[2]
+
+    def gd_name(self, args):
+        """Process the 'gd_name' rule."""
+        if len(args) == 1:
+            return args[0]
+        elif args[1] == Symbols.NOT.value:
+            return Not(args[2])
+        elif args[1] == Symbols.AND.value:
+            return And(*args[2:-1])
+        else:
+            raise ParseError
+
+    def atomic_formula_name(self, args):
+        """Process the 'atomic_formula_name' rule."""
+        if args[1] == Symbols.EQUAL.value:
+            obj1 = self._objects_by_name.get(args[1])
+            obj2 = self._objects_by_name.get(args[2])
+            return EqualTo(obj1, obj2)
+        else:
+            name = args[1]
+            terms = [self._objects_by_name.get(str(name)) for name in args[2:-1]]
+            return Predicate(name, *terms)
+
+
+class ProblemParser:
+    """PDDL problem parser class."""
+
+    def __init__(self):
+        """Initialize."""
+        self._transformer = ProblemTransformer()
+        self._parser = Lark(PROBLEM_GRAMMAR_FILE.open(), parser="lalr")
+
+    def __call__(self, text):
+        """Call."""
+        tree = self._parser.parse(text)
+        formula = self._transformer.transform(tree)
+        return formula

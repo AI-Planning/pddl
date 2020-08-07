@@ -1,0 +1,29 @@
+NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
+
+DEFINE: "define"
+DOMAIN: "domain"
+REQUIREMENTS: ":requirements"
+TYPES: ":types"
+CONSTANTS: ":constants"
+PREDICATES: ":predicates"
+ACTION: ":action"
+PARAMETERS: ":parameters"
+PRECONDITION: ":precondition"
+EFFECT: ":effect"
+OBJECT: "object"
+AND: "and"
+NOT: "not"
+EITHER: "either"
+ONEOF: "oneof"
+EQUAL_OP: "="
+
+// available requirements
+TYPING: ":typing"
+EQUALITY: ":equality"
+STRIPS: ":strips"
+NON_DETERMINISTIC: ":non-deterministic"
+
+// others
+LPAR : "("
+RPAR : ")"
+TYPE_SEP: "-"

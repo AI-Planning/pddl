@@ -1,70 +1,83 @@
-start: pddl_domain
+start: domain
 
-pddl_domain:        "(" DEFINE pddl_domain_def [pddl_require_def] [pddl_types_def] [pddl_constants_def] [pddl_predicates_def] pddl_structure_def* ")"
-pddl_domain_def:    "(" DOMAIN NAME ")"
+domain:        LPAR DEFINE domain_def [requirements] [types] [constants] [predicates] structure_def* RPAR
+domain_def:    LPAR DOMAIN NAME RPAR
 
-pddl_require_def:               "(" REQUIREMENTS pddl_require_key+ ")"
-pddl_require_key:               TYPING
-                |               STRIPS
-                |               EQUALITY
-pddl_types_def:                 "(" TYPES pddl_typed_list_name ")"
-pddl_constants_def:             "(" CONSTANTS pddl_typed_list_name ")"
-pddl_predicates_def:            "(" PREDICATES pddl_atomic_formula_skeleton+ ")"
-pddl_atomic_formula_skeleton:   "(" NAME pddl_typed_list_variable ")"
-
-
-pddl_structure_def:     pddl_action_def
-pddl_action_def:        "(" ACTION NAME PARAMETERS "(" pddl_typed_list_variable ")" pddl_action_body_def ")"
-pddl_action_body_def:   [PRECONDITION pddl_emptyor_pregd] [EFFECT pddl_emptyor_effect]
-pddl_emptyor_pregd:     "()"
-                  |     pddl_pregd
-pddl_pregd:             pddl_prefgd
-          |             "(" AND pddl_pregd* ")"
-pddl_prefgd:            pddl_gd
-pddl_gd:                pddl_atomic_formula_term
-       |                "(" AND pddl_gd* ")"
-pddl_emptyor_effect:    "(" ")"
-                   |    pddl_effect
-pddl_effect:            "(" AND pddl_c_effect* ")"
-           |            pddl_c_effect
-pddl_c_effect:          pddl_p_effect
-pddl_p_effect:          "(" NOT pddl_atomic_formula_term ")"
-             |          pddl_atomic_formula_term
-
-pddl_atomic_formula_term:   "(" NAME pddl_term* ")"
-                        |   "(" "=" pddl_term pddl_term ")"
-pddl_term:  NAME
-         |  pddl_variable
-
-pddl_typed_list_variable:   pddl_variable*
-                        |   pddl_variable+ "-" pddl_type_def (pddl_typed_list_variable)
-pddl_variable: "?" NAME
-
-pddl_typed_list_name:   NAME*
-                    |   NAME+ "-" pddl_type_def (pddl_typed_list_name)
-pddl_type_def:          "(" EITHER pddl_primitive_type+ ")"
-             |          pddl_primitive_type
-pddl_primitive_type:    NAME
-                   |    OBJECT
+requirements:              LPAR REQUIREMENTS require_key+ RPAR
+?require_key:              TYPING
+            |              STRIPS
+            |              EQUALITY
+            |              NON_DETERMINISTIC
+types:                 LPAR TYPES typed_list_name RPAR
+constants:             LPAR CONSTANTS typed_list_name RPAR
+predicates:            LPAR PREDICATES atomic_formula_skeleton+ RPAR
+atomic_formula_skeleton:   LPAR NAME typed_list_variable RPAR
 
 
-NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
+?structure_def:    action_def
+action_def:        LPAR ACTION NAME PARAMETERS action_parameters action_body_def RPAR
+action_parameters: LPAR typed_list_variable RPAR
+?action_body_def:  [PRECONDITION emptyor_pregd] [EFFECT emptyor_effect]
 
-DEFINE: "define"
-DOMAIN: "domain"
-REQUIREMENTS: "requirements"
-TYPING: ":typing"
-EQUALITY: ":equality"
-STRIPS: ":strips"
-TYPES: ":types"
-CONSTANTS: ":constants"
-PREDICATES: ":predicates"
-ACTION: ":action"
-PARAMETERS: ":parameters"
-PRECONDITION: ":precondition"
-EFFECT: ":effect"
-OBJECT: "object"
-AND: "and"
-NOT: "not"
+// preconditions
+emptyor_pregd:     LPAR RPAR
+             |     gd
+gd:                atomic_formula_term
+  |                LPAR NOT atomic_formula_term RPAR
+  |                LPAR AND gd* RPAR
+
+// effects
+emptyor_effect:    LPAR RPAR
+              |    oneof_effect
+oneof_effect:      LPAR ONEOF effect* RPAR
+            |      effect
+effect:            LPAR AND p_effect* RPAR
+      |            p_effect
+p_effect:          LPAR NOT atomic_formula_term RPAR
+        |          atomic_formula_term
+
+atomic_formula_term:   LPAR predicate term* RPAR
+                   |   LPAR EQUAL_OP term term RPAR
+?term:  constant
+     |  variable
+?predicate: NAME
+constant: NAME
+
+typed_list_variable:   variable*
+                   |   variable+ TYPE_SEP type_def (typed_list_variable)
+?variable: "?" NAME
+
+typed_list_name:   NAME*
+               |   NAME+ TYPE_SEP type_def (typed_list_name)
+type_def:          LPAR EITHER primitive_type+ RPAR
+        |          primitive_type
+?primitive_type:   NAME
+               |   OBJECT
 
 %ignore /\s+/
+
+%import .common.NAME -> NAME
+%import .common.DEFINE -> DEFINE
+%import .common.DOMAIN -> DOMAIN
+%import .common.REQUIREMENTS -> REQUIREMENTS
+%import .common.TYPES -> TYPES
+%import .common.CONSTANTS -> CONSTANTS
+%import .common.PREDICATES -> PREDICATES
+%import .common.ACTION -> ACTION
+%import .common.PARAMETERS -> PARAMETERS
+%import .common.PRECONDITION -> PRECONDITION
+%import .common.EFFECT -> EFFECT
+%import .common.OBJECT -> OBJECT
+%import .common.AND -> AND
+%import .common.NOT -> NOT
+%import .common.EITHER -> EITHER
+%import .common.ONEOF -> ONEOF
+%import .common.EQUAL_OP -> EQUAL_OP
+%import .common.TYPING -> TYPING
+%import .common.EQUALITY -> EQUALITY
+%import .common.STRIPS -> STRIPS
+%import .common.NON_DETERMINISTIC -> NON_DETERMINISTIC
+%import .common.LPAR -> LPAR
+%import .common.RPAR -> RPAR
+%import .common.TYPE_SEP -> TYPE_SEP
+

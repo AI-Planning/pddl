@@ -1,0 +1,48 @@
+(define (problem FR_3_6)
+ (:domain first-response)
+ (:objects  l1 l2 l3  - location
+	    f1 f2 f3 - fire_unit
+	    v1 v2 v3 v4 v5 v6 - victim
+	    m1 m2 m3 - medical_unit
+)
+ (:init 
+	;;strategic locations
+     (hospital l2)
+     (hospital l2)
+     (hospital l2)
+     (water-at l1)
+     (water-at l1)
+	;;disaster info
+     (fire l1)
+     (victim-at v1 l3)
+     (victim-status v1 hurt)
+     (fire l3)
+     (victim-at v2 l3)
+     (victim-status v2 dying)
+     (fire l2)
+     (victim-at v3 l1)
+     (victim-status v3 dying)
+     (fire l1)
+     (victim-at v4 l1)
+     (victim-status v4 hurt)
+     (fire l3)
+     (victim-at v5 l2)
+     (victim-status v5 hurt)
+     (fire l2)
+     (victim-at v6 l2)
+     (victim-status v6 hurt)
+	;;map info
+	(adjacent l1 l1)
+	(adjacent l2 l2)
+	(adjacent l3 l3)
+   (adjacent l1 l1)
+   (adjacent l1 l1)
+	(fire-unit-at f1 l1)
+	(fire-unit-at f2 l3)
+	(fire-unit-at f3 l3)
+	(medical-unit-at m1 l3)
+	(medical-unit-at m2 l2)
+	(medical-unit-at m3 l2)
+	)
+ (:goal (and  (nfire l1) (nfire l3) (nfire l2) (nfire l1) (nfire l3) (nfire l2)  (victim-status v1 healthy) (victim-status v2 healthy) (victim-status v3 healthy) (victim-status v4 healthy) (victim-status v5 healthy) (victim-status v6 healthy)))
+ )

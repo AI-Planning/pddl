@@ -6,12 +6,12 @@ Core module of the package.
 It contains the class definitions to build and modify PDDL domains or problems.
 """
 from enum import Enum
-from typing import AbstractSet, Collection, Optional, Sequence, Set
+from typing import AbstractSet, Collection, Optional, Sequence, cast
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names
-from pddl.helpers import _assert, ensure_sequence, ensure_set
-from pddl.logic.base import Atomic, Formula, is_literal
+from pddl.helpers import _assert, ensure, ensure_sequence, ensure_set
+from pddl.logic.base import FalseFormula, Formula, TrueFormula, is_literal
 from pddl.logic.predicates import Predicate
 from pddl.logic.terms import Constant, Variable
 
@@ -23,27 +23,27 @@ class Domain:
         self,
         name: namelike,
         requirements: Optional[Collection["Requirements"]] = None,
+        types: Optional[Collection[namelike]] = None,
         constants: Optional[Collection[Constant]] = None,
         predicates: Optional[Collection[Predicate]] = None,  # TODO cannot be empty
         actions: Optional[Collection["Action"]] = None,
-        types: Optional[Collection[namelike]] = None,
     ):
         """
         Initialize a PDDL domain.
 
         :param name: the name of the domain.
         :param requirements: the requirements supported.
+        :param types: the list of supported types.
         :param constants: the constants.
         :param predicates: the predicates.
         :param actions: the actions.
-        :param types: the list of supported types.
         """
         self._name = name_type(name)
         self._requirements = ensure_set(requirements)
+        self._types = set(to_names(ensure_set(types)))
         self._constants = ensure_set(constants)
         self._predicates = ensure_set(predicates)
         self._actions = ensure_set(actions)
-        self._types = set(to_names(ensure_set(types)))
 
     @property
     def name(self) -> str:
@@ -75,6 +75,18 @@ class Domain:
         """Get the type definitions, if defined. Else, raise error."""
         return self._types
 
+    def __eq__(self, other):
+        """Compare with another object."""
+        return (
+            isinstance(other, Domain)
+            and self.name == other.name
+            and self.requirements == other.requirements
+            and self.types == other.types
+            and self.constants == other.constants
+            and self.predicates == other.predicates
+            and self.actions == other.actions
+        )
+
 
 class Problem:
     """A class for a PDDL problem file."""
@@ -82,22 +94,47 @@ class Problem:
     def __init__(
         self,
         name: namelike,
-        domain: Domain,
-        requirements: Optional[AbstractSet["Requirements"]] = None,
-        objects: Optional[AbstractSet["Object"]] = None,
-        init: Optional[AbstractSet[Formula]] = None,
-        goal: Optional[AbstractSet[Atomic]] = None,
+        domain: Optional[Domain] = None,
+        domain_name: Optional[str] = None,
+        requirements: Optional[Collection["Requirements"]] = None,
+        objects: Optional[Collection["Constant"]] = None,
+        init: Optional[Collection[Formula]] = None,
+        goal: Optional[Formula] = None,
     ):
-        """Initialize the PDDL problem."""
-        self._name = name_type(name)
-        self._domain = domain
-        self._requirements = ensure_set(requirements)
-        self._objects = set(to_names(ensure_set(objects)))
-        self._init = ensure_set(init)
-        self._goal = ensure_set(goal)
+        """
+        Initialize the PDDL problem.
+
+        :param name: the name of the PDDL problem.
+        :param domain: the PDDL domain.
+        :param domain: the domain name. Must match with the domain object.
+        :param requirements: the set of PDDL requirements.
+        :param objects: the set of objects.
+        :param init: the initial condition.
+        :param goal: the goal condition.
+        """
+        self._name: str = name_type(name)
+        self._domain: Optional[Domain] = domain
+        self._domain_name = domain_name
+        self._requirements: AbstractSet[Requirements] = ensure_set(requirements)
+        self._objects: AbstractSet[Constant] = set(ensure_set(objects))
+        self._init: AbstractSet[Formula] = ensure_set(init)
+        self._goal: Formula = ensure(goal, TrueFormula())
         _assert(
             all(map(is_literal, self.init)),
             "Not all formulas of initial condition are literals!",
+        )
+
+        self._check_consistency()
+
+    def _check_consistency(self):
+        _assert(
+            self._domain is not None or self._domain_name is not None,
+            "At least one between 'domain' and 'domain_name' must be set.",
+        )
+        _assert(
+            self._domain is None
+            or self._domain_name is None
+            or self._domain.name == self._domain_name
         )
 
     @property
@@ -108,7 +145,27 @@ class Problem:
     @property
     def domain(self) -> Domain:
         """Get the domain."""
-        return self._domain
+        _assert(self._domain is not None, "Domain is not set.")
+        return cast(Domain, self._domain)
+
+    @domain.setter
+    def domain(self, domain: Domain) -> None:
+        """Set the domain."""
+        if self._domain_name is not None:
+            _assert(
+                self._domain_name == domain.name,
+                f"Domain names don't match. Expected {self._domain_name}, got {domain.name}.",
+            )
+        self._domain = domain
+
+    @property
+    def domain_name(self) -> str:
+        """Get the domain name."""
+        if self._domain is not None:
+            return self._domain.name
+
+        _assert(self._domain_name is not None, "Domain name is not set.")
+        return cast(str, self._domain_name)
 
     @property
     def requirements(self) -> AbstractSet["Requirements"]:
@@ -116,7 +173,7 @@ class Problem:
         return self._requirements
 
     @property
-    def objects(self) -> AbstractSet[name_type]:
+    def objects(self) -> AbstractSet["Constant"]:
         """Get the set of objects."""
         return self._objects
 
@@ -126,29 +183,46 @@ class Problem:
         return self._init
 
     @property
-    def goal(self) -> AbstractSet[Atomic]:
+    def goal(self) -> Formula:
         """Get the goal."""
         return self._goal
+
+    def __eq__(self, other):
+        """Compare with another object."""
+        return (
+            isinstance(other, Problem)
+            and self.name == other.name
+            and self._domain == other._domain
+            and self.domain_name == other.domain_name
+            and self.requirements == other.requirements
+            and self.objects == other.objects
+            and self.init == other.init
+            and self.goal == other.goal
+        )
 
 
 class Action:
     """A class for the PDDL Action."""
 
-    # TODO support for other requirements
-    # TODO 'effect' should be a formula
     def __init__(
         self,
         name: namelike,
         parameters: Sequence[Variable],
-        precondition: Optional[Set[Atomic]] = None,
-        effect: Optional[Set[Formula]] = None,
+        precondition: Optional[Formula] = None,
+        effect: Optional[Formula] = None,
     ):
-        """Initialize the formula."""
-        self._name = name_type(name)
-        self._parameters = ensure_sequence(parameters)
-        self._precondition = ensure_set(precondition)
-        self._effect = ensure_set(effect)
-        _assert(all(map(is_literal, self.effect)), "Some effects are not literals!")
+        """
+        Initialize the action.
+
+        :param name: the action name.
+        :param parameters: the action parameters.
+        :param precondition: the action precondition.
+        :param effect: the action effect.
+        """
+        self._name: str = name_type(name)
+        self._parameters: Sequence[Variable] = ensure_sequence(parameters)
+        self._precondition: Formula = ensure(precondition, FalseFormula())
+        self._effect: Formula = ensure(effect, FalseFormula())
 
     @property
     def name(self) -> str:
@@ -161,12 +235,12 @@ class Action:
         return self._parameters
 
     @property
-    def precondition(self) -> AbstractSet[Atomic]:
+    def precondition(self) -> Formula:
         """Get the precondition."""
         return self._precondition
 
     @property
-    def effect(self) -> AbstractSet[Formula]:
+    def effect(self) -> Formula:
         """Get the effect."""
         return self._effect
 
@@ -246,3 +320,12 @@ class Requirements(Enum):
 
     EQUALITY = "equality"
     TYPING = "typing"
+    NON_DETERMINISTIC = "non-deterministic"
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return f":{self.value}"
+
+    def __repr__(self) -> str:
+        """Get an unambiguous representation."""
+        return f"Requirements{self.name}"

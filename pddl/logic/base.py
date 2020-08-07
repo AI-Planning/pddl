@@ -3,14 +3,13 @@
 # -*- coding: utf-8 -*-
 
 """Base classes for PDDL logic formulas."""
-from abc import ABC
-from typing import Optional
+from typing import Optional, Sequence
 
 
-class Formula(ABC):
+class Formula:
     """Base class for all the formulas."""
 
-    def __neg__(self) -> "Formula":
+    def __invert__(self) -> "Formula":
         """Negate the formula."""
         return Not(self)
 
@@ -32,33 +31,34 @@ class BinaryOp(Formula):
 
     SYMBOL: str
 
-    def __init__(self, left: Formula, right: Formula):
+    def __init__(self, *operands: Formula):
         """
         Init a binary operator.
 
-        :param left: left operand.
-        :param right: right operand.
+        :param operands: the operands.
         """
-        self._left = left
-        self._right = right
+        self._operands = list(operands)
 
     @property
-    def left(self) -> Formula:
-        """Get the left operand."""
-        return self._left
-
-    @property
-    def right(self) -> Formula:
-        """Get the right operand."""
-        return self._right
+    def operands(self) -> Sequence[Formula]:
+        """Get the operands."""
+        return tuple(self._operands)
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"({self.SYMBOL} {self.left} {self.right})"
+        return f"({self.SYMBOL} {self.operands})"
 
     def __repr__(self) -> str:
         """Get an unambiguous string representation."""
-        return f"{type(self).__name__}({repr(self.left)}, {repr(self.right)})"
+        return f"{type(self).__name__}({repr(self._operands)})"
+
+    def __eq__(self, other):
+        """Compare with another object."""
+        return isinstance(other, type(self)) and self.operands == other.operands
+
+    def __hash__(self) -> int:
+        """Compute the hash of the object."""
+        return hash((type(self), self.operands))
 
 
 class UnaryOp(Formula):
@@ -87,6 +87,14 @@ class UnaryOp(Formula):
         """Get an unambiguous string representation."""
         return f"{type(self).__name__}({repr(self.argument)})"
 
+    def __eq__(self, other) -> bool:
+        """Compare with another object."""
+        return isinstance(other, type(self)) and self.argument == other.argument
+
+    def __hash__(self) -> int:
+        """Compute the hash of the object."""
+        return hash((type(self), self.argument))
+
 
 class Atomic(Formula):
     """Atomic formula."""
@@ -111,6 +119,10 @@ class TrueFormula(Formula):
         """Hash the object."""
         return hash(TrueFormula)
 
+    def __neg__(self) -> Formula:
+        """Negate."""
+        return FALSE
+
 
 class FalseFormula(Formula):
     """A contradiction."""
@@ -131,17 +143,47 @@ class FalseFormula(Formula):
         """Hash the object."""
         return hash(FalseFormula)
 
+    def __neg__(self) -> Formula:
+        """Negate."""
+        return TRUE
 
-class And(BinaryOp):
+
+TRUE = TrueFormula()
+FALSE = FalseFormula()
+
+
+class MonotoneOp(type):
+    """Metaclass to simplify monotone operator instantiations."""
+
+    _absorbing: Optional[Formula] = None
+
+    def __call__(cls, *args, **kwargs):
+        """Init the subclass object."""
+        operands = _simplify_monotone_op_operands(cls, *args)
+        if len(operands) == 1:
+            return operands[0]
+
+        return super(MonotoneOp, cls).__call__(*operands, **kwargs)
+
+
+class And(BinaryOp, metaclass=MonotoneOp):
     """And operator."""
 
+    _absorbing = FALSE
     SYMBOL = "and"
 
 
-class Or(BinaryOp):
+class Or(BinaryOp, metaclass=MonotoneOp):
     """Or operator."""
 
+    _absorbing = TRUE
     SYMBOL = "or"
+
+
+class OneOf(BinaryOp):
+    """OneOf operator."""
+
+    SYMBOL = "oneof"
 
 
 class Not(UnaryOp):
@@ -177,3 +219,25 @@ def is_literal(formula: Formula) -> bool:
         or isinstance(formula, Not)
         and isinstance(formula.argument, Atomic)
     )
+
+
+def _simplify_monotone_op_operands(cls, *operands):
+    operands = list(dict.fromkeys(operands))
+    if len(operands) == 0:
+        return [~cls._absorbing]
+    elif len(operands) == 1:
+        return [operands[0]]
+    elif cls._absorbing in operands:
+        return cls._absorbing
+
+    # shift-up subformulas with same operator. DFS on expression tree.
+    new_operands = []
+    stack = operands[::-1]  # it is reversed in order to preserve order.
+    while len(stack) > 0:
+        element = stack.pop()
+        if not isinstance(element, cls):
+            new_operands.append(element)
+            continue
+        stack.extend(reversed(element.operands))  # see above re. reversed.
+
+    return new_operands

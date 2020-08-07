@@ -3,8 +3,8 @@
 from unittest.mock import MagicMock
 
 from pddl.core import Domain, Problem
-from pddl.logic.base import Not
-from pddl.logic.helpers import variables
+from pddl.logic.base import Not, TrueFormula
+from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
 
 
@@ -34,21 +34,17 @@ class TestProblemEmpty:
 
     def test_goal(self):
         """Test the goal getter."""
-        assert self.problem.goal == set()
+        assert self.problem.goal == TrueFormula()
 
 
-def build_simple_problem():
+def test_build_simple_problem():
     """Test a simple PDDL problem."""
     x, y, z = variables("x y z")
-    p = Predicate("p", [x, y, z])
-    q = Predicate("q", [x, y, z])
+    o1, o2, o3 = constants("o1 o2 o3")
+    p = Predicate("p", x, y, z)
+    q = Predicate("q", x, y, z)
     domain = MagicMock()
     problem = Problem(
-        "simple_problem",
-        domain,
-        objects={"o1", "o2", "o3"},
-        init={p, Not(q)},
-        goal={p, q},
+        "simple_problem", domain, objects=[o1, o2, o3], init={p, Not(q)}, goal=p & q,
     )
-
     assert problem
