@@ -17,13 +17,13 @@ def variables(s: str, types: Optional[Collection[namelike]] = None) -> List[Vari
 
     :param s: a string with space-separated valid names.
     :param types: a list of types.
-    :return: a list of terms.
+    :return: a list of variables.
     """
     types = ensure_set(types)
     return [Variable(x, types) for x in s.split()]
 
 
-def constants(s: str) -> List[Constant]:
+def constants(s: str, types: Optional[Collection[namelike]] = None) -> List[Constant]:
     """
     Return a list of constants.
 
@@ -31,6 +31,8 @@ def constants(s: str) -> List[Constant]:
     [Constant(a), Constant(b), Constant(c)]
 
     :param s: a string with space-separated valid names.
+    :param types: a list of types.
     :return: a list of constants.
     """
-    return list(map(Constant, s.split()))
+    types = ensure_set(types)
+    return [Constant(x, types) for x in s.split()]

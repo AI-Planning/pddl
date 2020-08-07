@@ -51,38 +51,33 @@ typed_list_name:   NAME*
                |   NAME+ TYPE_SEP type_def (typed_list_name)
 type_def:          LPAR EITHER primitive_type+ RPAR
         |          primitive_type
-?primitive_type:    NAME
-               |    OBJECT
-
-
-NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
-
-DEFINE: "define"
-DOMAIN: "domain"
-REQUIREMENTS: ":requirements"
-TYPES: ":types"
-CONSTANTS: ":constants"
-PREDICATES: ":predicates"
-ACTION: ":action"
-PARAMETERS: ":parameters"
-PRECONDITION: ":precondition"
-EFFECT: ":effect"
-OBJECT: "object"
-AND: "and"
-NOT: "not"
-EITHER: "either"
-ONEOF: "oneof"
-EQUAL_OP: "="
-
-// available requirements
-TYPING: ":typing"
-EQUALITY: ":equality"
-STRIPS: ":strips"
-NON_DETERMINISTIC: ":non-deterministic"
-
-// others
-LPAR : "("
-RPAR : ")"
-TYPE_SEP: "-"
+?primitive_type:   NAME
+               |   OBJECT
 
 %ignore /\s+/
+
+%import .common.NAME -> NAME
+%import .common.DEFINE -> DEFINE
+%import .common.DOMAIN -> DOMAIN
+%import .common.REQUIREMENTS -> REQUIREMENTS
+%import .common.TYPES -> TYPES
+%import .common.CONSTANTS -> CONSTANTS
+%import .common.PREDICATES -> PREDICATES
+%import .common.ACTION -> ACTION
+%import .common.PARAMETERS -> PARAMETERS
+%import .common.PRECONDITION -> PRECONDITION
+%import .common.EFFECT -> EFFECT
+%import .common.OBJECT -> OBJECT
+%import .common.AND -> AND
+%import .common.NOT -> NOT
+%import .common.EITHER -> EITHER
+%import .common.ONEOF -> ONEOF
+%import .common.EQUAL_OP -> EQUAL_OP
+%import .common.TYPING -> TYPING
+%import .common.EQUALITY -> EQUALITY
+%import .common.STRIPS -> STRIPS
+%import .common.NON_DETERMINISTIC -> NON_DETERMINISTIC
+%import .common.LPAR -> LPAR
+%import .common.RPAR -> RPAR
+%import .common.TYPE_SEP -> TYPE_SEP
+

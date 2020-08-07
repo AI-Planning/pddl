@@ -3,9 +3,9 @@
 """This test module contains the fixtures for 'blocksworld-ipc08' domain and problem."""
 import pytest
 
-from pddl.core import Action, Domain, Requirements
+from pddl.core import Action, Domain, Problem, Requirements
 from pddl.logic.base import And, OneOf
-from pddl.logic.helpers import variables
+from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import EqualTo, Predicate
 
 
@@ -141,3 +141,50 @@ def blocksworld_ipc08_domain():
         actions=actions,
     )
     return domain
+
+
+@pytest.fixture(scope="session")
+def blocksworld_ipc08_problem_01():
+    """Blocksworld ipc08 problem 01."""
+    # objects
+    objects = [b1, b2, b3, b4, b5] = constants("b1 b2 b3 b4 b5", types=["block"])
+
+    # predicates
+    emptyhand = Predicate("emptyhand")
+    on_table = Predicate("on-table", b1)
+    on = Predicate("on", b1, b2)
+    clear = Predicate("clear", b1)
+
+    init = {
+        emptyhand,
+        on(b1, b3),
+        on(b2, b1),
+        on_table(b3),
+        on_table(b4),
+        on(b5, b4),
+        clear(b2),
+        clear(b5),
+    }
+
+    goal = (
+        emptyhand
+        & on(b1, b2)
+        & on(b2, b5)
+        & on_table(b3)
+        & on_table(b4)
+        & on_table(b5)
+        & clear(b1)
+        & clear(b3)
+        & clear(b4)
+    )
+
+    problem_name = "bw_5_1"
+
+    problem = Problem(
+        problem_name,
+        domain_name="blocks-domain",
+        objects=objects,
+        init=init,
+        goal=goal,
+    )
+    return problem

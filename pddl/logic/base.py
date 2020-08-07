@@ -230,15 +230,14 @@ def _simplify_monotone_op_operands(cls, *operands):
     elif cls._absorbing in operands:
         return cls._absorbing
 
-    # shift-up subformulas with same operator.
+    # shift-up subformulas with same operator. DFS on expression tree.
     new_operands = []
-    stack = operands[::-1]
+    stack = operands[::-1]  # it is reversed in order to preserve order.
     while len(stack) > 0:
         element = stack.pop()
         if not isinstance(element, cls):
             new_operands.append(element)
             continue
-        stack.extend(reversed(element.operands))
+        stack.extend(reversed(element.operands))  # see above re. reversed.
 
-    operands = new_operands
-    return operands
+    return new_operands

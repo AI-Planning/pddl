@@ -6,7 +6,7 @@ Core module of the package.
 It contains the class definitions to build and modify PDDL domains or problems.
 """
 from enum import Enum
-from typing import AbstractSet, Collection, Optional, Sequence
+from typing import AbstractSet, Collection, Optional, Sequence, cast
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names
@@ -94,10 +94,11 @@ class Problem:
     def __init__(
         self,
         name: namelike,
-        domain: Domain,
-        requirements: Optional[AbstractSet["Requirements"]] = None,
-        objects: Optional[AbstractSet["Object"]] = None,
-        init: Optional[AbstractSet[Formula]] = None,
+        domain: Optional[Domain] = None,
+        domain_name: Optional[str] = None,
+        requirements: Optional[Collection["Requirements"]] = None,
+        objects: Optional[Collection["Constant"]] = None,
+        init: Optional[Collection[Formula]] = None,
         goal: Optional[Formula] = None,
     ):
         """
@@ -105,20 +106,35 @@ class Problem:
 
         :param name: the name of the PDDL problem.
         :param domain: the PDDL domain.
+        :param domain: the domain name. Must match with the domain object.
         :param requirements: the set of PDDL requirements.
         :param objects: the set of objects.
         :param init: the initial condition.
         :param goal: the goal condition.
         """
         self._name: str = name_type(name)
-        self._domain: Domain = domain
+        self._domain: Optional[Domain] = domain
+        self._domain_name = domain_name
         self._requirements: AbstractSet[Requirements] = ensure_set(requirements)
-        self._objects: AbstractSet[Object] = set(ensure_set(objects))
+        self._objects: AbstractSet[Constant] = set(ensure_set(objects))
         self._init: AbstractSet[Formula] = ensure_set(init)
         self._goal: Formula = ensure(goal, TrueFormula())
         _assert(
             all(map(is_literal, self.init)),
             "Not all formulas of initial condition are literals!",
+        )
+
+        self._check_consistency()
+
+    def _check_consistency(self):
+        _assert(
+            self._domain is not None or self._domain_name is not None,
+            "At least one between 'domain' and 'domain_name' must be set.",
+        )
+        _assert(
+            self._domain is None
+            or self._domain_name is None
+            or self._domain.name == self._domain_name
         )
 
     @property
@@ -129,7 +145,27 @@ class Problem:
     @property
     def domain(self) -> Domain:
         """Get the domain."""
-        return self._domain
+        _assert(self._domain is not None, "Domain is not set.")
+        return cast(Domain, self._domain)
+
+    @domain.setter
+    def domain(self, domain: Domain) -> None:
+        """Set the domain."""
+        if self._domain_name is not None:
+            _assert(
+                self._domain_name == domain.name,
+                f"Domain names don't match. Expected {self._domain_name}, got {domain.name}.",
+            )
+        self._domain = domain
+
+    @property
+    def domain_name(self) -> str:
+        """Get the domain name."""
+        if self._domain is not None:
+            return self._domain.name
+
+        _assert(self._domain_name is not None, "Domain name is not set.")
+        return cast(str, self._domain_name)
 
     @property
     def requirements(self) -> AbstractSet["Requirements"]:
@@ -137,7 +173,7 @@ class Problem:
         return self._requirements
 
     @property
-    def objects(self) -> AbstractSet["Object"]:
+    def objects(self) -> AbstractSet["Constant"]:
         """Get the set of objects."""
         return self._objects
 
@@ -150,6 +186,19 @@ class Problem:
     def goal(self) -> Formula:
         """Get the goal."""
         return self._goal
+
+    def __eq__(self, other):
+        """Compare with another object."""
+        return (
+            isinstance(other, Problem)
+            and self.name == other.name
+            and self._domain == other._domain
+            and self.domain_name == other.domain_name
+            and self.requirements == other.requirements
+            and self.objects == other.objects
+            and self.init == other.init
+            and self.goal == other.goal
+        )
 
 
 class Action:

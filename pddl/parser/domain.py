@@ -129,11 +129,7 @@ class DomainTransformer(Transformer):
         """Process the 'atomic_formula_term' rule."""
 
         def constant_or_variable(t):
-            return (
-                t
-                if isinstance(t, Constant)
-                else self._current_parameters_by_name[str(t)]
-            )
+            return t if isinstance(t, Constant) else self._current_parameters_by_name[t]
 
         if args[1] == Symbols.EQUAL.value:
             left = constant_or_variable(args[2])
@@ -183,7 +179,7 @@ class DomainTransformer(Transformer):
             type_obj = args[type_sep_index + 1]
             other_typed_list_dict = safe_get(args, type_sep_index + 2, default=dict())
             for obj in objs:
-                other_typed_list_dict.setdefault(obj, set()).add(type_obj)
+                other_typed_list_dict.setdefault(obj, set()).add(str(type_obj))
             return other_typed_list_dict
         elif len(args) > 0:
             return {obj: set() for obj in args}
@@ -199,7 +195,7 @@ class DomainTransformer(Transformer):
 
 
 class DomainParser:
-    """PL Parser class."""
+    """PDDL domain parser class."""
 
     def __init__(self):
         """Initialize."""
