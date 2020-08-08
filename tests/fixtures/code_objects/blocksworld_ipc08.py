@@ -10,8 +10,8 @@ from pddl.logic.predicates import EqualTo, Predicate
 
 
 @pytest.fixture(scope="session")
-def blocksworld_ipc08_domain():
-    """The 'blocksworld_ipc08' domain."""
+def blocksworld_domain():
+    """The 'blocksworld' domain."""
     # types
     block = "block"
 
@@ -144,7 +144,7 @@ def blocksworld_ipc08_domain():
 
 
 @pytest.fixture(scope="session")
-def blocksworld_ipc08_problem_01():
+def blocksworld_problem_01():
     """Blocksworld ipc08 problem 01."""
     # objects
     objects = [b1, b2, b3, b4, b5] = constants("b1 b2 b3 b4 b5", types=["block"])
