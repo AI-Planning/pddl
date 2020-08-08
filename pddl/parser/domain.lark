@@ -4,10 +4,7 @@ domain:        LPAR DEFINE domain_def [requirements] [types] [constants] [predic
 domain_def:    LPAR DOMAIN NAME RPAR
 
 requirements:              LPAR REQUIREMENTS require_key+ RPAR
-?require_key:              TYPING
-            |              STRIPS
-            |              EQUALITY
-            |              NON_DETERMINISTIC
+
 types:                 LPAR TYPES typed_list_name RPAR
 constants:             LPAR CONSTANTS typed_list_name RPAR
 predicates:            LPAR PREDICATES atomic_formula_skeleton+ RPAR
@@ -55,7 +52,10 @@ type_def:          LPAR EITHER primitive_type+ RPAR
                |   OBJECT
 
 %ignore /\s+/
+%ignore COMMENT
 
+%import .common.COMMENT -> COMMENT
+%import .common.require_key -> require_key
 %import .common.NAME -> NAME
 %import .common.DEFINE -> DEFINE
 %import .common.DOMAIN -> DOMAIN
@@ -73,10 +73,6 @@ type_def:          LPAR EITHER primitive_type+ RPAR
 %import .common.EITHER -> EITHER
 %import .common.ONEOF -> ONEOF
 %import .common.EQUAL_OP -> EQUAL_OP
-%import .common.TYPING -> TYPING
-%import .common.EQUALITY -> EQUALITY
-%import .common.STRIPS -> STRIPS
-%import .common.NON_DETERMINISTIC -> NON_DETERMINISTIC
 %import .common.LPAR -> LPAR
 %import .common.RPAR -> RPAR
 %import .common.TYPE_SEP -> TYPE_SEP

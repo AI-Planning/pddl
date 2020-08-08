@@ -5,6 +5,8 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
+pytest-cov = "*"
+pytest-lazy-fixture = "*"
 tox = "*"
 ipython = "*"
 codecov = "*"
@@ -13,13 +15,9 @@ black = "==19.10b0"
 mypy = "*"
 flake8 = "*"
 flake8-docstrings = "*"
-pytest-cov = "*"
 mkdocs = "*"
 markdown-include = "*"
 isort = "*"
-
-[packages]
-lark-parser = "*"
 
 [requires]
 python_version = ">=3.6"
