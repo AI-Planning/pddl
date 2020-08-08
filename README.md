@@ -180,6 +180,13 @@ requirements:
 - [ ] `:constraints`
 - [ ] `:action-costs`
 
+## Development
+
+If you want to contribute, here's how to set up your development environment.
+
+- Install [Pipenv](https://pipenv-fork.readthedocs.io/en/latest/)
+- Clone the repository: `git clone https://github.com/whitemech/pddl.git && cd pddl`
+- Install development dependencies: `pipenv shell --python 3.7 && pipenv install --dev`
 
 ## Tests
 
@@ -196,13 +203,13 @@ To build the docs: `mkdocs build`
 To view documentation in a browser: `mkdocs serve`
 and then go to [http://localhost:8000](http://localhost:8000)
 
-## License
-
-pddl is released under the GNU Lesser General Public License v3.0 or later (LGPLv3+).
-
-Copyright 2020 WhiteMech
-
 ## Authors
 
 - [Marco Favorito](https://marcofavorito.github.io/)
 - [Francesco Fuggitti](https://francescofuggitti.github.io/)
+
+## License
+
+`pddl` is released under the GNU Lesser General Public License v3.0 or later (LGPLv3+).
+
+Copyright 2020 WhiteMech

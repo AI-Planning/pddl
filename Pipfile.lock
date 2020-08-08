@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "150cc1f05d49b37df2eade0b03e0edf221429ca46437bafebd5ba7eb26815b4e"
+            "sha256": "08069b49a40358f7695a12dde17ed303dea1a6882b82f0400a9b69515d376933"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -314,6 +314,21 @@
             "index": "pypi",
             "version": "==1.1.2"
         },
+        "mkdocs-material": {
+            "hashes": [
+                "sha256:a1d92cc8e42a83235e4be1ea6906cf839f2f9d6fb4709c9ea0b20591fa5bfc14",
+                "sha256:c604e1600b8f59827c53ce29505070fa24766a5ea32c18c2a99fe5769ee4b31c"
+            ],
+            "index": "pypi",
+            "version": "==5.5.3"
+        },
+        "mkdocs-material-extensions": {
+            "hashes": [
+                "sha256:09569c3694b5acc1e8334c9730e52b4bcde65fc9d613cc20e49af131ef1a9ca0",
+                "sha256:17d7491e189af75700310b7ec33c6c48a22060b8b445001deca040cb60471cde"
+            ],
+            "version": "==1.0"
+        },
         "more-itertools": {
             "hashes": [
                 "sha256:68c70cc7167bdf5c7c9d8f6954a7837089c6a36bf565383919bb595efb8a17e5",
@@ -445,6 +460,13 @@
                 "sha256:ff7a40b4860b727ab48fad6360eb351cc1b33cbf9b15a0f689ca5353e9463324"
             ],
             "version": "==2.6.1"
+        },
+        "pymdown-extensions": {
+            "hashes": [
+                "sha256:5bf93d1ccd8281948cd7c559eb363e59b179b5373478e8a7195cf4b78e3c11b6",
+                "sha256:8f415b21ee86d80bb2c3676f4478b274d0a8ccb13af672a4c86b9ffd22bd005c"
+            ],
+            "version": "==7.1"
         },
         "pyparsing": {
             "hashes": [

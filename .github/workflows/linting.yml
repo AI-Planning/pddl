@@ -32,3 +32,5 @@ jobs:
         tox -e flake8
     - name: Static type check
       run: tox -e mypy
+    - name: Check copyright
+      run: tox -e check-copyright
