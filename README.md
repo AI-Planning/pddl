@@ -53,12 +53,6 @@
 
 `pddl` aims to be an unquestionable and complete parser for PDDL 3.1.
 
-## Prerequisites
-
-pddl is based on the following libraries:
-
-- [lark-parser 0.9.0](https://pypi.org/project/lark-parser/)
-
 ## Install
 
 - from source (`master` branch):
@@ -72,8 +66,94 @@ git clone https://github.com/whitemech/pddl.git
 cd pddl
 pip install .
 ```
-## How To Use
-TBA
+## Quickstart
+
+You can use the `pddl` package in two ways: as a library, and as a CLI tool.
+
+### As a library
+
+This is an example of how you can build a PDDL domain or problem 
+programmatically:
+```python
+from pddl.logic import Predicate, constants, variables
+from pddl.core import Domain, Problem, Action, Requirements
+from pddl.formatter import domain_to_string, problem_to_string
+
+# set up variables and constants
+x, y, z = variables("x y z", types=["type_1"])
+a, b, c = constants("a b c", types=["type_1"])
+
+# define predicates
+p1 = Predicate("p1", x, y, z)
+p2 = Predicate("p2", x, y)
+
+# define actions
+a1 = Action(
+    "action-1",
+    parameters=[x, y, z],
+    precondition=p1(x, y, z) & ~p2(y, z),
+    effect=p2(y, z)
+)
+
+# define the domain object.
+requirements = [Requirements.STRIPS, Requirements.TYPING]
+domain = Domain("my_domain",
+       requirements=requirements,
+       types=["type_1"],
+       constants=[a, b, c],
+       predicates=[p1, p2],
+       actions=[a1])
+
+print(domain_to_string(domain))
+```
+
+that gives:
+```output
+(define (domain my_domain)
+    (:requirements :strips :typing)
+    (:types type_1)
+    (:constants a b c)
+    (:predicates (p1 ?x ?y ?z) (p2 ?x ?y))
+    (:actions
+        (action-1
+            :parameters (?x ?y ?z)
+            :precondition (and (p1 ?x ?y ?z) (not (p2 ?y ?z)))
+            :effect (p2 ?y ?z)
+        )
+    )
+)
+```
+
+As well as a PDDL problem:
+```python
+problem = Problem(
+    "problem-1",
+    domain=domain,
+    requirements=requirements,
+    objects=[a, b, c],
+    init=[p1(a, b, c), ~p2(b, c)],
+    goal=p2(b, c)
+)
+print(problem_to_string(problem))
+```
+
+Output:
+```output
+(define (problem problem-1)
+    (:domain my_domain)
+    (:requirements :strips :typing)
+    (:objects a b c)
+    (:init (not (p2 b c)) (p1 a b c))
+    (:goal (p2 b c))
+)
+```
+
+### As CLI tool
+
+The package can also be used as a CLI tool.
+Supported commands are:
+- `pddl domain FILE`: validate a PDDL domain file, and print it formatted.
+- `pddl problem FILE`: validate a PDDL problem file, and print it formatted.
 
 ## Features
 

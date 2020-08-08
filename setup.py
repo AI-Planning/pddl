@@ -51,6 +51,9 @@ setup(
     ],
     keywords='pddl',
     packages=find_packages(include=['pddl*']),
+    entry_points={
+        'console_scripts': ["pddl=pddl.__main__:main"],
+    },
     test_suite='tests',
     tests_require=["pytest"],
     zip_safe=False,

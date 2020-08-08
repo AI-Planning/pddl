@@ -18,6 +18,7 @@ flake8-docstrings = "*"
 mkdocs = "*"
 markdown-include = "*"
 isort = "*"
+mistune = "==2.0.0a4"
 
 [requires]
 python_version = ">=3.6"

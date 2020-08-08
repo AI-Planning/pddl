@@ -4,6 +4,7 @@ import inspect
 import os
 from pathlib import Path
 
+import mistune
 import pytest
 
 from pddl.parser.domain import DomainParser
@@ -37,6 +38,12 @@ def domain_parser():
 def problem_parser():
     """Get the PDDL problem parser."""
     return ProblemParser()
+
+
+@pytest.fixture(scope="session")
+def markdown_parser():
+    """Get the Mistune Markdown parser."""
+    return mistune.create_markdown(renderer=mistune.AstRenderer())
 
 
 #################################################
