@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """This modules implements PDDL terms."""
-
+import functools
 from abc import ABC
 from typing import AbstractSet, Collection, Optional
 
@@ -9,6 +9,7 @@ from pddl.custom_types import namelike, to_names
 from pddl.helpers import ensure_set
 
 
+@functools.total_ordering
 class Term(ABC):
     """A term in a formula."""
 
@@ -33,6 +34,16 @@ class Term(ABC):
     def type_tags(self) -> AbstractSet[name_type]:
         """Get a set of type tags for this term."""
         return self._type_tags
+
+    def __lt__(self, other):
+        """Compare with another term."""
+        if isinstance(other, Constant):
+            return (self.name, sorted(self.type_tags)) < (
+                other.name,
+                sorted(other.type_tags),
+            )
+        else:
+            return super().__lt__(other)
 
 
 # TODO check correctness

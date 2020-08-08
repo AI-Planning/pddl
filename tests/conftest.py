@@ -17,6 +17,15 @@ FIXTURES_PDDL_FILES = FIXTURES_DIR / "pddl_files"
 BLOCKSWORLD_FILES = FIXTURES_PDDL_FILES / "blocksworld-ipc08"
 TRIANGLE_FILES = FIXTURES_PDDL_FILES / "triangle-tireworld"
 
+# TODO use globbing when we will support all the domain files.
+DOMAIN_FILES = [
+    BLOCKSWORLD_FILES
+    / "domain.pddl"
+    # TRIANGLE_FILES / "domain.pddl",  TODO: effect of action with nested and-oneof-and
+]
+
+PROBLEM_FILES = [*BLOCKSWORLD_FILES.glob("./p*.pddl")]
+
 
 @pytest.fixture(scope="session")
 def domain_parser():

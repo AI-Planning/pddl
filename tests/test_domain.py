@@ -34,7 +34,7 @@ class TestDomainEmpty:
         assert self.domain.actions == set()
 
 
-def build_simple_domain():
+def test_build_simple_domain():
     """Test a simple PDDL domain."""
     a, b, c = constants("a b c")
     x, y, z = variables("x y z")

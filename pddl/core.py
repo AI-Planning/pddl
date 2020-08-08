@@ -5,6 +5,7 @@ Core module of the package.
 
 It contains the class definitions to build and modify PDDL domains or problems.
 """
+import functools
 from enum import Enum
 from typing import AbstractSet, Collection, Optional, Sequence, cast
 
@@ -246,12 +247,11 @@ class Action:
 
     def __str__(self):
         """Get the string."""
-        operator_str = "{0}\n".format(self.name)
-        operator_str += "\t:parameters ({0})\n".format(
-            " ".join(map(str, self.parameters))
-        )
-        operator_str += "\t:precondition {0}\n".format(self.precondition)
-        operator_str += "\t:effect {0}\n".format(self.effect)
+        operator_str = "({0}\n".format(self.name)
+        operator_str += f"    :parameters ({' '.join(map(str, self.parameters))})\n"
+        operator_str += f"    :precondition {str(self.precondition)}\n"
+        operator_str += f"    :effect {str(self.effect)}\n"
+        operator_str += ")"
         return operator_str
 
     def __eq__(self, other):
@@ -269,55 +269,11 @@ class Action:
         return hash((self.name, self.parameters, self.precondition, self.effect))
 
 
-class Object:
-    """A PDDL object."""
-
-    def __init__(
-        self, name: namelike, type_tags: Optional[Collection[namelike]] = None
-    ):
-        """
-        Init an object.
-
-        :param name: the object name.
-        :param type_tags: the type tags.
-        """
-        self._name = name_type(name)
-        self._type_tags = set(to_names(ensure_set(type_tags)))
-
-    @property
-    def name(self) -> str:
-        """Get the name."""
-        return self._name
-
-    @property
-    def type_tags(self) -> AbstractSet[name_type]:
-        """Get a set of type tags for this object."""
-        return self._type_tags
-
-    def __str__(self):
-        """Get the string representation."""
-        return self.name
-
-    def __repr__(self):
-        """Get an unambiguous string representation."""
-        return f"Object({self.name}, {self.type_tags})"
-
-    def __eq__(self, other) -> bool:
-        """Compare with another object."""
-        return (
-            isinstance(other, Object)
-            and self.name == other.name
-            and self.type_tags == other.type_tags
-        )
-
-    def __hash__(self) -> int:
-        """Get the hash."""
-        return hash((Object, self.name, self.type_tags))
-
-
+@functools.total_ordering
 class Requirements(Enum):
     """Enum class for the requirements."""
 
+    STRIPS = "strips"
     EQUALITY = "equality"
     TYPING = "typing"
     NON_DETERMINISTIC = "non-deterministic"
@@ -329,3 +285,10 @@ class Requirements(Enum):
     def __repr__(self) -> str:
         """Get an unambiguous representation."""
         return f"Requirements{self.name}"
+
+    def __lt__(self, other):
+        """Compare with another object."""
+        if isinstance(other, Requirements):
+            return self.value <= other.value
+        else:
+            return super().__lt__(other)

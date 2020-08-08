@@ -7,22 +7,16 @@ import pytest
 from pytest import lazy_fixture  # type: ignore  # noqa
 
 from pddl.core import Domain, Problem
-from tests.conftest import BLOCKSWORLD_FILES
+from tests.conftest import BLOCKSWORLD_FILES, DOMAIN_FILES, PROBLEM_FILES
 
 
-@pytest.mark.parametrize(
-    "pddl_file",
-    [
-        BLOCKSWORLD_FILES / "domain.pddl",
-        # TRIANGLE_FILES / "domain.pddl",  TODO: effect of action with nested and-oneof-and
-    ],
-)
+@pytest.mark.parametrize("pddl_file", DOMAIN_FILES)
 def test_domain_parser(domain_parser, pddl_file: Path):
     """Test only that the domain parsing works for all the fixtures."""
     domain_parser(pddl_file.read_text())
 
 
-@pytest.mark.parametrize("pddl_file", [*BLOCKSWORLD_FILES.glob("./p*.pddl")])
+@pytest.mark.parametrize("pddl_file", PROBLEM_FILES)
 def test_problem_parser(problem_parser, pddl_file: Path):
     """Test only that the problem parsing works for all the fixtures."""
     problem_parser(pddl_file.read_text())

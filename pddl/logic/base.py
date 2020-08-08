@@ -46,7 +46,7 @@ class BinaryOp(Formula):
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"({self.SYMBOL} {self.operands})"
+        return f"({self.SYMBOL} {' '.join(map(str, self.operands))})"
 
     def __repr__(self) -> str:
         """Get an unambiguous string representation."""
@@ -238,6 +238,6 @@ def _simplify_monotone_op_operands(cls, *operands):
         if not isinstance(element, cls):
             new_operands.append(element)
             continue
-        stack.extend(reversed(element.operands))  # see above re. reversed.
+        stack.extend(reversed(element.operands))  # see above regarding reversed.
 
     return new_operands

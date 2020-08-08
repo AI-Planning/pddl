@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.md') as history_file:
+with open('CHANGES.md') as history_file:
     history = history_file.read()
 
 here = os.path.abspath(os.path.dirname(__file__))
