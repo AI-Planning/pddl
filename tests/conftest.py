@@ -13,6 +13,9 @@ CUR_PATH = Path(os.path.dirname(inspect.getfile(inspect.currentframe())))  # typ
 ROOT_DIR = Path(CUR_PATH, "..").resolve()  # type: ignore
 
 FIXTURES_DIR = CUR_PATH / "fixtures"
+FIXTURES_PDDL_FILES = FIXTURES_DIR / "pddl_files"
+BLOCKSWORLD_FILES = FIXTURES_PDDL_FILES / "blocksworld-ipc08"
+TRIANGLE_FILES = FIXTURES_PDDL_FILES / "triangle-tireworld"
 
 
 @pytest.fixture(scope="session")
@@ -30,8 +33,8 @@ def problem_parser():
 #################################################
 # Import PDDL fixtures
 from tests.fixtures.code_objects.blocksworld_ipc08 import (  # noqa: E402, F401
-    blocksworld_ipc08_domain,
-    blocksworld_ipc08_problem_01,
+    blocksworld_domain,
+    blocksworld_problem_01,
 )
 
 #################################################
