@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """This class implements PDDL predicates."""
+import functools
 from typing import Sequence
 
 from pddl.custom_types import name as name_type
@@ -10,6 +11,7 @@ from pddl.logic.base import Atomic
 from pddl.logic.terms import Term
 
 
+@functools.total_ordering
 class Predicate(Atomic):
     """A class for a Predicate in PDDL."""
 
@@ -48,7 +50,7 @@ class Predicate(Atomic):
     def __str__(self) -> str:
         """Get the string."""
         if self.arity == 0:
-            return self.name
+            return f"({self.name})"
         else:
             return f"({self.name} {' '.join(map(str, self.terms))})"
 
@@ -67,6 +69,13 @@ class Predicate(Atomic):
     def __hash__(self):
         """Get the has of a Predicate."""
         return hash((self.name, self.arity))
+
+    def __lt__(self, other):
+        """Compare with another object."""
+        if isinstance(other, Predicate):
+            return (self.name, self.terms) < (other.name, other.terms)
+        else:
+            return super().__lt__(other)
 
 
 class EqualTo(Atomic):
