@@ -158,27 +158,28 @@ Supported commands are:
 ## Features
 
 Supported [PDDL 3.1](https://helios.hud.ac.uk/scommv/IPC-14/repository/kovacs-pddl-3.1-2011.pdf) 
-requirements:
-- [ ] `:strips`
-- [X] `:typing`
-- [ ] `:negative-preconditions`
-- [ ] `:disjunctive-preconditions`
-- [X] `:equality`
-- [ ] `:existential-preconditions`
-- [ ] `:universal-preconditions`
-- [ ] `:quantified-preconditions`
-- [ ] `:conditional-effects`
-- [ ] `:fluents`
-- [ ] `:numeric-fluents`
-- [X] `:non-deterministic` (see [6th IPC: Uncertainty Part](https://pdfs.semanticscholar.org/b3d5/3dcc8183048849788405be5bfbb08a364dc5.pdf))
-- [ ] `:adl`
-- [ ] `:durative-actions`
-- [ ] `:duration-inequalities`
-- [ ] `:derived-predicates`
-- [ ] `:timed-initial-literals`
-- [ ] `:preferences`
-- [ ] `:constraints`
-- [ ] `:action-costs`
+requirements:  
+
+- [ ] `:strips`  
+- [x] `:typing`  
+- [ ] `:negative-preconditions`  
+- [ ] `:disjunctive-preconditions`  
+- [x] `:equality`  
+- [ ] `:existential-preconditions`  
+- [ ] `:universal-preconditions`  
+- [ ] `:quantified-preconditions`  
+- [ ] `:conditional-effects`  
+- [ ] `:fluents`  
+- [ ] `:numeric-fluents`  
+- [x] `:non-deterministic` (see [6th IPC: Uncertainty Part](https://pdfs.semanticscholar.org/b3d5/3dcc8183048849788405be5bfbb08a364dc5.pdf))  
+- [ ] `:adl`  
+- [ ] `:durative-actions`  
+- [ ] `:duration-inequalities`  
+- [ ] `:derived-predicates`  
+- [ ] `:timed-initial-literals`  
+- [ ] `:preferences`  
+- [ ] `:constraints`  
+- [ ] `:action-costs`  
 
 ## Development
 
