@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9741a7947ebf3a2c460e3ffdceb4fcca6f8cca48fe84ce0dc60807e8f7cd8447"
+            "sha256": "830fab616f348fb53c0367bd7b0b27f1b64beeb9eeb37efd8a3b4136142ca80f"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": ">=3.6"
+            "python_version": "3.7"
         },
         "sources": [
             {
@@ -298,6 +298,14 @@
             ],
             "version": "==0.6.1"
         },
+        "mistune": {
+            "hashes": [
+                "sha256:1309e30a1846f3c1dd384e17e2dd957b024d0305b507a1546d13152a2b5dcc44",
+                "sha256:ebbed6e25e342705ec30f3184bdc148229dfbae0da6136c2a6892333c9f8bc6b"
+            ],
+            "index": "pypi",
+            "version": "==2.0.0a4"
+        },
         "mkdocs": {
             "hashes": [
                 "sha256:096f52ff52c02c7e90332d2e53da862fde5c062086e1b5356a6e392d5d60f5e9",
@@ -305,6 +313,21 @@
             ],
             "index": "pypi",
             "version": "==1.1.2"
+        },
+        "mkdocs-material": {
+            "hashes": [
+                "sha256:a1d92cc8e42a83235e4be1ea6906cf839f2f9d6fb4709c9ea0b20591fa5bfc14",
+                "sha256:c604e1600b8f59827c53ce29505070fa24766a5ea32c18c2a99fe5769ee4b31c"
+            ],
+            "index": "pypi",
+            "version": "==5.5.3"
+        },
+        "mkdocs-material-extensions": {
+            "hashes": [
+                "sha256:09569c3694b5acc1e8334c9730e52b4bcde65fc9d613cc20e49af131ef1a9ca0",
+                "sha256:17d7491e189af75700310b7ec33c6c48a22060b8b445001deca040cb60471cde"
+            ],
+            "version": "==1.0"
         },
         "more-itertools": {
             "hashes": [
@@ -437,6 +460,13 @@
                 "sha256:ff7a40b4860b727ab48fad6360eb351cc1b33cbf9b15a0f689ca5353e9463324"
             ],
             "version": "==2.6.1"
+        },
+        "pymdown-extensions": {
+            "hashes": [
+                "sha256:5bf93d1ccd8281948cd7c559eb363e59b179b5373478e8a7195cf4b78e3c11b6",
+                "sha256:8f415b21ee86d80bb2c3676f4478b274d0a8ccb13af672a4c86b9ffd22bd005c"
+            ],
+            "version": "==7.1"
         },
         "pyparsing": {
             "hashes": [
