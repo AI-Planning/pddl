@@ -22,7 +22,7 @@ from lark import Lark, ParseError, Transformer
 
 from pddl.core import Action, Domain, Requirements
 from pddl.helpers import _assert, find, safe_get, safe_index
-from pddl.logic.base import And, FalseFormula, Not, OneOf
+from pddl.logic.base import And, FalseFormula, Imply, Not, OneOf, Or
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE
@@ -39,6 +39,7 @@ class DomainTransformer(Transformer):
         self._constants_by_name: Dict[str, Constant] = {}
         self._predicates_by_name: Dict[str, Predicate] = {}
         self._current_parameters_by_name: Dict[str, Variable] = {}
+        self._requirements: Set[str] = set()
 
     def start(self, args):
         """Entry point."""
@@ -55,13 +56,18 @@ class DomainTransformer(Transformer):
         """Process the 'domain_def' rule."""
         return "name", args[2]
 
-    def types(self, args):
-        """Parse the 'types' rule."""
-        return "types", list(args[2].keys())
-
     def requirements(self, args):
         """Process the 'requirements' rule."""
-        return "requirements", {Requirements(r[1:]) for r in args[2:-1]}
+        self._requirements = {Requirements(r[1:]) for r in args[2:-1]}
+        return "requirements", self._requirements
+
+    def types(self, args):
+        """Parse the 'types' rule."""
+        _assert(
+            bool({Requirements.TYPING} & self._requirements),
+            f"Expected {Requirements.TYPING} requirement.",
+        )
+        return "types", list(args[2].keys())
 
     def constants(self, args):
         """Process the 'constant_def' rule."""
@@ -108,10 +114,36 @@ class DomainTransformer(Transformer):
         if len(args) == 1:
             return args[0]
         elif args[1] == Symbols.NOT.value:
+            _assert(
+                bool(
+                    {Requirements.NEG_PRECONDITION, Requirements.ADL}
+                    & self._requirements
+                ),
+                f"Expected {Requirements.NEG_PRECONDITION} requirement.",
+            )
             return Not(args[2])
         elif args[1] == Symbols.AND.value:
             operands = args[2:-1]
             return And(*operands)
+        elif args[1] == Symbols.OR.value:
+            _assert(
+                bool(
+                    {Requirements.DIS_PRECONDITION, Requirements.ADL}
+                    & self._requirements
+                ),
+                f"Expected {Requirements.DIS_PRECONDITION} requirement.",
+            )
+            operands = args[2:-1]
+            return Or(*operands)
+        elif args[1] == Symbols.IMPLY.value:
+            _assert(
+                bool(
+                    {Requirements.DIS_PRECONDITION, Requirements.ADL}
+                    & self._requirements
+                ),
+                f"Expected {Requirements.DIS_PRECONDITION} requirement.",
+            )
+            return Imply(args[2], args[3])
 
     def emptyor_effect(self, args):
         """Process the 'emptyor_effect' rule."""
@@ -127,6 +159,10 @@ class DomainTransformer(Transformer):
         elif args[1] == Symbols.AND.value:
             return And(*args[2:-1])
         elif args[1] == Symbols.ONEOF.value:
+            _assert(
+                bool({Requirements.NON_DETERMINISTIC} & self._requirements),
+                f"Expected {Requirements.NON_DETERMINISTIC} requirement.",
+            )
             return OneOf(*args[2:-1])
 
     def p_effect(self, args):
@@ -143,6 +179,10 @@ class DomainTransformer(Transformer):
             return t if isinstance(t, Constant) else self._current_parameters_by_name[t]
 
         if args[1] == Symbols.EQUAL.value:
+            _assert(
+                bool({Requirements.TYPING} & self._requirements),
+                f"Expected {Requirements.TYPING} requirement.",
+            )
             left = constant_or_variable(args[2])
             right = constant_or_variable(args[3])
             return EqualTo(left, right)

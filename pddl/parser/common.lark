@@ -4,6 +4,9 @@ NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
             |              STRIPS
             |              EQUALITY
             |              NON_DETERMINISTIC
+            |              NEG_PRECONDITION
+            |              DIS_PRECONDITION
+            |              ADL
 
 COMMENT: /;[^\n]*/
 
@@ -19,16 +22,21 @@ PRECONDITION: ":precondition"
 EFFECT: ":effect"
 OBJECT: "object"
 AND: "and"
+OR: "or"
 NOT: "not"
+IMPLY: "imply"
 EITHER: "either"
 ONEOF: "oneof"
 EQUAL_OP: "="
 
 // available requirements
+STRIPS: ":strips"
 TYPING: ":typing"
 EQUALITY: ":equality"
-STRIPS: ":strips"
+ADL: ":adl"
 NON_DETERMINISTIC: ":non-deterministic"
+NEG_PRECONDITION: ":negative-preconditions"
+DIS_PRECONDITION: ":disjunctive-preconditions"
 
 // others
 LPAR : "("
