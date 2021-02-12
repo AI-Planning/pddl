@@ -29,6 +29,7 @@ class PDDLParsingError(PDDLError):
     """Raised for PDDL parsing error."""
 
     def __init__(self, message: str = "Parsing Error"):
+        """Initialize the PDDL parsing error exception."""
         self.message = message
         super().__init__(self.message)
 
@@ -37,9 +38,11 @@ class PDDLMissingRequirementError(PDDLParsingError):
     """Raised for PDDL missing requirement error."""
 
     def __init__(self, requirement: Requirements):
+        """Initialize the PDDL missing requirement error exception."""
         self.requirement = requirement
         self.message = "Missing PDDL requirement"
         super().__init__(self.message)
 
     def __str__(self):
+        """Get the string representation."""
         return f"{self.message}, {self.requirement} not found."
