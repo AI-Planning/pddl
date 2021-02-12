@@ -2,7 +2,7 @@
 ;; Author: Miquel Ramirez, July 2014
 
 (define (domain acrobatics)
-	(:requirements :typing :strips :non-deterministic)
+	(:requirements :typing :strips :non-deterministic :negative-preconditions)
 	(:types location)
 	(:predicates
 		(up)

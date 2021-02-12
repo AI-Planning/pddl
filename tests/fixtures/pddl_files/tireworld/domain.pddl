@@ -5,7 +5,7 @@
 ;;;  Modified: Rewritten for ADL, variables modified by effects appear in precondition
 
 (define (domain tire-adl)
-  (:requirements :typing :strips :non-deterministic)
+  (:requirements :typing :strips :non-deterministic :negative-preconditions)
   (:types location)
   (:predicates (vehicle-at ?loc - location) (spare-in ?loc - location) (road ?from - location ?to - location) (flattire) (hasspare))
   
