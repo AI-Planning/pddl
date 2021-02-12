@@ -20,10 +20,11 @@
 from pathlib import Path
 
 import pytest
-from pytest import lazy_fixture  # type: ignore  # noqa
 
 # from pddl.core import Domain, Problem
 from tests.conftest import DOMAIN_FILES, PROBLEM_FILES  # BLOCKSWORLD_FILES,
+
+# from pytest import lazy_fixture  # type: ignore  # noqa
 
 
 @pytest.mark.parametrize("pddl_file", DOMAIN_FILES)

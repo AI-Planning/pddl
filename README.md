@@ -162,8 +162,8 @@ requirements:
 
 - [x] `:strips`  
 - [x] `:typing`  
-- [ ] `:negative-preconditions`  
-- [ ] `:disjunctive-preconditions`  
+- [x] `:negative-preconditions`  
+- [x] `:disjunctive-preconditions`  
 - [x] `:equality`  
 - [ ] `:existential-preconditions`  
 - [ ] `:universal-preconditions`  

@@ -41,8 +41,9 @@ DOMAIN_FILES = [
 ]
 
 PROBLEM_FILES = [
-    *BLOCKSWORLD_FILES.glob("./p0*.pddl"),
-    *TRIANGLE_FILES.glob("./p0*.pddl"),
+    # *BLOCKSWORLD_FILES.glob("./p0*.pddl"),
+    # *TRIANGLE_FILES.glob("./p0*.pddl"),
+    *FIXTURES_PDDL_FILES.glob("./**/p*.pddl")
 ]
 
 
