@@ -292,7 +292,10 @@ class Requirements(Enum):
     STRIPS = "strips"
     EQUALITY = "equality"
     TYPING = "typing"
+    ADL = "adl"
     NON_DETERMINISTIC = "non-deterministic"
+    NEG_PRECONDITION = "negative-preconditions"
+    DIS_PRECONDITION = "disjunctive-preconditions"
 
     def __str__(self) -> str:
         """Get the string representation."""

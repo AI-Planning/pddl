@@ -1,5 +1,5 @@
 (define (domain blocks-domain)
-  (:requirements :non-deterministic :equality :typing)
+  (:requirements :non-deterministic :equality :typing :negative-preconditions)
   (:types block)
   (:predicates (holding ?b - block) (emptyhand) (on-table ?b - block) (on ?b1 ?b2 - block) (clear ?b - block))
   (:action pick-up

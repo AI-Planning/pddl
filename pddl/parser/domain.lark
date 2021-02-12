@@ -20,15 +20,16 @@ action_parameters: LPAR typed_list_variable RPAR
 emptyor_pregd:     LPAR RPAR
              |     gd
 gd:                atomic_formula_term
-  |                LPAR NOT atomic_formula_term RPAR
+  |                LPAR OR gd* RPAR
+  |                LPAR NOT gd RPAR
   |                LPAR AND gd* RPAR
+  |                LPAR IMPLY gd gd RPAR
 
 // effects
 emptyor_effect:    LPAR RPAR
-              |    oneof_effect
-oneof_effect:      LPAR ONEOF effect* RPAR
-            |      effect
-effect:            LPAR AND p_effect* RPAR
+              |    effect
+effect:            LPAR AND effect* RPAR
+      |            LPAR ONEOF effect+ RPAR
       |            p_effect
 p_effect:          LPAR NOT atomic_formula_term RPAR
         |          atomic_formula_term
@@ -69,7 +70,9 @@ type_def:          LPAR EITHER primitive_type+ RPAR
 %import .common.EFFECT -> EFFECT
 %import .common.OBJECT -> OBJECT
 %import .common.AND -> AND
+%import .common.OR -> OR
 %import .common.NOT -> NOT
+%import .common.IMPLY -> IMPLY
 %import .common.EITHER -> EITHER
 %import .common.ONEOF -> ONEOF
 %import .common.EQUAL_OP -> EQUAL_OP

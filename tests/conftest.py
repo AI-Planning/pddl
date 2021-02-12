@@ -34,14 +34,17 @@ FIXTURES_PDDL_FILES = FIXTURES_DIR / "pddl_files"
 BLOCKSWORLD_FILES = FIXTURES_PDDL_FILES / "blocksworld-ipc08"
 TRIANGLE_FILES = FIXTURES_PDDL_FILES / "triangle-tireworld"
 
-# TODO use globbing when we will support all the domain files.
 DOMAIN_FILES = [
-    BLOCKSWORLD_FILES
-    / "domain.pddl"
-    # TRIANGLE_FILES / "domain.pddl",  TODO: effect of action with nested and-oneof-and
+    # BLOCKSWORLD_FILES / "domain.pddl",
+    TRIANGLE_FILES / "domain.pddl",
+    # *FIXTURES_PDDL_FILES.glob("./**/domain.pddl")
 ]
 
-PROBLEM_FILES = [*BLOCKSWORLD_FILES.glob("./p*.pddl")]
+PROBLEM_FILES = [
+    # *BLOCKSWORLD_FILES.glob("./p0*.pddl"),
+    # *TRIANGLE_FILES.glob("./p01.pddl"),
+    *FIXTURES_PDDL_FILES.glob("./**/p0*.pddl")
+]
 
 
 @pytest.fixture(scope="session")
@@ -67,6 +70,10 @@ def markdown_parser():
 from tests.fixtures.code_objects.blocksworld_ipc08 import (  # noqa: E402, F401
     blocksworld_domain,
     blocksworld_problem_01,
+)
+from tests.fixtures.code_objects.triangle_tireworld import (  # noqa: E402, F401
+    triangle_tireworld_domain,
+    triangle_tireworld_problem_01,
 )
 
 #################################################
