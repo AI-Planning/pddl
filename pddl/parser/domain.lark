@@ -25,10 +25,9 @@ gd:                atomic_formula_term
 
 // effects
 emptyor_effect:    LPAR RPAR
-              |    oneof_effect
-oneof_effect:      LPAR ONEOF effect* RPAR
-            |      effect
-effect:            LPAR AND p_effect* RPAR
+              |    effect
+effect:            LPAR AND effect* RPAR
+      |            LPAR ONEOF effect+ RPAR
       |            p_effect
 p_effect:          LPAR NOT atomic_formula_term RPAR
         |          atomic_formula_term

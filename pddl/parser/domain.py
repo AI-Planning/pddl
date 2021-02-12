@@ -120,19 +120,14 @@ class DomainTransformer(Transformer):
         else:
             return args[0]
 
-    def oneof_effect(self, args):
-        """Process the 'oneof_effect' rule."""
-        if len(args) == 1:
-            return args[0]
-        else:
-            return OneOf(*args[2:-1])
-
     def effect(self, args):
         """Process the 'effect' rule."""
         if len(args) == 1:
             return args[0]
-        else:
+        elif args[1] == Symbols.AND.value:
             return And(*args[2:-1])
+        elif args[1] == Symbols.ONEOF.value:
+            return OneOf(*args[2:-1])
 
     def p_effect(self, args):
         """Process the 'p_effect' rule."""
