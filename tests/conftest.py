@@ -35,15 +35,15 @@ BLOCKSWORLD_FILES = FIXTURES_PDDL_FILES / "blocksworld-ipc08"
 TRIANGLE_FILES = FIXTURES_PDDL_FILES / "triangle-tireworld"
 
 DOMAIN_FILES = [
-    BLOCKSWORLD_FILES / "domain.pddl",
+    # BLOCKSWORLD_FILES / "domain.pddl",
     TRIANGLE_FILES / "domain.pddl",
     # *FIXTURES_PDDL_FILES.glob("./**/domain.pddl")
 ]
 
 PROBLEM_FILES = [
     # *BLOCKSWORLD_FILES.glob("./p0*.pddl"),
-    # *TRIANGLE_FILES.glob("./p0*.pddl"),
-    *FIXTURES_PDDL_FILES.glob("./**/p*.pddl")
+    # *TRIANGLE_FILES.glob("./p01.pddl"),
+    *FIXTURES_PDDL_FILES.glob("./**/p0*.pddl")
 ]
 
 
