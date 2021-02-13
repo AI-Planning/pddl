@@ -32,27 +32,27 @@ def triangle_tireworld_domain():
     location = "location"
 
     # terms
-    l1, l2 = variables("l l1", types=[location])
+    to, from_, loc = variables("to from loc", types=[location])
 
     # constants:
     constants = None
 
     # predicates
-    vehicleat = Predicate("vehicleat", l1)
-    spare_in = Predicate("spare-in", l1)
-    road = Predicate("road", l1, l2)
+    vehicleat = Predicate("vehicleat", loc)
+    spare_in = Predicate("spare-in", loc)
+    road = Predicate("road", from_, to)
     not_flattire = Predicate("not-flattire")
     predicates = {vehicleat, spare_in, road, not_flattire}
 
     # actions
     # move-car
     move_car_name = "move-car"
-    move_car_parameters = [l1, l2]
-    move_car_precondition = vehicleat(l1) & road(l1, l2) & not_flattire
+    move_car_parameters = [from_, to]
+    move_car_precondition = vehicleat(from_) & road(from_, to) & not_flattire
     move_car_effect = And(
         OneOf(
-            vehicleat(l2) & ~vehicleat(l1),
-            vehicleat(l2) & ~vehicleat(l1) & ~not_flattire,
+            vehicleat(to) & ~vehicleat(from_),
+            vehicleat(to) & ~vehicleat(from_) & ~not_flattire,
         )
     )
     move_car = Action(
@@ -61,9 +61,9 @@ def triangle_tireworld_domain():
 
     # changetire
     changetire_name = "changetire"
-    changetire_parameters = [l1]
-    changetire_precondition = spare_in(l1) & vehicleat(l1)
-    changetire_effect = ~spare_in(l1) & not_flattire
+    changetire_parameters = [loc]
+    changetire_precondition = spare_in(loc) & vehicleat(loc)
+    changetire_effect = ~spare_in(loc) & not_flattire
     changetire = Action(
         changetire_name,
         changetire_parameters,
