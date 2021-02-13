@@ -61,6 +61,10 @@ def test_build_simple_problem():
     q = Predicate("q", x, y, z)
     domain = MagicMock()
     problem = Problem(
-        "simple_problem", domain, objects=[o1, o2, o3], init={p, Not(q)}, goal=p & q,
+        "simple_problem",
+        domain,
+        objects=[o1, o2, o3],
+        init={p, Not(q)},
+        goal=p & q,
     )
     assert problem
