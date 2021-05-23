@@ -214,10 +214,11 @@ class DomainTransformer(Transformer):
         if type_sep_index is not None:
             objs = args[:type_sep_index]
             type_obj = args[type_sep_index + 1]
+            typed_list_dict = dict()
             other_typed_list_dict = safe_get(args, type_sep_index + 2, default=dict())
             for obj in objs:
-                other_typed_list_dict.setdefault(obj, set()).add(str(type_obj))
-            return other_typed_list_dict
+                typed_list_dict.setdefault(obj, set()).add(str(type_obj))
+            return {**typed_list_dict, **other_typed_list_dict}
         elif len(args) > 0:
             return {obj: set() for obj in args}
         else:

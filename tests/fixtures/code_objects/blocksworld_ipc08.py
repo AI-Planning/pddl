@@ -137,6 +137,7 @@ def blocksworld_domain():
         Requirements.EQUALITY,
         Requirements.NON_DETERMINISTIC,
         Requirements.TYPING,
+        Requirements.NEG_PRECONDITION,
     }
     types = {block}
     actions = {
