@@ -17,19 +17,23 @@
 #
 """This module contains the configurations for the tests."""
 import inspect
-import os
 from pathlib import Path
 
 import mistune
 import pytest
 
+import pddl
 from pddl.parser.domain import DomainParser
 from pddl.parser.problem import ProblemParser
 
-CUR_PATH = Path(os.path.dirname(inspect.getfile(inspect.currentframe())))  # type: ignore
-ROOT_DIR = Path(CUR_PATH, "..").resolve()  # type: ignore
+_current_filepath = inspect.getframeinfo(inspect.currentframe()).filename  # type: ignore
+TEST_DIRECTORY = Path(_current_filepath).absolute().parent
+ROOT_DIRECTORY = TEST_DIRECTORY.parent
+LIBRARY_DIRECTORY = ROOT_DIRECTORY / pddl.__name__
+DOCS_DIRECTORY = ROOT_DIRECTORY / "docs"
 
-FIXTURES_DIR = CUR_PATH / "fixtures"
+
+FIXTURES_DIR = TEST_DIRECTORY / "fixtures"
 FIXTURES_PDDL_FILES = FIXTURES_DIR / "pddl_files"
 BLOCKSWORLD_FILES = FIXTURES_PDDL_FILES / "blocksworld-ipc08"
 TRIANGLE_FILES = FIXTURES_PDDL_FILES / "triangle-tireworld"
