@@ -113,7 +113,7 @@ class RegexConstrainedString(str):
     def __init__(self, *_, **__):
         """Initialize a regex constrained string."""
         super().__init__()
-        if not self.REGEX.match(self):
+        if not self.REGEX.fullmatch(self):
             self._handle_no_match()
 
     def _handle_no_match(self):
