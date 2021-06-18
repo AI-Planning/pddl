@@ -22,6 +22,7 @@ mistune = "==2.0.0a4"
 mkdocs-material = "*"
 types-click = "*"
 darglint = "*"
+vulture = "*"
 
 [requires]
 python_version = "3.7"

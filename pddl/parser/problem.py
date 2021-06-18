@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
 #
+# Copyright 2021 WhiteMech
+#
+# ------------------------------
+#
 # This file is part of pddl.
 #
 # pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # pddl is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with pddl.  If not, see <https://www.gnu.org/licenses/>.
 #
+
 """Implementation of the PDDL problem parser."""
 from typing import Dict
 
@@ -75,6 +80,11 @@ class ProblemTransformer(Transformer):
         Return a dictionary with as keys the names and as value a set of types for each name.
         """
         return self._domain_transformer._typed_list_x(args)
+
+    def domain__type_def(self, names):
+        """Process a domain type def."""
+        assert len(names) == 1
+        return str(names[0])
 
     def init(self, args):
         """Process the 'init' rule."""
