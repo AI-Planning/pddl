@@ -26,8 +26,9 @@ from typing import Dict, Set
 from lark import Lark, ParseError, Transformer
 
 from pddl.core import Action, Domain, Requirements
+from pddl.exceptions import PDDLMissingRequirementError
 from pddl.helpers import _assert, find, safe_get, safe_index
-from pddl.logic.base import And, FalseFormula, Not, OneOf
+from pddl.logic.base import And, FalseFormula, Imply, Not, OneOf, Or
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE
@@ -44,6 +45,7 @@ class DomainTransformer(Transformer):
         self._constants_by_name: Dict[str, Constant] = {}
         self._predicates_by_name: Dict[str, Predicate] = {}
         self._current_parameters_by_name: Dict[str, Variable] = {}
+        self._requirements: Set[str] = set()
 
     def start(self, args):
         """Entry point."""
@@ -60,13 +62,16 @@ class DomainTransformer(Transformer):
         """Process the 'domain_def' rule."""
         return "name", args[2]
 
-    def types(self, args):
-        """Parse the 'types' rule."""
-        return "types", list(args[2].keys())
-
     def requirements(self, args):
         """Process the 'requirements' rule."""
-        return "requirements", {Requirements(r[1:]) for r in args[2:-1]}
+        self._requirements = {Requirements(r[1:]) for r in args[2:-1]}
+        return "requirements", self._requirements
+
+    def types(self, args):
+        """Parse the 'types' rule."""
+        if not bool({Requirements.TYPING} & self._requirements):
+            raise PDDLMissingRequirementError(Requirements.TYPING)
+        return "types", list(args[2].keys())
 
     def constants(self, args):
         """Process the 'constant_def' rule."""
@@ -113,10 +118,27 @@ class DomainTransformer(Transformer):
         if len(args) == 1:
             return args[0]
         elif args[1] == Symbols.NOT.value:
+            if not bool(
+                {Requirements.NEG_PRECONDITION, Requirements.ADL} & self._requirements
+            ):
+                raise PDDLMissingRequirementError(Requirements.NEG_PRECONDITION)
             return Not(args[2])
         elif args[1] == Symbols.AND.value:
             operands = args[2:-1]
             return And(*operands)
+        elif args[1] == Symbols.OR.value:
+            if not bool(
+                {Requirements.DIS_PRECONDITION, Requirements.ADL} & self._requirements
+            ):
+                raise PDDLMissingRequirementError(Requirements.DIS_PRECONDITION)
+            operands = args[2:-1]
+            return Or(*operands)
+        elif args[1] == Symbols.IMPLY.value:
+            if not bool(
+                {Requirements.DIS_PRECONDITION, Requirements.ADL} & self._requirements
+            ):
+                raise PDDLMissingRequirementError(Requirements.DIS_PRECONDITION)
+            return Imply(args[2], args[3])
 
     def emptyor_effect(self, args):
         """Process the 'emptyor_effect' rule."""
@@ -125,19 +147,16 @@ class DomainTransformer(Transformer):
         else:
             return args[0]
 
-    def oneof_effect(self, args):
-        """Process the 'oneof_effect' rule."""
-        if len(args) == 1:
-            return args[0]
-        else:
-            return OneOf(*args[2:-1])
-
     def effect(self, args):
         """Process the 'effect' rule."""
         if len(args) == 1:
             return args[0]
-        else:
+        elif args[1] == Symbols.AND.value:
             return And(*args[2:-1])
+        elif args[1] == Symbols.ONEOF.value:
+            if not bool({Requirements.NON_DETERMINISTIC} & self._requirements):
+                raise PDDLMissingRequirementError(Requirements.NON_DETERMINISTIC)
+            return OneOf(*args[2:-1])
 
     def p_effect(self, args):
         """Process the 'p_effect' rule."""
@@ -153,6 +172,8 @@ class DomainTransformer(Transformer):
             return t if isinstance(t, Constant) else self._current_parameters_by_name[t]
 
         if args[1] == Symbols.EQUAL.value:
+            if not bool({Requirements.EQUALITY} & self._requirements):
+                raise PDDLMissingRequirementError(Requirements.EQUALITY)
             left = constant_or_variable(args[2])
             right = constant_or_variable(args[3])
             return EqualTo(left, right)
@@ -198,10 +219,11 @@ class DomainTransformer(Transformer):
         if type_sep_index is not None:
             objs = args[:type_sep_index]
             type_obj = args[type_sep_index + 1]
+            typed_list_dict = dict()
             other_typed_list_dict = safe_get(args, type_sep_index + 2, default=dict())
             for obj in objs:
-                other_typed_list_dict.setdefault(obj, set()).add(str(type_obj))
-            return other_typed_list_dict
+                typed_list_dict.setdefault(obj, set()).add(str(type_obj))
+            return {**typed_list_dict, **other_typed_list_dict}
         elif len(args) > 0:
             return {obj: set() for obj in args}
         else:

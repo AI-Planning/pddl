@@ -204,6 +204,12 @@ class OneOf(BinaryOp):
     SYMBOL = "oneof"
 
 
+class Imply(BinaryOp):
+    """Imply operator."""
+
+    SYMBOL = "imply"
+
+
 class Not(UnaryOp):
     """Not operator."""
 

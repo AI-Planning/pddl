@@ -26,8 +26,14 @@ from pathlib import Path
 import pytest
 from pytest import lazy_fixture  # type: ignore  # noqa
 
+# from pddl.core import Domain, Problem
 from pddl.core import Domain, Problem
-from tests.conftest import BLOCKSWORLD_FILES, DOMAIN_FILES, PROBLEM_FILES
+from tests.conftest import (
+    BLOCKSWORLD_FILES,
+    DOMAIN_FILES,
+    PROBLEM_FILES,
+    TRIANGLE_FILES,
+)
 
 
 @pytest.mark.parametrize("pddl_file", DOMAIN_FILES)
@@ -44,7 +50,10 @@ def test_problem_parser(problem_parser, pddl_file: Path):
 
 @pytest.mark.parametrize(
     "pddl_file,expected_domain",
-    [(BLOCKSWORLD_FILES / "domain.pddl", lazy_fixture("blocksworld_domain"))],
+    [
+        (BLOCKSWORLD_FILES / "domain.pddl", lazy_fixture("blocksworld_domain")),
+        (TRIANGLE_FILES / "domain.pddl", lazy_fixture("triangle_tireworld_domain")),
+    ],
 )
 def test_check_domain_parser_output(domain_parser, pddl_file: Path, expected_domain):
     """Test domain parsing."""

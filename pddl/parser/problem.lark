@@ -31,7 +31,6 @@ GOAL: ":goal"
 %import .common.COMMENT -> COMMENT
 %import .domain.requirements -> requirements
 %import .domain.typed_list_name -> typed_list_name
-%import .domain.gd -> gd
 %import .domain.predicate -> predicate
 %import .common.NAME -> NAME
 %import .common.DEFINE -> DEFINE

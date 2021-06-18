@@ -2,7 +2,7 @@
 ;; Modified: Rewritten as PDDL by Miquel Ramirez, April 2014
 
 (define (domain beam-walk)
-	(:requirements :typing :strips :non-deterministic)
+	(:requirements :typing :strips :non-deterministic :negative-preconditions)
 	(:types location)
 	(:predicates
 		(up)

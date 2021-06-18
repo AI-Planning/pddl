@@ -5,7 +5,7 @@
 ;;;  Modified: Rewritten for ADL, variables modified by effects appear in precondition
 
 (define (domain tire-adl)
-  (:requirements :typing :strips :non-deterministic)
+  (:requirements :typing :strips :non-deterministic :negative-preconditions)
   (:types location)
   (:predicates (vehicle-at ?loc - location) (spare-in ?loc - location) (road ?from - location ?to - location) (flattire) (hasspare))
   
@@ -24,6 +24,7 @@
   )
   
   (:action changetire
+    :parameters ()
     :precondition (and (hasspare) (flattire))
     :effect (oneof (and) (and (not (hasspare)) (not (flattire)))) ;; The original domain has a 50% chance of a spare change failing
   )
