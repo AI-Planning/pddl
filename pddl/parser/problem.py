@@ -76,6 +76,11 @@ class ProblemTransformer(Transformer):
         """
         return self._domain_transformer._typed_list_x(args)
 
+    def domain__type_def(self, names):
+        """Process a domain type def."""
+        assert len(names) == 1
+        return str(names[0])
+
     def init(self, args):
         """Process the 'init' rule."""
         return "init", set(args[2:-1])
