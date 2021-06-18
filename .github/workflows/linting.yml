@@ -32,6 +32,8 @@ jobs:
         tox -e flake8
     - name: Unused code check
       run: tox -e vulture
+#    - name: Docstring check
+#      run: tox -e darglint
     - name: Static type check
       run: tox -e mypy
     - name: Check copyright
