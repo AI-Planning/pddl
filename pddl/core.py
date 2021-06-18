@@ -31,7 +31,7 @@ from typing import AbstractSet, Collection, Optional, Sequence, cast
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names
-from pddl.helpers import _assert, ensure, ensure_sequence, ensure_set
+from pddl.helpers.base import assert_, ensure, ensure_sequence, ensure_set
 from pddl.logic.base import FalseFormula, Formula, TrueFormula, is_literal
 from pddl.logic.predicates import Predicate
 from pddl.logic.terms import Constant, Variable
@@ -137,10 +137,10 @@ class Problem:
         self._domain: Optional[Domain] = domain
         self._domain_name = domain_name
         self._requirements: AbstractSet[Requirements] = ensure_set(requirements)
-        self._objects: AbstractSet[Constant] = set(ensure_set(objects))
+        self._objects: AbstractSet[Constant] = ensure_set(objects)
         self._init: AbstractSet[Formula] = ensure_set(init)
         self._goal: Formula = ensure(goal, TrueFormula())
-        _assert(
+        assert_(
             all(map(is_literal, self.init)),
             "Not all formulas of initial condition are literals!",
         )
@@ -148,11 +148,11 @@ class Problem:
         self._check_consistency()
 
     def _check_consistency(self):
-        _assert(
+        assert_(
             self._domain is not None or self._domain_name is not None,
             "At least one between 'domain' and 'domain_name' must be set.",
         )
-        _assert(
+        assert_(
             self._domain is None
             or self._domain_name is None
             or self._domain.name == self._domain_name
@@ -166,14 +166,14 @@ class Problem:
     @property
     def domain(self) -> Domain:
         """Get the domain."""
-        _assert(self._domain is not None, "Domain is not set.")
+        assert_(self._domain is not None, "Domain is not set.")
         return cast(Domain, self._domain)
 
     @domain.setter
     def domain(self, domain: Domain) -> None:
         """Set the domain."""
         if self._domain_name is not None:
-            _assert(
+            assert_(
                 self._domain_name == domain.name,
                 f"Domain names don't match. Expected {self._domain_name}, got {domain.name}.",
             )
@@ -185,7 +185,7 @@ class Problem:
         if self._domain is not None:
             return self._domain.name
 
-        _assert(self._domain_name is not None, "Domain name is not set.")
+        assert_(self._domain_name is not None, "Domain name is not set.")
         return cast(str, self._domain_name)
 
     @property

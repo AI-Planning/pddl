@@ -29,7 +29,7 @@ from pddl.core import Problem, Requirements
 from pddl.logic.base import And, Not
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant
-from pddl.parser import PROBLEM_GRAMMAR_FILE
+from pddl.parser import PARSERS_DIRECTORY, PROBLEM_GRAMMAR_FILE
 from pddl.parser.domain import DomainTransformer
 from pddl.parser.symbols import Symbols
 
@@ -88,7 +88,7 @@ class ProblemTransformer(Transformer):
 
     def init(self, args):
         """Process the 'init' rule."""
-        return "init", set(args[2:-1])
+        return "init", args[2:-1]
 
     def literal_name(self, args):
         """Process the 'literal_name' rule."""
@@ -126,13 +126,18 @@ class ProblemTransformer(Transformer):
             return Predicate(name, *terms)
 
 
+_problem_parser_lark = PROBLEM_GRAMMAR_FILE.read_text()
+
+
 class ProblemParser:
     """PDDL problem parser class."""
 
     def __init__(self):
         """Initialize."""
         self._transformer = ProblemTransformer()
-        self._parser = Lark(PROBLEM_GRAMMAR_FILE.open(), parser="lalr")
+        self._parser = Lark(
+            _problem_parser_lark, parser="lalr", import_paths=[PARSERS_DIRECTORY]
+        )
 
     def __call__(self, text):
         """Call."""
