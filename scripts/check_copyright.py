@@ -58,6 +58,11 @@ HEADER_REGEX = r"""(# -\*- coding: utf-8 -\*-
 """
 
 
+IGNORE_FILES = {
+    Path("scripts", "whitelist.py")
+}
+
+
 def check_copyright(file: Path) -> bool:
     """
     Given a file, check if the header stuff is in place.
@@ -90,6 +95,8 @@ if __name__ == "__main__":
         Path("scripts").glob("**/*.py"),
         [Path("setup.py")],
     )
+
+    python_files = filter(lambda p: p not in IGNORE_FILES, python_files)
 
     bad_files = [
         filepath for filepath in python_files if not check_copyright(filepath)
