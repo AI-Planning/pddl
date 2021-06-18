@@ -21,7 +21,10 @@
 #
 
 """Test introduction documentation page."""
-from pddl.formatter import domain_to_string, problem_to_string
+import logging
+from io import StringIO
+from unittest.mock import patch
+
 from tests.conftest import ROOT_DIRECTORY
 from tests.test_docs.base import BaseTestMarkdownDocs, compile_and_exec
 
@@ -39,18 +42,14 @@ class TestIntroduction(BaseTestMarkdownDocs):
         cls.output_code_blocks = cls.extract_code_blocks("output")
         cls.locals = {}
 
-    def test_outputs(self):
+    def test_python_and_output(self):
         """Test Python snipped and its output."""
-        domain_python_code = self.python_code_blocks[0]
-        expected_domain_output = self.output_code_blocks[0]
-        locals_dict = compile_and_exec(domain_python_code, locals_dict=self.locals)
-        domain = locals_dict["domain"]
-        actual_domain_output = domain_to_string(domain)
-        assert expected_domain_output == actual_domain_output
-
-        problem_python_code = self.python_code_blocks[1]
-        expected_problem_output = self.output_code_blocks[1]
-        locals_dict = compile_and_exec(problem_python_code, locals_dict=self.locals)
-        problem = locals_dict["problem"]
-        actual_problem_output = problem_to_string(problem)
-        assert expected_problem_output == actual_problem_output
+        for python_code_block, output_code_block in zip(
+            self.python_code_blocks, self.output_code_blocks
+        ):
+            logging.debug(f"Testing block: {python_code_block[:50]}...")
+            with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+                compile_and_exec(python_code_block, locals_dict=self.locals)
+                actual_output = mock_stdout.getvalue()
+                expected_output = output_code_block
+                assert actual_output == expected_output

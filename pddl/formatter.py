@@ -55,7 +55,6 @@ def domain_to_string(domain: Domain) -> str:
     )
     result = result + "\n" + indent(body, indentation) + "\n)"
     result = _remove_empty_lines(result)
-    result += "\n"
     return result
 
 
@@ -70,5 +69,4 @@ def problem_to_string(problem: Problem) -> str:
     body += f"{'(:goal ' + str(problem.goal) + ')'}\n" if problem.goal != TRUE else ""
     result = result + "\n" + indent(body, indentation) + "\n)"
     result = _remove_empty_lines(result)
-    result += "\n"
     return result
