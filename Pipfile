@@ -21,6 +21,7 @@ isort = "*"
 mistune = "==2.0.0a4"
 mkdocs-material = "*"
 types-click = "*"
+darglint = "*"
 
 [requires]
 python_version = "3.7"
