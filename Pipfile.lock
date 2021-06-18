@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6b798dd2c55e800610f7825db4d4b7dac78443ca1a41860571a6bd6837baefe1"
+            "sha256": "cb313d6166b86be19e72fc56c7e7e7f40867b1a784a866aa04f28ad86a22d85b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -437,11 +437,11 @@
         },
         "prompt-toolkit": {
             "hashes": [
-                "sha256:bf00f22079f5fadc949f42ae8ff7f05702826a97059ffcc6281036ad40ac6f04",
-                "sha256:e1b4f11b9336a28fa11810bc623c357420f69dfdb6d2dac41ca2c21a55c033bc"
+                "sha256:08360ee3a3148bdb5163621709ee322ec34fc4375099afa4bbf751e9b7b7fa4f",
+                "sha256:7089d8d2938043508aa9420ec18ce0922885304cddae87fb96eebca942299f88"
             ],
             "markers": "python_full_version >= '3.6.1'",
-            "version": "==3.0.18"
+            "version": "==3.0.19"
         },
         "ptyprocess": {
             "hashes": [
@@ -750,6 +750,14 @@
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==20.4.7"
+        },
+        "vulture": {
+            "hashes": [
+                "sha256:03d5a62bcbe9ceb9a9b0575f42d71a2d414070229f2e6f95fa6e7c71aaaed967",
+                "sha256:f39de5e6f1df1f70c3b50da54f1c8d494159e9ca3d01a9b89eac929600591703"
+            ],
+            "index": "pypi",
+            "version": "==2.3"
         },
         "watchdog": {
             "hashes": [
