@@ -21,7 +21,6 @@
 #
 
 """Base classes for pylogics logic formulas."""
-from abc import ABCMeta
 from functools import wraps
 from typing import Any, Callable, cast
 
@@ -98,13 +97,12 @@ def _setstate(fn):
 
 def cache_hash(cls):
     """
-    A class decorator that makes class instances to cache their hash.
+    Make instances of a class to cache their hash.
 
-    It sets:
+    This class decorator sets:
         __hash__
         __getstate__
         __setstate__
-
     """
     cls.__hash__ = _cache_hash(cls.__hash__)
 
