@@ -25,7 +25,7 @@
 import re
 from typing import Collection, List, Union
 
-from pddl.helpers import RegexConstrainedString
+from pddl.helpers.base import RegexConstrainedString
 
 
 class name(RegexConstrainedString):

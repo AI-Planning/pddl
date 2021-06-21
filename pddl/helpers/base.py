@@ -24,7 +24,7 @@
 
 import re
 from pathlib import Path
-from typing import AbstractSet, Any, Callable, Collection, Optional, Sequence
+from typing import AbstractSet, Any, Callable, Collection, Optional, Sequence, Type
 
 
 def _get_current_path() -> Path:
@@ -32,10 +32,10 @@ def _get_current_path() -> Path:
     import inspect
     import os
 
-    return Path(os.path.dirname(inspect.getfile(inspect.currentframe())))  # type: ignore
+    return Path(os.path.dirname(inspect.getfile(inspect.currentframe()))).parent  # type: ignore
 
 
-def _assert(condition: bool, message: str = ""):
+def assert_(condition: bool, message: str = ""):
     """User-defined assert."""
     if not condition:
         raise AssertionError(message)
@@ -55,7 +55,7 @@ def ensure_set(arg: Optional[Collection], immutable: bool = True) -> AbstractSet
     :return: the same set, or an empty set if the arg was None.
     """
     op = frozenset if immutable else set
-    return op(arg) if arg is not None else op()
+    return op(arg) if arg is not None and not isinstance(arg, op) else op()
 
 
 def ensure_sequence(arg: Optional[Sequence], immutable: bool = True) -> Sequence:
@@ -66,8 +66,8 @@ def ensure_sequence(arg: Optional[Sequence], immutable: bool = True) -> Sequence
     :param immutable: whether the collection should be immutable.
     :return: the same list, or an empty list if the arg was None.
     """
-    op: Callable = tuple if immutable else list
-    return op(arg) if arg is not None else op()
+    op: Type = tuple if immutable else list
+    return op(arg) if arg is not None and not isinstance(arg, op) else op()
 
 
 def safe_index(seq: Sequence, *args, **kwargs):

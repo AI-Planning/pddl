@@ -27,9 +27,11 @@ from typing import AbstractSet, Collection, Optional
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names
-from pddl.helpers import ensure_set
+from pddl.helpers.base import ensure_set
+from pddl.helpers.cache_hash import cache_hash
 
 
+@cache_hash
 @functools.total_ordering
 class Term(ABC):
     """A term in a formula."""

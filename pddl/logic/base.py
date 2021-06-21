@@ -23,7 +23,10 @@
 """Base classes for PDDL logic formulas."""
 from typing import Optional, Sequence
 
+from pddl.helpers.cache_hash import cache_hash
 
+
+@cache_hash
 class Formula:
     """Base class for all the formulas."""
 

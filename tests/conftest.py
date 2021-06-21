@@ -43,17 +43,34 @@ FIXTURES_PDDL_FILES = FIXTURES_DIR / "pddl_files"
 BLOCKSWORLD_FILES = FIXTURES_PDDL_FILES / "blocksworld-ipc08"
 TRIANGLE_FILES = FIXTURES_PDDL_FILES / "triangle-tireworld"
 
-DOMAIN_FILES = [
-    # BLOCKSWORLD_FILES / "domain.pddl",
-    TRIANGLE_FILES / "domain.pddl",
-    # *FIXTURES_PDDL_FILES.glob("./**/domain.pddl")
+# TODO once missing features are supported, uncomment this
+# DOMAIN_FILES = [
+#     *FIXTURES_PDDL_FILES.glob("./**/domain.pddl")
+# ]
+
+DOMAIN_NAMES = [
+    "acrobatics",
+    "beam-walk",
+    "blocksworld-ipc08",
+    "doors",
+    # "earth_observation",
+    "elevators",
+    # "faults-ipc08",
+    # "first-responders-ipc08",
+    "islands",
+    "miner",
+    "spiky-tireworld",
+    "tireworld",
+    "tireworld-truck",
+    "triangle-tireworld",
+    # "zenotravel",
 ]
 
-PROBLEM_FILES = [
-    # *BLOCKSWORLD_FILES.glob("./p0*.pddl"),
-    # *TRIANGLE_FILES.glob("./p01.pddl"),
-    *FIXTURES_PDDL_FILES.glob("./**/p0*.pddl")
+DOMAIN_FILES = [
+    FIXTURES_PDDL_FILES / domain_name / "domain.pddl" for domain_name in DOMAIN_NAMES
 ]
+
+PROBLEM_FILES = [*FIXTURES_PDDL_FILES.glob("./**/p*.pddl")]
 
 
 @pytest.fixture(scope="session")

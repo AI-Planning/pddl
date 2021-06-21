@@ -25,7 +25,7 @@
 from typing import Collection, List, Optional
 
 from pddl.custom_types import namelike
-from pddl.helpers import ensure_set
+from pddl.helpers.base import ensure_set
 from pddl.logic.terms import Constant, Variable
 
 

@@ -21,6 +21,8 @@
 #
 
 """This module contains tests for the CLI tool."""
+import logging
+
 import pytest
 from click.testing import CliRunner
 
@@ -31,12 +33,18 @@ from tests.conftest import DOMAIN_FILES, PROBLEM_FILES
 @pytest.mark.parametrize("pddl_file", DOMAIN_FILES)
 def test_pddl_domain_cli(pddl_file):
     """Test PDDL domain cli."""
-    result = CliRunner().invoke(cli, args=["domain", str(pddl_file)])
+    logging.debug(f"Parsing domain file: {pddl_file}")
+    result = CliRunner().invoke(
+        cli, args=["domain", str(pddl_file)], catch_exceptions=False
+    )
     assert result.exit_code == 0
 
 
 @pytest.mark.parametrize("pddl_file", PROBLEM_FILES)
 def test_pddl_problem_cli(pddl_file):
     """Test PDDL domain cli."""
-    result = CliRunner().invoke(cli, args=["problem", str(pddl_file)])
+    logging.debug(f"Parsing problem file: {pddl_file}")
+    result = CliRunner().invoke(
+        cli, args=["problem", str(pddl_file)], catch_exceptions=False
+    )
     assert result.exit_code == 0
