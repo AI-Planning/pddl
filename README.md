@@ -213,4 +213,4 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 `pddl` is released under the GNU Lesser General Public License v3.0 or later (LGPLv3+).
 
-Copyright 2020 WhiteMech
+Copyright 2021 WhiteMech

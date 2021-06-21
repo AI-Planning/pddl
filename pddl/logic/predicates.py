@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 #
+# Copyright 2021 WhiteMech
+#
+# ------------------------------
+#
 # This file is part of pddl.
 #
 # pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # pddl is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with pddl.  If not, see <https://www.gnu.org/licenses/>.
 #
 
@@ -22,11 +26,13 @@ from typing import Sequence
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike
-from pddl.helpers import _assert
+from pddl.helpers.base import assert_
+from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic
 from pddl.logic.terms import Term
 
 
+@cache_hash
 @functools.total_ordering
 class Predicate(Atomic):
     """A class for a Predicate in PDDL."""
@@ -34,7 +40,7 @@ class Predicate(Atomic):
     def __init__(self, name: namelike, *terms: Term):
         """Initialize the predicate."""
         self._name = name_type(name)
-        self._terms = terms
+        self._terms = tuple(terms)
 
     @property
     def name(self) -> str:
@@ -44,7 +50,7 @@ class Predicate(Atomic):
     @property
     def terms(self) -> Sequence[Term]:
         """Get the terms."""
-        return tuple(self._terms)
+        return self._terms
 
     @property
     def arity(self) -> int:
@@ -56,8 +62,8 @@ class Predicate(Atomic):
     # TODO allow skip replacement with None arguments.
     def __call__(self, *terms: Term):
         """Replace terms."""
-        _assert(len(terms) == self.arity, "Number of terms not correct.")
-        _assert(
+        assert_(len(terms) == self.arity, "Number of terms not correct.")
+        assert_(
             all(t1.type_tags == t2.type_tags for t1, t2 in zip(self.terms, terms)),
             "Types of replacements is not correct.",
         )
@@ -84,14 +90,13 @@ class Predicate(Atomic):
 
     def __hash__(self):
         """Get the has of a Predicate."""
-        return hash((self.name, self.arity))
+        return hash((self.name, self.arity, self.terms))
 
     def __lt__(self, other):
         """Compare with another object."""
         if isinstance(other, Predicate):
             return (self.name, self.terms) < (other.name, other.terms)
-        else:
-            return super().__lt__(other)
+        return super().__lt__(other)
 
 
 class EqualTo(Atomic):

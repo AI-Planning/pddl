@@ -20,8 +20,4 @@
 # along with pddl.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-"""This package provides support for PDDL logic formulas."""
-
-from .helpers import constants, variables
-from .predicates import Predicate
-from .terms import Constant, Variable
+"""Test the helper functions."""

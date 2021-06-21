@@ -1,27 +1,30 @@
 # -*- coding: utf-8 -*-
 #
+# Copyright 2021 WhiteMech
+#
+# ------------------------------
+#
 # This file is part of pddl.
 #
 # pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # pddl is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with pddl.  If not, see <https://www.gnu.org/licenses/>.
 #
 
 """Helper functions."""
 
-
 import re
 from pathlib import Path
-from typing import AbstractSet, Any, Callable, Collection, Optional, Sequence
+from typing import AbstractSet, Any, Callable, Collection, Optional, Sequence, Type
 
 
 def _get_current_path() -> Path:
@@ -29,10 +32,10 @@ def _get_current_path() -> Path:
     import inspect
     import os
 
-    return Path(os.path.dirname(inspect.getfile(inspect.currentframe())))  # type: ignore
+    return Path(os.path.dirname(inspect.getfile(inspect.currentframe()))).parent  # type: ignore
 
 
-def _assert(condition: bool, message: str = ""):
+def assert_(condition: bool, message: str = ""):
     """User-defined assert."""
     if not condition:
         raise AssertionError(message)
@@ -52,7 +55,7 @@ def ensure_set(arg: Optional[Collection], immutable: bool = True) -> AbstractSet
     :return: the same set, or an empty set if the arg was None.
     """
     op = frozenset if immutable else set
-    return op(arg) if arg is not None else op()
+    return op(arg) if arg is not None and not isinstance(arg, op) else op()
 
 
 def ensure_sequence(arg: Optional[Sequence], immutable: bool = True) -> Sequence:
@@ -63,8 +66,8 @@ def ensure_sequence(arg: Optional[Sequence], immutable: bool = True) -> Sequence
     :param immutable: whether the collection should be immutable.
     :return: the same list, or an empty list if the arg was None.
     """
-    op: Callable = tuple if immutable else list
-    return op(arg) if arg is not None else op()
+    op: Type = tuple if immutable else list
+    return op(arg) if arg is not None and not isinstance(arg, op) else op()
 
 
 def safe_index(seq: Sequence, *args, **kwargs):
@@ -113,7 +116,7 @@ class RegexConstrainedString(str):
     def __init__(self, *_, **__):
         """Initialize a regex constrained string."""
         super().__init__()
-        if not self.REGEX.match(self):
+        if not self.REGEX.fullmatch(self):
             self._handle_no_match()
 
     def _handle_no_match(self):

@@ -1,19 +1,22 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
+# Copyright 2021 WhiteMech
+#
+# ------------------------------
 #
 # This file is part of pddl.
 #
 # pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # pddl is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with pddl.  If not, see <https://www.gnu.org/licenses/>.
 #
 
@@ -31,25 +34,33 @@ import re
 import sys
 from pathlib import Path
 
-HEADER_REGEX = r"""(#!/usr/bin/env python3
-)?# -\*- coding: utf-8 -\*-
+HEADER_REGEX = r"""(# -\*- coding: utf-8 -\*-
+#
+# Copyright 2021 WhiteMech
+#
+# ------------------------------
 #
 # This file is part of pddl\.
 #
 # pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # \(at your option\) any later version\.
 #
 # pddl is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE\.  See the
-# GNU General Public License for more details\.
+# GNU Lesser General Public License for more details\.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with pddl\.  If not, see <https://www\.gnu\.org/licenses/>\.
-#
+#)
 """
+
+
+IGNORE_FILES = {
+    Path("scripts", "whitelist.py")
+}
 
 
 def check_copyright(file: Path) -> bool:
@@ -84,6 +95,8 @@ if __name__ == "__main__":
         Path("scripts").glob("**/*.py"),
         [Path("setup.py")],
     )
+
+    python_files = filter(lambda p: p not in IGNORE_FILES, python_files)
 
     bad_files = [
         filepath for filepath in python_files if not check_copyright(filepath)

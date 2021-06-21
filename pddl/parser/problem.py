@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
 #
+# Copyright 2021 WhiteMech
+#
+# ------------------------------
+#
 # This file is part of pddl.
 #
 # pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # pddl is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with pddl.  If not, see <https://www.gnu.org/licenses/>.
 #
+
 """Implementation of the PDDL problem parser."""
 from typing import Dict
 
@@ -24,7 +29,7 @@ from pddl.core import Problem, Requirements
 from pddl.logic.base import And, Not
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant
-from pddl.parser import PROBLEM_GRAMMAR_FILE
+from pddl.parser import PARSERS_DIRECTORY, PROBLEM_GRAMMAR_FILE
 from pddl.parser.domain import DomainTransformer
 from pddl.parser.symbols import Symbols
 
@@ -76,9 +81,14 @@ class ProblemTransformer(Transformer):
         """
         return self._domain_transformer._typed_list_x(args)
 
+    def domain__type_def(self, names):
+        """Process a domain type def."""
+        assert len(names) == 1
+        return str(names[0])
+
     def init(self, args):
         """Process the 'init' rule."""
-        return "init", set(args[2:-1])
+        return "init", args[2:-1]
 
     def literal_name(self, args):
         """Process the 'literal_name' rule."""
@@ -116,13 +126,18 @@ class ProblemTransformer(Transformer):
             return Predicate(name, *terms)
 
 
+_problem_parser_lark = PROBLEM_GRAMMAR_FILE.read_text()
+
+
 class ProblemParser:
     """PDDL problem parser class."""
 
     def __init__(self):
         """Initialize."""
         self._transformer = ProblemTransformer()
-        self._parser = Lark(PROBLEM_GRAMMAR_FILE.open(), parser="lalr")
+        self._parser = Lark(
+            _problem_parser_lark, parser="lalr", import_paths=[PARSERS_DIRECTORY]
+        )
 
     def __call__(self, text):
         """Call."""

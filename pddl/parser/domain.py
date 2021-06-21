@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
 #
+# Copyright 2021 WhiteMech
+#
+# ------------------------------
+#
 # This file is part of pddl.
 #
 # pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # pddl is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with pddl.  If not, see <https://www.gnu.org/licenses/>.
 #
+
 """Implementation of the PDDL domain parser."""
 from typing import Dict, Set
 
@@ -22,11 +27,11 @@ from lark import Lark, ParseError, Transformer
 
 from pddl.core import Action, Domain, Requirements
 from pddl.exceptions import PDDLMissingRequirementError
-from pddl.helpers import _assert, find, safe_get, safe_index
+from pddl.helpers.base import assert_, find, safe_get, safe_index
 from pddl.logic.base import And, FalseFormula, Imply, Not, OneOf, Or
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
-from pddl.parser import DOMAIN_GRAMMAR_FILE
+from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
 from pddl.parser.symbols import Symbols
 
 
@@ -105,7 +110,7 @@ class DomainTransformer(Transformer):
         if len(args) == 2:
             return FalseFormula()
         else:
-            _assert(len(args) == 1)
+            assert_(len(args) == 1)
             return args[0]
 
     def gd(self, args):
@@ -179,7 +184,7 @@ class DomainTransformer(Transformer):
 
     def constant(self, args):
         """Process the 'constant' rule."""
-        _assert(len(args) == 1, "Unexpected parsing error.")
+        assert_(len(args) == 1, "Unexpected parsing error.")
         constant = self._constants_by_name.get(args[0], None)
         if constant is None:
             raise ParseError(f"Constant '{args[0]}' not defined.")
@@ -232,13 +237,18 @@ class DomainTransformer(Transformer):
             return args[1:-1]
 
 
+_domain_parser_lark = DOMAIN_GRAMMAR_FILE.read_text()
+
+
 class DomainParser:
     """PDDL domain parser class."""
 
     def __init__(self):
         """Initialize."""
         self._transformer = DomainTransformer()
-        self._parser = Lark(DOMAIN_GRAMMAR_FILE.open(), parser="lalr")
+        self._parser = Lark(
+            _domain_parser_lark, parser="lalr", import_paths=[PARSERS_DIRECTORY]
+        )
 
     def __call__(self, text):
         """Call."""

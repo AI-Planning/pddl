@@ -20,34 +20,40 @@
 # along with pddl.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-"""This module contains tests for the library custom types."""
+"""Test the cache hash class decorator."""
+import pickle
 
-import pytest
-
-from pddl.custom_types import name
-
-
-def test_name_string():
-    """Test the 'name' string subclass defined in pddl.types."""
-    a = name("a")
-    assert a == "a"
+from pddl.helpers.cache_hash import cache_hash
 
 
-def test_name_constructor_twice():
-    """Test that the name constructor is idempotent."""
-    a0 = "a"
-    a1 = name(a0)
-    a2 = name(a1)
-    assert a0 == a1 == a2
+@cache_hash
+class MyHashable:
+    """A test class to test 'Hashable' metaclass."""
+
+    def __init__(self):
+        """Initialize."""
+        super().__init__()
+        self.a = "a"
+        self.b = "b"
+
+    def __hash__(self):
+        """Compute the hash."""
+        return hash((self.a, self.b))
 
 
-def test_name_empty_string():
-    """Test that providing an empty string to name constructor raises error."""
-    with pytest.raises(ValueError):
-        name("")
+def test_hashable():
+    """Test the hashable class."""
+    obj = MyHashable()
 
+    assert not hasattr(obj, "__hash")
 
-def test_name_starts_with_digits():
-    """Test that providing a string to name constructor starting with digits raises error."""
-    with pytest.raises(ValueError):
-        name("123")
+    h1 = hash(obj)
+    h2 = hash(obj)
+    assert h1 == h2
+
+    assert hasattr(obj, "__hash")
+    assert obj.__hash == h1 == h2
+
+    dumped_obj = pickle.dumps(obj)
+    actual_obj = pickle.loads(dumped_obj)
+    assert not hasattr(actual_obj, "__hash")
