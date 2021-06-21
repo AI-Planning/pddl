@@ -5,21 +5,23 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
+pytest-cov = "*"
+pytest-lazy-fixture = "*"
 tox = "*"
 ipython = "*"
 codecov = "*"
 tox-travis = "*"
-black = "==19.3b0"
+black = "==19.10b0"
 mypy = "*"
 flake8 = "*"
 flake8-docstrings = "*"
-pytest-cov = "*"
 mkdocs = "*"
 markdown-include = "*"
-v = {editable = true,version = "*"}
-
-[packages]
-lark-parser = "==0.7.8"
+isort = "*"
+mistune = "==2.0.0a4"
+mkdocs-material = "*"
+types-click = "*"
+vulture = "*"
 
 [requires]
-python_version = ">=3.6"
+python_version = "3.7"

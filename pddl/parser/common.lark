@@ -1,0 +1,44 @@
+NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
+
+?require_key:              TYPING
+            |              STRIPS
+            |              EQUALITY
+            |              NON_DETERMINISTIC
+            |              NEG_PRECONDITION
+            |              DIS_PRECONDITION
+            |              ADL
+
+COMMENT: /;[^\n]*/
+
+DEFINE: "define"
+DOMAIN: "domain"
+REQUIREMENTS: ":requirements"
+TYPES: ":types"
+CONSTANTS: ":constants"
+PREDICATES: ":predicates"
+ACTION: ":action"
+PARAMETERS: ":parameters"
+PRECONDITION: ":precondition"
+EFFECT: ":effect"
+OBJECT: "object"
+AND: "and"
+OR: "or"
+NOT: "not"
+IMPLY: "imply"
+EITHER: "either"
+ONEOF: "oneof"
+EQUAL_OP: "="
+
+// available requirements
+STRIPS: ":strips"
+TYPING: ":typing"
+EQUALITY: ":equality"
+ADL: ":adl"
+NON_DETERMINISTIC: ":non-deterministic"
+NEG_PRECONDITION: ":negative-preconditions"
+DIS_PRECONDITION: ":disjunctive-preconditions"
+
+// others
+LPAR : "("
+RPAR : ")"
+TYPE_SEP: "-"

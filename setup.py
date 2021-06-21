@@ -1,7 +1,27 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright 2021 WhiteMech
+#
+# ------------------------------
+#
+# This file is part of pddl.
+#
+# pddl is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# pddl is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with pddl.  If not, see <https://www.gnu.org/licenses/>.
+#
 
 """The setup script."""
+
 import os
 import glob
 
@@ -10,17 +30,18 @@ from setuptools import setup, find_packages
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.md') as history_file:
+with open('CHANGES.md') as history_file:
     history = history_file.read()
 
 here = os.path.abspath(os.path.dirname(__file__))
 about = {}
-with open(os.path.join(here, 'fondpddl', '__version__.py'), 'r') as f:
+with open(os.path.join(here, 'pddl', '__version__.py'), 'r') as f:
     exec(f.read(), about)
 
 
 install_requires = [
-    "lark-parser"
+    "lark-parser>=0.9.0,<1",
+    "click>=8,<9"
 ]
 
 setup(
@@ -46,10 +67,13 @@ setup(
     license=about["__license__"],
     include_package_data=True,
     data_files=[
-        ("fondpddl/parser", glob.glob("fondpddl/parser/*.lark")),
+        ("pddl/parser", glob.glob("pddl/parser/*.lark")),
     ],
-    keywords='fondpddl',
-    packages=find_packages(include=['fondpddl*']),
+    keywords='pddl',
+    packages=find_packages(include=['pddl*']),
+    entry_points={
+        'console_scripts': ["pddl=pddl.__main__:cli"],
+    },
     test_suite='tests',
     tests_require=["pytest"],
     zip_safe=False,

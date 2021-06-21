@@ -1,0 +1,82 @@
+start: domain
+
+domain:        LPAR DEFINE domain_def [requirements] [types] [constants] [predicates] structure_def* RPAR
+domain_def:    LPAR DOMAIN NAME RPAR
+
+requirements:              LPAR REQUIREMENTS require_key+ RPAR
+
+types:                 LPAR TYPES typed_list_name RPAR
+constants:             LPAR CONSTANTS typed_list_name RPAR
+predicates:            LPAR PREDICATES atomic_formula_skeleton+ RPAR
+atomic_formula_skeleton:   LPAR NAME typed_list_variable RPAR
+
+
+?structure_def:    action_def
+action_def:        LPAR ACTION NAME PARAMETERS action_parameters action_body_def RPAR
+action_parameters: LPAR typed_list_variable RPAR
+?action_body_def:  [PRECONDITION emptyor_pregd] [EFFECT emptyor_effect]
+
+// preconditions
+emptyor_pregd:     LPAR RPAR
+             |     gd
+gd:                atomic_formula_term
+  |                LPAR OR gd* RPAR
+  |                LPAR NOT gd RPAR
+  |                LPAR AND gd* RPAR
+  |                LPAR IMPLY gd gd RPAR
+
+// effects
+emptyor_effect:    LPAR RPAR
+              |    effect
+effect:            LPAR AND effect* RPAR
+      |            LPAR ONEOF effect+ RPAR
+      |            p_effect
+p_effect:          LPAR NOT atomic_formula_term RPAR
+        |          atomic_formula_term
+
+atomic_formula_term:   LPAR predicate term* RPAR
+                   |   LPAR EQUAL_OP term term RPAR
+?term:  constant
+     |  variable
+?predicate: NAME
+constant: NAME
+
+typed_list_variable:   variable*
+                   |   variable+ TYPE_SEP type_def (typed_list_variable)
+?variable: "?" NAME
+
+typed_list_name:   NAME*
+               |   NAME+ TYPE_SEP type_def (typed_list_name)
+type_def:          LPAR EITHER primitive_type+ RPAR
+        |          primitive_type
+?primitive_type:   NAME
+               |   OBJECT
+
+%ignore /\s+/
+%ignore COMMENT
+
+%import .common.COMMENT -> COMMENT
+%import .common.require_key -> require_key
+%import .common.NAME -> NAME
+%import .common.DEFINE -> DEFINE
+%import .common.DOMAIN -> DOMAIN
+%import .common.REQUIREMENTS -> REQUIREMENTS
+%import .common.TYPES -> TYPES
+%import .common.CONSTANTS -> CONSTANTS
+%import .common.PREDICATES -> PREDICATES
+%import .common.ACTION -> ACTION
+%import .common.PARAMETERS -> PARAMETERS
+%import .common.PRECONDITION -> PRECONDITION
+%import .common.EFFECT -> EFFECT
+%import .common.OBJECT -> OBJECT
+%import .common.AND -> AND
+%import .common.OR -> OR
+%import .common.NOT -> NOT
+%import .common.IMPLY -> IMPLY
+%import .common.EITHER -> EITHER
+%import .common.ONEOF -> ONEOF
+%import .common.EQUAL_OP -> EQUAL_OP
+%import .common.LPAR -> LPAR
+%import .common.RPAR -> RPAR
+%import .common.TYPE_SEP -> TYPE_SEP
+

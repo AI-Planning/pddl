@@ -1,0 +1,58 @@
+start: problem
+
+problem:           LPAR DEFINE problem_def problem_domain [requirements] [objects] init goal RPAR
+problem_def:       LPAR PROBLEM NAME RPAR
+problem_domain:    LPAR DOMAIN_P NAME RPAR
+
+objects:   LPAR OBJECTS typed_list_name RPAR
+
+init:                  LPAR INIT init_el* RPAR
+?init_el:              literal_name
+literal_name:          atomic_formula_name
+            |          LPAR NOT atomic_formula_name RPAR
+atomic_formula_name:   LPAR predicate NAME* RPAR
+                   |   LPAR EQUAL_OP NAME NAME RPAR
+
+goal:  LPAR GOAL gd_name RPAR
+
+gd_name:    atomic_formula_name
+       |    LPAR NOT atomic_formula_name RPAR
+       |    LPAR AND gd_name* RPAR
+
+DOMAIN_P: ":domain"
+PROBLEM: "problem"
+OBJECTS: ":objects"
+INIT: ":init"
+GOAL: ":goal"
+
+%ignore /\s+/
+%ignore COMMENT
+
+%import .common.COMMENT -> COMMENT
+%import .domain.requirements -> requirements
+%import .domain.typed_list_name -> typed_list_name
+%import .domain.predicate -> predicate
+%import .common.NAME -> NAME
+%import .common.DEFINE -> DEFINE
+%import .common.DOMAIN -> DOMAIN
+%import .common.REQUIREMENTS -> REQUIREMENTS
+%import .common.TYPES -> TYPES
+%import .common.CONSTANTS -> CONSTANTS
+%import .common.PREDICATES -> PREDICATES
+%import .common.ACTION -> ACTION
+%import .common.PARAMETERS -> PARAMETERS
+%import .common.PRECONDITION -> PRECONDITION
+%import .common.EFFECT -> EFFECT
+%import .common.OBJECT -> OBJECT
+%import .common.AND -> AND
+%import .common.NOT -> NOT
+%import .common.EITHER -> EITHER
+%import .common.ONEOF -> ONEOF
+%import .common.EQUAL_OP -> EQUAL_OP
+%import .common.TYPING -> TYPING
+%import .common.EQUALITY -> EQUALITY
+%import .common.STRIPS -> STRIPS
+%import .common.NON_DETERMINISTIC -> NON_DETERMINISTIC
+%import .common.LPAR -> LPAR
+%import .common.RPAR -> RPAR
+%import .common.TYPE_SEP -> TYPE_SEP
