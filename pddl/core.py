@@ -267,7 +267,7 @@ class Action:
 
     def __str__(self):
         """Get the string."""
-        operator_str = "({0}\n".format(self.name)
+        operator_str = "(:action {0}\n".format(self.name)
         operator_str += f"    :parameters ({' '.join(map(str, self.parameters))})\n"
         operator_str += f"    :precondition {str(self.precondition)}\n"
         operator_str += f"    :effect {str(self.effect)}\n"
