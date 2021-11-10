@@ -80,6 +80,7 @@ class Constant(Term):
         Initialize a constant.
 
         :param name: the name.
+        :param type_tags: the type tags
         """
         super().__init__(name, type_tags=type_tags)
 
@@ -110,6 +111,7 @@ class Variable(Term):
         Initialize the variable.
 
         :param name: the name.
+        :param type_tags: the type tags
         """
         super().__init__(name, type_tags=type_tags)
 

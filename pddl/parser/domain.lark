@@ -11,10 +11,11 @@ predicates:            LPAR PREDICATES atomic_formula_skeleton+ RPAR
 atomic_formula_skeleton:   LPAR NAME typed_list_variable RPAR
 
 
-?structure_def:    action_def
+?structure_def:    action_def | derived_predicates
 action_def:        LPAR ACTION NAME PARAMETERS action_parameters action_body_def RPAR
 action_parameters: LPAR typed_list_variable RPAR
 ?action_body_def:  [PRECONDITION emptyor_pregd] [EFFECT emptyor_effect]
+derived_predicates: LPAR DERIVED atomic_formula_skeleton gd RPAR
 
 // preconditions
 emptyor_pregd:     LPAR RPAR
@@ -31,8 +32,13 @@ emptyor_effect:    LPAR RPAR
 effect:            LPAR AND effect* RPAR
       |            LPAR ONEOF effect+ RPAR
       |            p_effect
+      |            c_effect
 p_effect:          LPAR NOT atomic_formula_term RPAR
         |          atomic_formula_term
+?c_effect:          LPAR FORALL LPAR typed_list_variable RPAR effect RPAR
+        |          LPAR WHEN gd cond_effect RPAR
+?cond_effect:       LPAR AND p_effect* RPAR
+           |       p_effect
 
 atomic_formula_term:   LPAR predicate term* RPAR
                    |   LPAR EQUAL_OP term term RPAR
@@ -68,6 +74,9 @@ type_def:          LPAR EITHER primitive_type+ RPAR
 %import .common.PARAMETERS -> PARAMETERS
 %import .common.PRECONDITION -> PRECONDITION
 %import .common.EFFECT -> EFFECT
+%import .common.DERIVED -> DERIVED
+%import .common.FORALL -> FORALL
+%import .common.WHEN -> WHEN
 %import .common.OBJECT -> OBJECT
 %import .common.AND -> AND
 %import .common.OR -> OR

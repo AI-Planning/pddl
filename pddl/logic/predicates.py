@@ -28,7 +28,7 @@ from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike
 from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
-from pddl.logic.base import Atomic
+from pddl.logic.base import Atomic, Formula
 from pddl.logic.terms import Term
 
 
@@ -141,3 +141,27 @@ class EqualTo(Atomic):
     def __repr__(self) -> str:
         """Get the string representation."""
         return f"{type(self).__name__}({self.left}, {self.right})"
+
+
+class DerivedPredicate(Atomic):
+    """A class for a Derived Predicate in PDDL."""
+
+    def __init__(self, predicate: Predicate, condition: Formula) -> None:
+        """
+        Initialize the derived predicate.
+
+        :param predicate: the predicate
+        :param condition: the condition
+        """
+        self._predicate = predicate
+        self._condition = condition
+
+    @property
+    def predicate(self) -> Predicate:
+        """Get the predicate."""
+        return self._predicate
+
+    @property
+    def condition(self) -> Formula:
+        """Get the condition."""
+        return self._condition

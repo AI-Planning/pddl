@@ -85,7 +85,7 @@ def safe_get(seq: Sequence, index: int, default=None):
 
 def find(seq: Sequence, condition: Callable[[Any], bool]) -> int:
     """
-    Find the index of the first element that safisfies a condition.
+    Find the index of the first element that satisfies a condition.
 
     :param seq: the sequence.
     :param condition: the condition.

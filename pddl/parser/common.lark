@@ -1,12 +1,14 @@
 NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
 
-?require_key:              TYPING
-            |              STRIPS
-            |              EQUALITY
-            |              NON_DETERMINISTIC
-            |              NEG_PRECONDITION
-            |              DIS_PRECONDITION
-            |              ADL
+?require_key: TYPING
+            | STRIPS
+            | EQUALITY
+            | NON_DETERMINISTIC
+            | NEG_PRECONDITION
+            | DIS_PRECONDITION
+            | ADL
+            | DERIVED_PREDICATES
+            | CONDITIONAL_EFFECTS
 
 COMMENT: /;[^\n]*/
 
@@ -20,6 +22,9 @@ ACTION: ":action"
 PARAMETERS: ":parameters"
 PRECONDITION: ":precondition"
 EFFECT: ":effect"
+DERIVED: ":derived"
+FORALL: "forall"
+WHEN: "when"
 OBJECT: "object"
 AND: "and"
 OR: "or"
@@ -37,6 +42,8 @@ ADL: ":adl"
 NON_DETERMINISTIC: ":non-deterministic"
 NEG_PRECONDITION: ":negative-preconditions"
 DIS_PRECONDITION: ":disjunctive-preconditions"
+DERIVED_PREDICATES: ":derived-predicates"
+CONDITIONAL_EFFECTS: ":conditional-effects"
 
 // others
 LPAR : "("

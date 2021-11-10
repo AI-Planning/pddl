@@ -55,6 +55,9 @@ def _getstate(fn):
     with another instance of the interpreter, the stored hash might
     be inconsistent with the PYTHONHASHSEED initialization of the
     new interpreter.
+
+    :param fn: the getstate function.
+    :return: the new getstate function.
     """
 
     @wraps(fn)
@@ -84,6 +87,9 @@ def _setstate(fn):
     as the state might be restored in another
     interpreter in which the old hash value
     might not be consistent anymore.
+
+    :param fn: the setstate function.
+    :return: the new setstate function.
     """
 
     @wraps(fn)
@@ -103,6 +109,9 @@ def cache_hash(cls):
         __hash__
         __getstate__
         __setstate__
+
+    :param cls: the class to wrap
+    :return: the wrapped class
     """
     cls.__hash__ = _cache_hash(cls.__hash__)
 

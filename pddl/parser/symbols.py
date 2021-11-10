@@ -63,16 +63,22 @@ class Symbols(Enum):
 ALL_SYMBOLS = {v.value for v in Symbols}  # type: Set[str]
 
 
-class Requirements(Enum):
+class RequirementSymbols(Enum):
     """A set of requirements that can be used in PDDL."""
 
     STRIPS = ":strips"
-    ADL = ":adl"
-    NON_DETERMINISTIC = ":non-deterministic"
+    TYPING = ":typing"
     NEG_PRECONDITION = ":negative-preconditions"
     DIS_PRECONDITION = ":disjunctive-preconditions"
     EQUALITY = ":equality"
-    TYPING = ":typing"
+    CONDITIONAL_EFFECTS = ":conditional-effects"
+    ADL = ":adl"
+    DERIVED_PREDICATES = ":derived-predicates"
+    NON_DETERMINISTIC = ":non-deterministic"
+
+    def strip(self) -> str:
+        """Strip the leading colon."""
+        return self.value[1:]
 
 
-ALL_REQUIREMENTS = {v.value for v in Requirements}  # type: Set[str]
+ALL_REQUIREMENTS = {v.value for v in RequirementSymbols}  # type: Set[str]
