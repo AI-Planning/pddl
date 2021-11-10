@@ -61,7 +61,7 @@ class DomainTransformer(Transformer):
             if isinstance(arg, Action):
                 actions.append(arg)
             elif isinstance(arg, DerivedPredicate):
-                actions.append(arg)
+                derived_predicates.append(arg)
             else:
                 assert isinstance(arg, dict)
                 kwargs.update(arg)

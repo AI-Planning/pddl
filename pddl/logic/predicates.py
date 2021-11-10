@@ -30,6 +30,7 @@ from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, Formula
 from pddl.logic.terms import Term
+from pddl.parser.symbols import Symbols
 
 
 @cache_hash
@@ -136,15 +137,17 @@ class EqualTo(Atomic):
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"(= {self.left} {self.right})"
+        return f"({Symbols.EQUAL} {self.left} {self.right})"
 
     def __repr__(self) -> str:
         """Get the string representation."""
         return f"{type(self).__name__}({self.left}, {self.right})"
 
 
+@cache_hash
+@functools.total_ordering
 class DerivedPredicate(Atomic):
-    """A class for a Derived Predicate in PDDL."""
+    """A class for a Derived Predicates in PDDL."""
 
     def __init__(self, predicate: Predicate, condition: Formula) -> None:
         """
@@ -165,3 +168,24 @@ class DerivedPredicate(Atomic):
     def condition(self) -> Formula:
         """Get the condition."""
         return self._condition
+
+    def __hash__(self) -> int:
+        """Get the hash."""
+        return hash((DerivedPredicate, self.predicate, self.condition))
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return f"({Symbols.DERIVED} {self.predicate} {self.condition})"
+
+    def __repr__(self) -> str:
+        """Get the string representation."""
+        return f"{type(self).__name__}({self.predicate}, {self.condition})"
+
+    def __lt__(self, other):
+        """Compare with another object."""
+        if isinstance(other, DerivedPredicate):
+            return (self.predicate, self._predicate) < (
+                other.predicate,
+                other.condition,
+            )
+        return super().__lt__(other)
