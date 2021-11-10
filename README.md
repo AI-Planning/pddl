@@ -166,14 +166,14 @@ requirements:
 - [ ] `:existential-preconditions`  
 - [ ] `:universal-preconditions`  
 - [ ] `:quantified-preconditions`  
-- [ ] `:conditional-effects`  
+- [x] `:conditional-effects`  
 - [ ] `:fluents`  
 - [ ] `:numeric-fluents`  
 - [x] `:non-deterministic` (see [6th IPC: Uncertainty Part](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.163.7140&rep=rep1&type=pdf))  
 - [ ] `:adl`  
 - [ ] `:durative-actions`  
 - [ ] `:duration-inequalities`  
-- [ ] `:derived-predicates`  
+- [x] `:derived-predicates`  
 - [ ] `:timed-initial-literals`  
 - [ ] `:preferences`  
 - [ ] `:constraints`  
