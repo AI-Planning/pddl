@@ -29,6 +29,7 @@ from pddl.core import Action, Domain, Requirements
 from pddl.exceptions import PDDLMissingRequirementError
 from pddl.helpers.base import assert_, safe_get, safe_index
 from pddl.logic.base import And, FalseFormula, Imply, Not, OneOf, Or
+from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
@@ -175,12 +176,23 @@ class DomainTransformer(Transformer):
         """Process the 'effect' rule."""
         if len(args) == 1:
             return args[0]
-        elif args[1] == Symbols.AND.value:
+        if args[1] == Symbols.AND.value:
             return And(*args[2:-1])
-        elif args[1] == Symbols.ONEOF.value:
+        if args[1] == Symbols.ONEOF.value:
             if not bool({Requirements.NON_DETERMINISTIC} & self._extended_requirements):
                 raise PDDLMissingRequirementError(Requirements.NON_DETERMINISTIC)
             return OneOf(*args[2:-1])
+        raise ValueError("case not recognized")
+
+    def c_effect(self, args):
+        """Process the 'c_effect' rule."""
+        if len(args) == 1:
+            return args[0]
+        if args[1] == Symbols.FORALL.value:
+            return Forall(effects=args[-2], variables=args[3])
+        if args[1] == Symbols.WHEN.value:
+            return When(args[2], args[3])
+        raise ValueError()
 
     def p_effect(self, args):
         """Process the 'p_effect' rule."""
@@ -188,6 +200,14 @@ class DomainTransformer(Transformer):
             return args[0]
         else:
             return Not(args[2])
+
+    def cond_effect(self, args):
+        """Process the 'cond_effect' rule."""
+        if len(args) >= 3 and args[1] == Symbols.AND.value:
+            p_effects = args[2:-1]
+            return AndEffect(p_effects)
+        assert len(args) == 1
+        return args[0]
 
     def atomic_formula_term(self, args):
         """Process the 'atomic_formula_term' rule."""

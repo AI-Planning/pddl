@@ -29,15 +29,15 @@ gd:                atomic_formula_term
 // effects
 emptyor_effect:    LPAR RPAR
               |    effect
-effect:            LPAR AND effect* RPAR
+effect:            LPAR AND c_effect* RPAR
       |            LPAR ONEOF effect+ RPAR
-      |            p_effect
       |            c_effect
+c_effect:          LPAR FORALL LPAR typed_list_variable RPAR effect RPAR
+        |          LPAR WHEN gd cond_effect RPAR
+        |          p_effect
 p_effect:          LPAR NOT atomic_formula_term RPAR
         |          atomic_formula_term
-?c_effect:          LPAR FORALL LPAR typed_list_variable RPAR effect RPAR
-        |          LPAR WHEN gd cond_effect RPAR
-?cond_effect:       LPAR AND p_effect* RPAR
+cond_effect:       LPAR AND p_effect* RPAR
            |       p_effect
 
 atomic_formula_term:   LPAR predicate term* RPAR

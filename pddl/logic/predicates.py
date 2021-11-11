@@ -175,7 +175,7 @@ class DerivedPredicate(Atomic):
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"({Symbols.DERIVED} {self.predicate} {self.condition})"
+        return f"({Symbols.DERIVED.value} {self.predicate} {self.condition})"
 
     def __repr__(self) -> str:
         """Get the string representation."""
