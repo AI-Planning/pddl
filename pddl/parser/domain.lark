@@ -30,10 +30,10 @@ gd:                atomic_formula_term
 emptyor_effect:    LPAR RPAR
               |    effect
 effect:            LPAR AND c_effect* RPAR
-      |            LPAR ONEOF effect+ RPAR
       |            c_effect
 c_effect:          LPAR FORALL LPAR typed_list_variable RPAR effect RPAR
         |          LPAR WHEN gd cond_effect RPAR
+        |          LPAR ONEOF effect+ RPAR
         |          p_effect
 p_effect:          LPAR NOT atomic_formula_term RPAR
         |          atomic_formula_term

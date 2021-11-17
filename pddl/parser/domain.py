@@ -178,10 +178,6 @@ class DomainTransformer(Transformer):
             return args[0]
         if args[1] == Symbols.AND.value:
             return And(*args[2:-1])
-        if args[1] == Symbols.ONEOF.value:
-            if not bool({Requirements.NON_DETERMINISTIC} & self._extended_requirements):
-                raise PDDLMissingRequirementError(Requirements.NON_DETERMINISTIC)
-            return OneOf(*args[2:-1])
         raise ValueError("case not recognized")
 
     def c_effect(self, args):
@@ -192,6 +188,10 @@ class DomainTransformer(Transformer):
             return Forall(effects=args[-2], variables=args[3])
         if args[1] == Symbols.WHEN.value:
             return When(args[2], args[3])
+        if args[1] == Symbols.ONEOF.value:
+            if not bool({Requirements.NON_DETERMINISTIC} & self._extended_requirements):
+                raise PDDLMissingRequirementError(Requirements.NON_DETERMINISTIC)
+            return OneOf(*args[2:-1])
         raise ValueError()
 
     def p_effect(self, args):
