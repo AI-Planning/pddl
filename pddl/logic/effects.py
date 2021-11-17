@@ -27,7 +27,7 @@ from typing import AbstractSet, Collection, Generic, Optional, Sequence, TypeVar
 from pddl.helpers.base import ensure_set
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic import Variable
-from pddl.logic.base import Atomic, Formula, Not
+from pddl.logic.base import Atomic, Formula, Not, OneOf
 from pddl.parser.symbols import Symbols
 
 EffectType = TypeVar("EffectType")
@@ -53,7 +53,7 @@ class AndEffect(Generic[EffectType]):
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"({Symbols.AND} {' '.join(map(str, self.operands))})"
+        return f"({Symbols.AND.value} {' '.join(map(str, self.operands))})"
 
     def __repr__(self) -> str:
         """Get an unambiguous string representation."""
@@ -101,7 +101,7 @@ class When:
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"({Symbols.WHEN} {self._condition} {self.effect})"
+        return f"({Symbols.WHEN.value} {self._condition} {self.effect})"
 
     def __repr__(self) -> str:
         """Get an unambiguous string representation."""
@@ -150,9 +150,7 @@ class Forall:
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return (
-            f"({Symbols.FORALL} ({' '.join(map(str, self.variables))}) {self.effect})"
-        )
+        return f"({Symbols.FORALL.value} ({' '.join(map(str, self.variables))}) {self.effect})"
 
     def __repr__(self) -> str:
         """Get an unambiguous string representation."""
@@ -178,6 +176,6 @@ class Forall:
 
 
 PEffect = Union[Atomic, Not]
-CEffect = Union[Forall, When, "PEffect"]
+CEffect = Union[Forall, When, OneOf, "PEffect"]
 Effect = Union[AndEffect["CEffect"], CEffect]
 CondEffect = Union[AndEffect["PEffect"], "PEffect"]

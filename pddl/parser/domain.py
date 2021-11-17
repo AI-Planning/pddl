@@ -177,7 +177,7 @@ class DomainTransformer(Transformer):
         if len(args) == 1:
             return args[0]
         if args[1] == Symbols.AND.value:
-            return And(*args[2:-1])
+            return AndEffect(*args[2:-1])
         raise ValueError("case not recognized")
 
     def c_effect(self, args):
