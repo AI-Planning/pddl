@@ -254,8 +254,8 @@ class Action:
         """
         self._name: str = name_type(name)
         self._parameters: Sequence[Variable] = ensure_sequence(parameters)
-        self._precondition: Formula = ensure(precondition, FalseFormula())
-        self._effect: Formula = ensure(effect, FalseFormula())
+        self._precondition = precondition
+        self._effect = effect
 
     @property
     def name(self) -> str:
@@ -268,12 +268,12 @@ class Action:
         return self._parameters
 
     @property
-    def precondition(self) -> Formula:
+    def precondition(self) -> Optional[Formula]:
         """Get the precondition."""
         return self._precondition
 
     @property
-    def effect(self) -> Formula:
+    def effect(self) -> Optional[Formula]:
         """Get the effect."""
         return self._effect
 
@@ -281,8 +281,10 @@ class Action:
         """Get the string."""
         operator_str = "(:action {0}\n".format(self.name)
         operator_str += f"    :parameters ({' '.join(map(str, self.parameters))})\n"
-        operator_str += f"    :precondition {str(self.precondition)}\n"
-        operator_str += f"    :effect {str(self.effect)}\n"
+        if self.precondition is not None:
+            operator_str += f"    :precondition {str(self.precondition)}\n"
+        if self.effect is not None:
+            operator_str += f"    :effect {str(self.effect)}\n"
         operator_str += ")"
         return operator_str
 
