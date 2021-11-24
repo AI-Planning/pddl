@@ -27,7 +27,7 @@ from typing import AbstractSet, Collection, Generic, Optional, Sequence, TypeVar
 from pddl.helpers.base import ensure_set
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic import Variable
-from pddl.logic.base import Atomic, Formula, Not, OneOf
+from pddl.logic.base import Atomic, Formula, Not, OneOf, MonotoneOp, BinaryOp
 from pddl.parser.symbols import Symbols
 
 EffectType = TypeVar("EffectType")
@@ -35,7 +35,7 @@ EffectType = TypeVar("EffectType")
 
 @cache_hash
 @functools.total_ordering
-class AndEffect(Generic[EffectType]):
+class AndEffect(Generic[EffectType], metaclass=MonotoneOp):
     """Conjunction of effects."""
 
     def __init__(self, *operands: EffectType):
