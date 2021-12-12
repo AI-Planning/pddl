@@ -35,7 +35,7 @@ EffectType = TypeVar("EffectType")
 
 @cache_hash
 @functools.total_ordering
-class AndEffect(Generic[EffectType], metaclass=MonotoneOp):
+class AndEffect(Generic[EffectType]):
     """Conjunction of effects."""
 
     def __init__(self, *operands: EffectType):
