@@ -144,7 +144,9 @@ class DomainTransformer(Transformer):
                 {Requirements.NEG_PRECONDITION, Requirements.ADL}
                 & self._extended_requirements
             ):
-                raise PDDLMissingRequirementError(Requirements.NEG_PRECONDITION)
+                # raise PDDLMissingRequirementError(Requirements.NEG_PRECONDITION)
+                # TODO temporary change; remove
+                pass
             return Not(args[2])
         elif args[1] == Symbols.AND.value:
             operands = args[2:-1]
