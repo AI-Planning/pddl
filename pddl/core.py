@@ -27,14 +27,15 @@ It contains the class definitions to build and modify PDDL domains or problems.
 """
 import functools
 from enum import Enum
-from typing import AbstractSet, Collection, Optional, Sequence, cast
+from typing import AbstractSet, Collection, Optional, Sequence, Set, cast
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names
 from pddl.helpers.base import assert_, ensure, ensure_sequence, ensure_set
 from pddl.logic.base import FalseFormula, Formula, TrueFormula, is_literal
-from pddl.logic.predicates import Predicate
+from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant, Variable
+from pddl.parser.symbols import RequirementSymbols as RS
 
 
 class Domain:
@@ -47,6 +48,9 @@ class Domain:
         types: Optional[Collection[namelike]] = None,
         constants: Optional[Collection[Constant]] = None,
         predicates: Optional[Collection[Predicate]] = None,  # TODO cannot be empty
+        derived_predicates: Optional[
+            Collection[DerivedPredicate]
+        ] = None,  # TODO cannot be empty
         actions: Optional[Collection["Action"]] = None,
     ):
         """
@@ -57,6 +61,7 @@ class Domain:
         :param types: the list of supported types.
         :param constants: the constants.
         :param predicates: the predicates.
+        :param derived_predicates: the derived predicates.
         :param actions: the actions.
         """
         self._name = name_type(name)
@@ -64,6 +69,7 @@ class Domain:
         self._types = set(to_names(ensure_set(types)))
         self._constants = ensure_set(constants)
         self._predicates = ensure_set(predicates)
+        self._derived_predicates = ensure_set(derived_predicates)
         self._actions = ensure_set(actions)
 
     @property
@@ -87,6 +93,11 @@ class Domain:
         return self._predicates
 
     @property
+    def derived_predicates(self) -> AbstractSet[DerivedPredicate]:
+        """Get the derived predicates."""
+        return self._derived_predicates
+
+    @property
     def actions(self) -> AbstractSet["Action"]:
         """Get the actions."""
         return self._actions
@@ -105,6 +116,7 @@ class Domain:
             and self.types == other.types
             and self.constants == other.constants
             and self.predicates == other.predicates
+            and self.derived_predicates == other.derived_predicates
             and self.actions == other.actions
         )
 
@@ -127,7 +139,7 @@ class Problem:
 
         :param name: the name of the PDDL problem.
         :param domain: the PDDL domain.
-        :param domain: the domain name. Must match with the domain object.
+        :param domain_name: the domain name. Must match with the domain object.
         :param requirements: the set of PDDL requirements.
         :param objects: the set of objects.
         :param init: the initial condition.
@@ -242,8 +254,8 @@ class Action:
         """
         self._name: str = name_type(name)
         self._parameters: Sequence[Variable] = ensure_sequence(parameters)
-        self._precondition: Formula = ensure(precondition, FalseFormula())
-        self._effect: Formula = ensure(effect, FalseFormula())
+        self._precondition = precondition
+        self._effect = effect
 
     @property
     def name(self) -> str:
@@ -256,12 +268,12 @@ class Action:
         return self._parameters
 
     @property
-    def precondition(self) -> Formula:
+    def precondition(self) -> Optional[Formula]:
         """Get the precondition."""
         return self._precondition
 
     @property
-    def effect(self) -> Formula:
+    def effect(self) -> Optional[Formula]:
         """Get the effect."""
         return self._effect
 
@@ -269,8 +281,10 @@ class Action:
         """Get the string."""
         operator_str = "(:action {0}\n".format(self.name)
         operator_str += f"    :parameters ({' '.join(map(str, self.parameters))})\n"
-        operator_str += f"    :precondition {str(self.precondition)}\n"
-        operator_str += f"    :effect {str(self.effect)}\n"
+        if self.precondition is not None:
+            operator_str += f"    :precondition {str(self.precondition)}\n"
+        if self.effect is not None:
+            operator_str += f"    :effect {str(self.effect)}\n"
         operator_str += ")"
         return operator_str
 
@@ -293,13 +307,26 @@ class Action:
 class Requirements(Enum):
     """Enum class for the requirements."""
 
-    STRIPS = "strips"
-    EQUALITY = "equality"
-    TYPING = "typing"
-    ADL = "adl"
-    NON_DETERMINISTIC = "non-deterministic"
-    NEG_PRECONDITION = "negative-preconditions"
-    DIS_PRECONDITION = "disjunctive-preconditions"
+    STRIPS = RS.STRIPS.strip()
+    TYPING = RS.TYPING.strip()
+    NEG_PRECONDITION = RS.NEG_PRECONDITION.strip()
+    DIS_PRECONDITION = RS.DIS_PRECONDITION.strip()
+    EQUALITY = RS.EQUALITY.strip()
+    CONDITIONAL_EFFECTS = RS.CONDITIONAL_EFFECTS.strip()
+    ADL = RS.ADL.strip()
+    DERIVED_PREDICATES = RS.DERIVED_PREDICATES.strip()
+    NON_DETERMINISTIC = RS.NON_DETERMINISTIC.strip()
+
+    @classmethod
+    def strips_requirements(cls) -> Set["Requirements"]:
+        """Get the STRIPS requirements."""
+        return {
+            Requirements.TYPING,
+            Requirements.NEG_PRECONDITION,
+            Requirements.DIS_PRECONDITION,
+            Requirements.EQUALITY,
+            Requirements.CONDITIONAL_EFFECTS,
+        }
 
     def __str__(self) -> str:
         """Get the string representation."""

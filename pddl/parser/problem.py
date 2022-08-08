@@ -78,6 +78,9 @@ class ProblemTransformer(Transformer):
         Process the 'typed_list_name' rule.
 
         Return a dictionary with as keys the names and as value a set of types for each name.
+
+        :param args: the argument of this grammar rule
+        :return: a typed list (name)
         """
         return self._domain_transformer._typed_list_x(args)
 

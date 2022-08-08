@@ -239,7 +239,7 @@ def is_literal(formula: Formula) -> bool:
     - a Not formula whose argument is an atomic formula.
 
     :param formula: the formula.
-    :return True if the formula is a literal; False otherwise.
+    :return: True if the formula is a literal; False otherwise.
     """
     return (
         isinstance(formula, Atomic)
