@@ -55,7 +55,7 @@ def ensure_set(arg: Optional[Collection], immutable: bool = True) -> AbstractSet
     :return: the same set, or an empty set if the arg was None.
     """
     op = frozenset if immutable else set
-    return op(arg) if arg is not None and not isinstance(arg, op) else op()
+    return op(arg) if arg is not None else op()
 
 
 def ensure_sequence(arg: Optional[Sequence], immutable: bool = True) -> Sequence:
@@ -67,7 +67,7 @@ def ensure_sequence(arg: Optional[Sequence], immutable: bool = True) -> Sequence
     :return: the same list, or an empty list if the arg was None.
     """
     op: Type = tuple if immutable else list
-    return op(arg) if arg is not None and not isinstance(arg, op) else op()
+    return op(arg) if arg is not None else op()
 
 
 def safe_index(seq: Sequence, *args, **kwargs):
@@ -92,6 +92,17 @@ def find(seq: Sequence, condition: Callable[[Any], bool]) -> int:
     :return: the index, or -1 if no element satisfies the condition.
     """
     return next((i for i, x in enumerate(seq) if condition(x)), -1)
+
+
+def _typed_parameters(parameters) -> str:
+    """Return a list of parameters along with types if available."""
+    result = ""
+    for p in parameters:
+        if p.type_tags:
+            result += f"?{p.name} - {' '.join(map(str, p.type_tags))} "
+        else:
+            result += str(p) + " "
+    return result
 
 
 class RegexConstrainedString(str):
