@@ -54,7 +54,7 @@ def compile_and_exec(code: str, locals_dict: Dict = None) -> Dict:
 
 
 class BaseTestMarkdownDocs:
-    """Base test class for testing Markdown documents."""
+    """Base test class for blocksworld_fond Markdown documents."""
 
     MD_FILE: Optional[Path] = None
     code_blocks: List[Dict] = []

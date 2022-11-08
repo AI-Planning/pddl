@@ -26,13 +26,13 @@ from pathlib import Path
 import pytest
 from pytest import lazy_fixture  # type: ignore  # noqa
 
-# from pddl.core import Domain, Problem
 from pddl.core import Domain, Problem
 from tests.conftest import (
     BLOCKSWORLD_FILES,
     DOMAIN_FILES,
     PROBLEM_FILES,
     TRIANGLE_FILES,
+    BLOCKSWORLD_FOND_FILES
 )
 
 
@@ -53,6 +53,7 @@ def test_problem_parser(problem_parser, pddl_file: Path):
     [
         (BLOCKSWORLD_FILES / "domain.pddl", lazy_fixture("blocksworld_domain")),
         (TRIANGLE_FILES / "domain.pddl", lazy_fixture("triangle_tireworld_domain")),
+        (BLOCKSWORLD_FOND_FILES / "domain.pddl", lazy_fixture("blocksworld_fond_domain")),
     ],
 )
 def test_check_domain_parser_output(domain_parser, pddl_file: Path, expected_domain):
@@ -65,11 +66,14 @@ def test_check_domain_parser_output(domain_parser, pddl_file: Path, expected_dom
 
 @pytest.mark.parametrize(
     "pddl_file,expected_problem",
-    [(BLOCKSWORLD_FILES / "p01.pddl", lazy_fixture("blocksworld_problem_01"))],
+    [
+        (BLOCKSWORLD_FILES / "p01.pddl", lazy_fixture("blocksworld_problem_01")),
+        (BLOCKSWORLD_FOND_FILES / "p01.pddl", lazy_fixture("blocksworld_fond_01"))
+    ]
 )
 def test_check_problem_parser_output(problem_parser, pddl_file: Path, expected_problem):
     """Test problem parsing."""
-    problem = problem_parser(pddl_file.read_text())
+    actual_problem = problem_parser(pddl_file.read_text())
 
-    assert isinstance(problem, Problem)
-    assert problem == expected_problem
+    assert isinstance(actual_problem, Problem)
+    assert actual_problem == expected_problem

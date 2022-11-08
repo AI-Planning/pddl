@@ -42,6 +42,7 @@ FIXTURES_DIR = TEST_DIRECTORY / "fixtures"
 FIXTURES_PDDL_FILES = FIXTURES_DIR / "pddl_files"
 BLOCKSWORLD_FILES = FIXTURES_PDDL_FILES / "blocksworld-ipc08"
 TRIANGLE_FILES = FIXTURES_PDDL_FILES / "triangle-tireworld"
+BLOCKSWORLD_FOND_FILES = FIXTURES_PDDL_FILES / "blocksworld_fond"
 
 # TODO once missing features are supported, uncomment this
 # DOMAIN_FILES = [
@@ -49,21 +50,22 @@ TRIANGLE_FILES = FIXTURES_PDDL_FILES / "triangle-tireworld"
 # ]
 
 DOMAIN_NAMES = [
-    "acrobatics",
-    "beam-walk",
-    "blocksworld-ipc08",
-    "doors",
+    # "acrobatics",
+    # "beam-walk",
+    # "blocksworld-ipc08",
+    # "doors",
     # "earth_observation",
-    "elevators",
+    # "elevators",
     # "faults-ipc08",
     # "first-responders-ipc08",
-    "islands",
-    "miner",
-    "spiky-tireworld",
-    "tireworld",
-    "tireworld-truck",
-    "triangle-tireworld",
+    # "islands",
+    # "miner",
+    # "spiky-tireworld",
+    # "tireworld",
+    # "tireworld-truck",
+    # "triangle-tireworld",
     # "zenotravel",
+    "blocksworld_fond"
 ]
 
 DOMAIN_FILES = [
@@ -100,6 +102,10 @@ from tests.fixtures.code_objects.blocksworld_ipc08 import (  # noqa: E402, F401
 from tests.fixtures.code_objects.triangle_tireworld import (  # noqa: E402, F401
     triangle_tireworld_domain,
     triangle_tireworld_problem_01,
+)
+from tests.fixtures.code_objects.blocksworld_fond import (  # noqa: E402, F401
+    blocksworld_fond_domain,
+    blocksworld_fond_01,
 )
 
 #################################################
