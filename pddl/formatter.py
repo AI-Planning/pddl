@@ -50,7 +50,11 @@ def _print_predicates_with_types(predicates: Collection):
         else:
             result += f"({p.name}"
             for t in p.terms:
-                result += f" ?{t.name} - {' '.join(t.type_tags)}" if t.type_tags else f"?{t.name}"
+                result += (
+                    f" ?{t.name} - {' '.join(t.type_tags)}"
+                    if t.type_tags
+                    else f"?{t.name}"
+                )
             result += ") "
         result += " "
     return result.strip()
