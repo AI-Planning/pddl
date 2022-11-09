@@ -50,20 +50,20 @@ BLOCKSWORLD_FOND_FILES = FIXTURES_PDDL_FILES / "blocksworld_fond"
 # ]
 
 DOMAIN_NAMES = [
-    # "acrobatics",
-    # "beam-walk",
-    # "blocksworld-ipc08",
-    # "doors",
+    "acrobatics",
+    "beam-walk",
+    "blocksworld-ipc08",
+    "doors",
     # "earth_observation",
-    # "elevators",
+    "elevators",
     # "faults-ipc08",
     # "first-responders-ipc08",
-    # "islands",
-    # "miner",
-    # "spiky-tireworld",
-    # "tireworld",
-    # "tireworld-truck",
-    # "triangle-tireworld",
+    "islands",
+    "miner",
+    "spiky-tireworld",
+    "tireworld",
+    "tireworld-truck",
+    "triangle-tireworld",
     # "zenotravel",
     "blocksworld_fond"
 ]
