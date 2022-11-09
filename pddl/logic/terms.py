@@ -86,7 +86,7 @@ class Constant(Term):
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"{self.name} - {' '.join(self.type_tags)}" if self.type_tags else self.name
+        return self._name
 
     def __repr__(self):
         """Get a unique representation of the object."""
@@ -117,7 +117,7 @@ class Variable(Term):
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"?{self.name} - {' '.join(self.type_tags)}" if self.type_tags else f"?{self.name}"
+        return f"?{self._name}"
 
     def __repr__(self):
         """Get a unique representation of the object."""
