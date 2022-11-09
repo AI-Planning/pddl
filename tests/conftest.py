@@ -53,6 +53,7 @@ DOMAIN_NAMES = [
     "acrobatics",
     "beam-walk",
     "blocksworld-ipc08",
+    "blocksworld_fond",
     "doors",
     # "earth_observation",
     "elevators",
@@ -60,12 +61,12 @@ DOMAIN_NAMES = [
     # "first-responders-ipc08",
     "islands",
     "miner",
+    "rovers_fond",
     "spiky-tireworld",
     "tireworld",
     "tireworld-truck",
     "triangle-tireworld",
     # "zenotravel",
-    "blocksworld_fond"
 ]
 
 DOMAIN_FILES = [
