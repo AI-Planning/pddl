@@ -207,7 +207,7 @@ class DomainTransformer(Transformer):
         """Process the 'cond_effect' rule."""
         if len(args) >= 3 and args[1] == Symbols.AND.value:
             p_effects = args[2:-1]
-            return AndEffect(p_effects)
+            return And(*p_effects)
         assert len(args) == 1
         return args[0]
 

@@ -25,6 +25,7 @@ import pytest
 
 from pddl.core import Action, Domain, Problem, Requirements
 from pddl.logic.base import And, OneOf
+from pddl.logic.effects import AndEffect
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import EqualTo, Predicate
 
@@ -55,8 +56,8 @@ def blocksworld_domain():
     pick_up_parameters = [b1, b2]
     pick_up_precondition = ~EqualTo(b1, b2) & emptyhand & clear(b1) & on(b1, b2)
     pick_up_effect = OneOf(
-        holding(b1) & clear(b2) & ~emptyhand & ~clear(b1) & ~on(b1, b2),
-        clear(b2) & on_table(b1) & ~on(b1, b2),
+        AndEffect(holding(b1), clear(b2), ~emptyhand, ~clear(b1), ~on(b1, b2)),
+        AndEffect(clear(b2), on_table(b1), ~on(b1, b2)),
     )
     pick_up = Action(
         pick_up_name, pick_up_parameters, pick_up_precondition, pick_up_effect
@@ -66,7 +67,7 @@ def blocksworld_domain():
     pick_up_from_table_name = "pick-up-from-table"
     pick_up_from_table_parameters = [b]
     pick_up_from_table_precondition = emptyhand & clear(b) & on_table(b)
-    pick_up_from_table_effect = OneOf(And(), holding(b) & ~emptyhand & ~on_table(b))
+    pick_up_from_table_effect = OneOf(AndEffect(), AndEffect(holding(b), ~emptyhand, ~on_table(b)))
     pick_up_from_table = Action(
         pick_up_from_table_name,
         pick_up_from_table_parameters,
@@ -79,8 +80,8 @@ def blocksworld_domain():
     put_on_block_parameters = [b1, b2]
     put_on_block_precondition = holding(b1) & clear(b2)
     put_on_block_effect = OneOf(
-        on(b1, b2) & emptyhand & clear(b1) & ~holding(b1) & ~clear(b2),
-        on_table(b1) & emptyhand & clear(b1) & ~holding(b1),
+        AndEffect(on(b1, b2), emptyhand, clear(b1), ~holding(b1), ~clear(b2)),
+        AndEffect(on_table(b1), emptyhand, clear(b1), ~holding(b1)),
     )
     put_on_block = Action(
         put_on_block_name,
@@ -93,7 +94,7 @@ def blocksworld_domain():
     put_down_name = "put-down"
     put_down_parameters = [b]
     put_down_precondition = holding(b)
-    put_down_effect = on_table(b) & emptyhand & clear(b) & ~holding(b)
+    put_down_effect = AndEffect(on_table(b), emptyhand, clear(b), ~holding(b))
     put_down = Action(
         put_down_name, put_down_parameters, put_down_precondition, put_down_effect
     )
@@ -101,7 +102,7 @@ def blocksworld_domain():
     pick_tower_name = "pick-tower"
     pick_tower_parameters = [b1, b2, b3]
     pick_tower_precondition = emptyhand & on(b1, b2) & on(b2, b3)
-    pick_tower_effect = OneOf(And(), holding(b2) & clear(b3) & ~emptyhand & ~on(b2, b3))
+    pick_tower_effect = OneOf(AndEffect(), AndEffect(holding(b2), clear(b3), ~emptyhand, ~on(b2, b3)))
     pick_tower = Action(
         pick_tower_name,
         pick_tower_parameters,
@@ -114,8 +115,8 @@ def blocksworld_domain():
     put_tower_on_block_parameters = [b1, b2, b3]
     put_tower_on_block_precondition = holding(b2) & on(b1, b2) & clear(b3)
     put_tower_on_block_effect = OneOf(
-        on(b2, b3) & emptyhand & ~holding(b2) & ~clear(b3),
-        on_table(b2) & emptyhand & ~holding(b2),
+        AndEffect(on(b2, b3), emptyhand, ~holding(b2), ~clear(b3)),
+        AndEffect(on_table(b2), emptyhand, ~holding(b2)),
     )
     put_tower_on_block = Action(
         put_tower_on_block_name,
@@ -128,7 +129,7 @@ def blocksworld_domain():
     put_tower_down_name = "put-tower-down"
     put_tower_down_parameters = [b1, b2]
     put_tower_down_precondition = holding(b2) & on(b1, b2)
-    put_tower_down_effect = on_table(b2) & emptyhand & ~holding(b2)
+    put_tower_down_effect = AndEffect(on_table(b2), emptyhand, ~holding(b2))
     put_tower_down = Action(
         put_tower_down_name,
         put_tower_down_parameters,

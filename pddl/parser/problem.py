@@ -125,7 +125,12 @@ class ProblemTransformer(Transformer):
             return EqualTo(obj1, obj2)
         else:
             name = args[1]
-            terms = [self._objects_by_name.get(str(name)) for name in args[2:-1]]
+            terms = [
+                Constant(str(_term_name))
+                if self._objects_by_name.get(str(_term_name)) is None
+                else self._objects_by_name.get(str(_term_name))
+                for _term_name in args[2:-1]
+            ]
             return Predicate(name, *terms)
 
 

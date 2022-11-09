@@ -31,7 +31,13 @@ from typing import AbstractSet, Collection, Optional, Sequence, Set, cast
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names
-from pddl.helpers.base import assert_, ensure, ensure_sequence, ensure_set
+from pddl.helpers.base import (
+    assert_,
+    ensure,
+    ensure_sequence,
+    ensure_set,
+    _typed_parameters,
+)
 from pddl.logic.base import FalseFormula, Formula, TrueFormula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant, Variable
@@ -145,9 +151,9 @@ class Problem:
         :param init: the initial condition.
         :param goal: the goal condition.
         """
-        self._name: str = name_type(name)
+        self._name = name_type(name)
         self._domain: Optional[Domain] = domain
-        self._domain_name = domain_name
+        self._domain_name = name_type(domain_name)
         self._requirements: AbstractSet[Requirements] = ensure_set(requirements)
         self._objects: AbstractSet[Constant] = ensure_set(objects)
         self._init: AbstractSet[Formula] = ensure_set(init)
@@ -280,7 +286,7 @@ class Action:
     def __str__(self):
         """Get the string."""
         operator_str = "(:action {0}\n".format(self.name)
-        operator_str += f"    :parameters ({' '.join(map(str, self.parameters))})\n"
+        operator_str += f"    :parameters ({_typed_parameters(self.parameters)})\n"
         if self.precondition is not None:
             operator_str += f"    :precondition {str(self.precondition)}\n"
         if self.effect is not None:
