@@ -23,7 +23,6 @@
 """This module contains tests for PDDL actions."""
 
 from pddl.core import Action
-from pddl.logic.base import FalseFormula
 
 
 class TestActionSimpleInitialization:
@@ -43,8 +42,8 @@ class TestActionSimpleInitialization:
 
     def test_precondition(self):
         """Test the precondition getter."""
-        assert self.action.precondition == FalseFormula()
+        assert self.action.precondition is None
 
     def test_effects(self):
         """Test the effects getter."""
-        assert self.action.effect == FalseFormula()
+        assert self.action.effect is None

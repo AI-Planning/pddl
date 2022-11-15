@@ -67,7 +67,9 @@ def blocksworld_domain():
     pick_up_from_table_name = "pick-up-from-table"
     pick_up_from_table_parameters = [b]
     pick_up_from_table_precondition = emptyhand & clear(b) & on_table(b)
-    pick_up_from_table_effect = OneOf(AndEffect(), AndEffect(holding(b), ~emptyhand, ~on_table(b)))
+    pick_up_from_table_effect = OneOf(
+        AndEffect(), AndEffect(holding(b), ~emptyhand, ~on_table(b))
+    )
     pick_up_from_table = Action(
         pick_up_from_table_name,
         pick_up_from_table_parameters,
@@ -102,7 +104,9 @@ def blocksworld_domain():
     pick_tower_name = "pick-tower"
     pick_tower_parameters = [b1, b2, b3]
     pick_tower_precondition = emptyhand & on(b1, b2) & on(b2, b3)
-    pick_tower_effect = OneOf(AndEffect(), AndEffect(holding(b2), clear(b3), ~emptyhand, ~on(b2, b3)))
+    pick_tower_effect = OneOf(
+        AndEffect(), AndEffect(holding(b2), clear(b3), ~emptyhand, ~on(b2, b3))
+    )
     pick_tower = Action(
         pick_tower_name,
         pick_tower_parameters,

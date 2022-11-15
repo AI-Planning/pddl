@@ -44,7 +44,7 @@ def _sort_and_print_collection(
 
 def _print_predicates_with_types(predicates: Collection):
     result = ""
-    for p in predicates:
+    for p in sorted(predicates):
         if p.arity == 0:
             result += f"({p.name})"
         else:
@@ -62,7 +62,7 @@ def _print_predicates_with_types(predicates: Collection):
 
 def _print_objects_with_types(objects: Collection):
     result = ""
-    for o in objects:
+    for o in sorted(objects):
         result += f"{o.name} - {' '.join(o.type_tags)}" if o.type_tags else f"{o.name}"
         result += " "
     return result.strip()
@@ -78,10 +78,16 @@ def domain_to_string(domain: Domain) -> str:
     body += _sort_and_print_collection("(:constants ", domain.constants, ")\n")
     body += f"(:predicates {_print_predicates_with_types(domain.predicates)})\n"
     body += _sort_and_print_collection(
-        "", domain.derived_predicates, "", to_string=lambda obj: str(obj) + "\n",
+        "",
+        domain.derived_predicates,
+        "",
+        to_string=lambda obj: str(obj) + "\n",
     )
     body += _sort_and_print_collection(
-        "", domain.actions, "", to_string=lambda obj: str(obj) + "\n",
+        "",
+        domain.actions,
+        "",
+        to_string=lambda obj: str(obj) + "\n",
     )
     result = result + "\n" + indent(body, indentation) + "\n)"
     result = _remove_empty_lines(result)

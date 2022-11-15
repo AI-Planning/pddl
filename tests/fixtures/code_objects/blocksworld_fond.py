@@ -26,7 +26,7 @@ import pytest
 from pddl.core import Action, Domain, Problem, Requirements
 from pddl.logic import Constant
 from pddl.logic.base import And, OneOf
-from pddl.logic.effects import When, AndEffect
+from pddl.logic.effects import AndEffect, When
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import EqualTo, Predicate
 
@@ -35,7 +35,7 @@ from pddl.logic.predicates import EqualTo, Predicate
 def blocksworld_fond_domain():
     """The 'blocksworld' FOND domain."""
     # terms
-    x, y, z, b= variables("x y z b")
+    x, y, z, b = variables("x y z b")
 
     # constants:
     table = Constant("Table")
@@ -50,13 +50,27 @@ def blocksworld_fond_domain():
     # put-on
     put_on_name = "puton"
     put_on_parameters = [x, y, z]
-    put_on_precondition = on(x, z) & clear(x) & clear(y) & ~EqualTo(y, z) & ~EqualTo(x, z) & ~EqualTo(x, y) & ~EqualTo(
-        x, table)
+    put_on_precondition = (
+        on(x, z)
+        & clear(x)
+        & clear(y)
+        & ~EqualTo(y, z)
+        & ~EqualTo(x, z)
+        & ~EqualTo(x, y)
+        & ~EqualTo(x, table)
+    )
     put_on_effect = OneOf(
-        AndEffect(on(x, y), ~on(x, z),
-                  When(~EqualTo(z, table), clear(z)), When(~EqualTo(y, table), ~clear(y))),
-        AndEffect(on(x, table),
-                  When(~EqualTo(z, table), ~on(x, z) & clear(z)), When(~EqualTo(y, table), ~clear(y))),
+        AndEffect(
+            on(x, y),
+            ~on(x, z),
+            When(~EqualTo(z, table), clear(z)),
+            When(~EqualTo(y, table), ~clear(y)),
+        ),
+        AndEffect(
+            on(x, table),
+            When(~EqualTo(z, table), ~on(x, z) & clear(z)),
+            When(~EqualTo(y, table), ~clear(y)),
+        ),
     )
     put_on = Action(put_on_name, put_on_parameters, put_on_precondition, put_on_effect)
 
@@ -65,11 +79,9 @@ def blocksworld_fond_domain():
         Requirements.STRIPS,
         Requirements.EQUALITY,
         Requirements.NON_DETERMINISTIC,
-        Requirements.CONDITIONAL_EFFECTS
+        Requirements.CONDITIONAL_EFFECTS,
     }
-    actions = {
-        put_on
-    }
+    actions = {put_on}
     domain = Domain(
         name=name,
         requirements=requirements,
@@ -103,10 +115,10 @@ def blocksworld_fond_01():
         on(B, Table),
         clear(C),
         clear(B),
-        clear(Table)
+        clear(Table),
     }
 
-    goal = (And())
+    goal = And()
 
     problem_name = "sussman-anomaly"
 
