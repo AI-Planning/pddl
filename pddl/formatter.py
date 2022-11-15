@@ -44,7 +44,7 @@ def _sort_and_print_collection(
 
 def _print_predicates_with_types(predicates: Collection):
     result = ""
-    for p in predicates:
+    for p in sorted(predicates):
         if p.arity == 0:
             result += f"({p.name})"
         else:
@@ -62,7 +62,7 @@ def _print_predicates_with_types(predicates: Collection):
 
 def _print_objects_with_types(objects: Collection):
     result = ""
-    for o in objects:
+    for o in sorted(objects):
         result += f"{o.name} - {' '.join(o.type_tags)}" if o.type_tags else f"{o.name}"
         result += " "
     return result.strip()

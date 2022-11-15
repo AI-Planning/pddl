@@ -23,7 +23,7 @@
 
 from pddl.core import Action
 from pddl.logic import Predicate, Variable, variables
-from pddl.logic.base import FalseFormula, Imply, OneOf
+from pddl.logic.base import Imply, OneOf
 
 
 class TestActionEmpty:
@@ -43,11 +43,11 @@ class TestActionEmpty:
 
     def test_precondition(self):
         """Test the precondition getter."""
-        assert self.action.precondition == FalseFormula()
+        assert self.action.precondition is None
 
     def test_effect(self):
         """Test the effect getter."""
-        assert self.action.effect == FalseFormula()
+        assert self.action.effect is None
 
 
 def test_build_simple_action():
