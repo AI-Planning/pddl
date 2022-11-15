@@ -22,7 +22,6 @@
 
 """This modules implements PDDL terms."""
 import functools
-from abc import ABC
 from typing import AbstractSet, Collection, Optional
 
 from pddl.custom_types import name as name_type
@@ -33,7 +32,7 @@ from pddl.helpers.cache_hash import cache_hash
 
 @cache_hash
 @functools.total_ordering
-class Term(ABC):
+class Term:
     """A term in a formula."""
 
     def __init__(

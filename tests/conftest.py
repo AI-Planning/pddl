@@ -96,6 +96,10 @@ def markdown_parser():
 
 #################################################
 # Import PDDL fixtures
+from tests.fixtures.code_objects.blocksworld_fond import (  # noqa: E402, F401
+    blocksworld_fond_01,
+    blocksworld_fond_domain,
+)
 from tests.fixtures.code_objects.blocksworld_ipc08 import (  # noqa: E402, F401
     blocksworld_domain,
     blocksworld_problem_01,
@@ -103,10 +107,6 @@ from tests.fixtures.code_objects.blocksworld_ipc08 import (  # noqa: E402, F401
 from tests.fixtures.code_objects.triangle_tireworld import (  # noqa: E402, F401
     triangle_tireworld_domain,
     triangle_tireworld_problem_01,
-)
-from tests.fixtures.code_objects.blocksworld_fond import (  # noqa: E402, F401
-    blocksworld_fond_domain,
-    blocksworld_fond_01,
 )
 
 #################################################

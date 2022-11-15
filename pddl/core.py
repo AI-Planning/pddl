@@ -32,13 +32,13 @@ from typing import AbstractSet, Collection, Optional, Sequence, Set, cast
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names
 from pddl.helpers.base import (
+    _typed_parameters,
     assert_,
     ensure,
     ensure_sequence,
     ensure_set,
-    _typed_parameters,
 )
-from pddl.logic.base import FalseFormula, Formula, TrueFormula, is_literal
+from pddl.logic.base import Formula, TrueFormula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser.symbols import RequirementSymbols as RS

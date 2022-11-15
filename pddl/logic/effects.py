@@ -27,7 +27,7 @@ from typing import AbstractSet, Collection, Generic, Optional, Sequence, TypeVar
 from pddl.helpers.base import ensure_set
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic import Variable
-from pddl.logic.base import Atomic, Formula, Not, OneOf, MonotoneOp, BinaryOp
+from pddl.logic.base import Atomic, Formula, Not, OneOf
 from pddl.parser.symbols import Symbols
 
 EffectType = TypeVar("EffectType")

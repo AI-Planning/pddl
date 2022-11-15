@@ -56,7 +56,10 @@ def test_build_simple_action():
     p = Predicate("p", x, y, z)
     q = Predicate("q", x, y, z)
     action = Action(
-        "simple_action", parameters=(x, y, z), precondition=p & ~q, effect=~p & q,
+        "simple_action",
+        parameters=(x, y, z),
+        precondition=p & ~q,
+        effect=~p & q,
     )
     assert action
 
@@ -68,7 +71,10 @@ def test_build_action_1():
     p = Predicate("p", x, y)
     q = Predicate("q", z)
     action = Action(
-        "action_1", parameters=(x, y, z), precondition=p, effect=OneOf(p & ~q, p & q),
+        "action_1",
+        parameters=(x, y, z),
+        precondition=p,
+        effect=OneOf(p & ~q, p & q),
     )
     assert action
 

@@ -78,10 +78,16 @@ def domain_to_string(domain: Domain) -> str:
     body += _sort_and_print_collection("(:constants ", domain.constants, ")\n")
     body += f"(:predicates {_print_predicates_with_types(domain.predicates)})\n"
     body += _sort_and_print_collection(
-        "", domain.derived_predicates, "", to_string=lambda obj: str(obj) + "\n",
+        "",
+        domain.derived_predicates,
+        "",
+        to_string=lambda obj: str(obj) + "\n",
     )
     body += _sort_and_print_collection(
-        "", domain.actions, "", to_string=lambda obj: str(obj) + "\n",
+        "",
+        domain.actions,
+        "",
+        to_string=lambda obj: str(obj) + "\n",
     )
     result = result + "\n" + indent(body, indentation) + "\n)"
     result = _remove_empty_lines(result)
