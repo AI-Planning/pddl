@@ -1,29 +1,20 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2021 WhiteMech
+# Copyright 2021-2022 WhiteMech
 #
 # ------------------------------
 #
 # This file is part of pddl.
 #
-# pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# pddl is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with pddl.  If not, see <https://www.gnu.org/licenses/>.
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/MIT.
 #
 """This module contains tests for a PDDL action."""
 
 from pddl.core import Action
 from pddl.logic import Predicate, Variable, variables
-from pddl.logic.base import FalseFormula, Imply, OneOf
+from pddl.logic.base import Imply, OneOf
 
 
 class TestActionEmpty:
@@ -43,11 +34,11 @@ class TestActionEmpty:
 
     def test_precondition(self):
         """Test the precondition getter."""
-        assert self.action.precondition == FalseFormula()
+        assert self.action.precondition is None
 
     def test_effect(self):
         """Test the effect getter."""
-        assert self.action.effect == FalseFormula()
+        assert self.action.effect is None
 
 
 def test_build_simple_action():
@@ -56,7 +47,10 @@ def test_build_simple_action():
     p = Predicate("p", x, y, z)
     q = Predicate("q", x, y, z)
     action = Action(
-        "simple_action", parameters=(x, y, z), precondition=p & ~q, effect=~p & q,
+        "simple_action",
+        parameters=(x, y, z),
+        precondition=p & ~q,
+        effect=~p & q,
     )
     assert action
 
@@ -68,7 +62,10 @@ def test_build_action_1():
     p = Predicate("p", x, y)
     q = Predicate("q", z)
     action = Action(
-        "action_1", parameters=(x, y, z), precondition=p, effect=OneOf(p & ~q, p & q),
+        "action_1",
+        parameters=(x, y, z),
+        precondition=p,
+        effect=OneOf(p & ~q, p & q),
     )
     assert action
 

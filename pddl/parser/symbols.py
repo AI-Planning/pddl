@@ -1,23 +1,14 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2021 WhiteMech
+# Copyright 2021-2022 WhiteMech
 #
 # ------------------------------
 #
 # This file is part of pddl.
 #
-# pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# pddl is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with pddl.  If not, see <https://www.gnu.org/licenses/>.
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/MIT.
 #
 
 """This module contains the definition to deal with symbols."""
@@ -42,6 +33,7 @@ class Symbols(Enum):
     FORALL = "forall"
     EXISTS = "exists"
     WHEN = "when"
+    DERIVED = ":derived"
     DOMAIN_P = ":domain"
     OBJECTS = ":objects"
     INIT = ":init"
@@ -63,16 +55,22 @@ class Symbols(Enum):
 ALL_SYMBOLS = {v.value for v in Symbols}  # type: Set[str]
 
 
-class Requirements(Enum):
+class RequirementSymbols(Enum):
     """A set of requirements that can be used in PDDL."""
 
     STRIPS = ":strips"
-    ADL = ":adl"
-    NON_DETERMINISTIC = ":non-deterministic"
+    TYPING = ":typing"
     NEG_PRECONDITION = ":negative-preconditions"
     DIS_PRECONDITION = ":disjunctive-preconditions"
     EQUALITY = ":equality"
-    TYPING = ":typing"
+    CONDITIONAL_EFFECTS = ":conditional-effects"
+    ADL = ":adl"
+    DERIVED_PREDICATES = ":derived-predicates"
+    NON_DETERMINISTIC = ":non-deterministic"
+
+    def strip(self) -> str:
+        """Strip the leading colon."""
+        return self.value[1:]
 
 
-ALL_REQUIREMENTS = {v.value for v in Requirements}  # type: Set[str]
+ALL_REQUIREMENTS = {v.value for v in RequirementSymbols}  # type: Set[str]

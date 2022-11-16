@@ -1,23 +1,14 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2021 WhiteMech
+# Copyright 2021-2022 WhiteMech
 #
 # ------------------------------
 #
 # This file is part of pddl.
 #
-# pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# pddl is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with pddl.  If not, see <https://www.gnu.org/licenses/>.
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/MIT.
 #
 
 """Base classes for pylogics logic formulas."""
@@ -55,6 +46,9 @@ def _getstate(fn):
     with another instance of the interpreter, the stored hash might
     be inconsistent with the PYTHONHASHSEED initialization of the
     new interpreter.
+
+    :param fn: the getstate function.
+    :return: the new getstate function.
     """
 
     @wraps(fn)
@@ -84,6 +78,9 @@ def _setstate(fn):
     as the state might be restored in another
     interpreter in which the old hash value
     might not be consistent anymore.
+
+    :param fn: the setstate function.
+    :return: the new setstate function.
     """
 
     @wraps(fn)
@@ -103,6 +100,9 @@ def cache_hash(cls):
         __hash__
         __getstate__
         __setstate__
+
+    :param cls: the class to wrap
+    :return: the wrapped class
     """
     cls.__hash__ = _cache_hash(cls.__hash__)
 

@@ -1,23 +1,14 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2021 WhiteMech
+# Copyright 2021-2022 WhiteMech
 #
 # ------------------------------
 #
 # This file is part of pddl.
 #
-# pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# pddl is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with pddl.  If not, see <https://www.gnu.org/licenses/>.
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/MIT.
 #
 
 """Implementation of the PDDL domain parser."""
@@ -27,9 +18,10 @@ from lark import Lark, ParseError, Transformer
 
 from pddl.core import Action, Domain, Requirements
 from pddl.exceptions import PDDLMissingRequirementError
-from pddl.helpers.base import assert_, find, safe_get, safe_index
+from pddl.helpers.base import assert_, safe_get, safe_index
 from pddl.logic.base import And, FalseFormula, Imply, Not, OneOf, Or
-from pddl.logic.predicates import EqualTo, Predicate
+from pddl.logic.effects import AndEffect, Forall, When
+from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
 from pddl.parser.symbols import Symbols
@@ -46,6 +38,7 @@ class DomainTransformer(Transformer):
         self._predicates_by_name: Dict[str, Predicate] = {}
         self._current_parameters_by_name: Dict[str, Variable] = {}
         self._requirements: Set[str] = set()
+        self._extended_requirements: Set[str] = set()
 
     def start(self, args):
         """Entry point."""
@@ -53,38 +46,52 @@ class DomainTransformer(Transformer):
 
     def domain(self, args):
         """Process the 'domain' rule."""
-        first_action_index = find(args, lambda x: isinstance(x, Action))
-        return Domain(
-            **dict(args[2:first_action_index]), actions=args[first_action_index:-1]
-        )
+        kwargs = {}
+        actions = []
+        derived_predicates = []
+        for arg in args[2:-1]:
+            if isinstance(arg, Action):
+                actions.append(arg)
+            elif isinstance(arg, DerivedPredicate):
+                derived_predicates.append(arg)
+            else:
+                assert isinstance(arg, dict)
+                kwargs.update(arg)
+        kwargs.update(actions=actions, derived_predicates=derived_predicates)
+        return Domain(**kwargs)
 
     def domain_def(self, args):
         """Process the 'domain_def' rule."""
-        return "name", args[2]
+        return dict(name=args[2])
 
     def requirements(self, args):
         """Process the 'requirements' rule."""
         self._requirements = {Requirements(r[1:]) for r in args[2:-1]}
-        return "requirements", self._requirements
+
+        self._extended_requirements = set(self._requirements)
+        if Requirements.STRIPS in self._requirements:
+            self._extended_requirements.update(Requirements.strips_requirements())
+
+        return dict(requirements=self._requirements)
 
     def types(self, args):
         """Parse the 'types' rule."""
-        if not bool({Requirements.TYPING} & self._requirements):
+        if not bool({Requirements.TYPING} & self._extended_requirements):
             raise PDDLMissingRequirementError(Requirements.TYPING)
-        return "types", list(args[2].keys())
+        return dict(types=list(args[2].keys()))
 
     def constants(self, args):
         """Process the 'constant_def' rule."""
         self._constants_by_name = {
             name: Constant(name, type_tags) for name, type_tags in args[2].items()
         }
-        return "constants", list(self._constants_by_name.values())
+        return dict(constants=list(self._constants_by_name.values()))
 
     def predicates(self, args):
         """Process the 'predicates' rule."""
         predicates = args[2:-1]
         self._predicates_by_name = {p.name: p for p in predicates}
-        return "predicates", predicates
+        return dict(predicates=predicates)
 
     def action_def(self, args):
         """Process the 'action_def' rule."""
@@ -97,6 +104,12 @@ class DomainTransformer(Transformer):
             _children[i][1:]: _children[i + 1] for i in range(0, len(_children), 2)
         }
         return Action(name, variables, **action_body)
+
+    def derived_predicates(self, args):
+        """Process the 'derived_predicates' rule."""
+        predicate = args[2]
+        condition = args[3]
+        return DerivedPredicate(predicate, condition)
 
     def action_parameters(self, args):
         """Process the 'action_parameters' rule."""
@@ -119,23 +132,28 @@ class DomainTransformer(Transformer):
             return args[0]
         elif args[1] == Symbols.NOT.value:
             if not bool(
-                {Requirements.NEG_PRECONDITION, Requirements.ADL} & self._requirements
+                {Requirements.NEG_PRECONDITION, Requirements.ADL}
+                & self._extended_requirements
             ):
-                raise PDDLMissingRequirementError(Requirements.NEG_PRECONDITION)
+                # raise PDDLMissingRequirementError(Requirements.NEG_PRECONDITION)
+                # TODO temporary change; remove
+                pass
             return Not(args[2])
         elif args[1] == Symbols.AND.value:
             operands = args[2:-1]
             return And(*operands)
         elif args[1] == Symbols.OR.value:
             if not bool(
-                {Requirements.DIS_PRECONDITION, Requirements.ADL} & self._requirements
+                {Requirements.DIS_PRECONDITION, Requirements.ADL}
+                & self._extended_requirements
             ):
                 raise PDDLMissingRequirementError(Requirements.DIS_PRECONDITION)
             operands = args[2:-1]
             return Or(*operands)
         elif args[1] == Symbols.IMPLY.value:
             if not bool(
-                {Requirements.DIS_PRECONDITION, Requirements.ADL} & self._requirements
+                {Requirements.DIS_PRECONDITION, Requirements.ADL}
+                & self._extended_requirements
             ):
                 raise PDDLMissingRequirementError(Requirements.DIS_PRECONDITION)
             return Imply(args[2], args[3])
@@ -151,12 +169,23 @@ class DomainTransformer(Transformer):
         """Process the 'effect' rule."""
         if len(args) == 1:
             return args[0]
-        elif args[1] == Symbols.AND.value:
-            return And(*args[2:-1])
-        elif args[1] == Symbols.ONEOF.value:
-            if not bool({Requirements.NON_DETERMINISTIC} & self._requirements):
+        if args[1] == Symbols.AND.value:
+            return AndEffect(*args[2:-1])
+        raise ValueError("case not recognized")
+
+    def c_effect(self, args):
+        """Process the 'c_effect' rule."""
+        if len(args) == 1:
+            return args[0]
+        if args[1] == Symbols.FORALL.value:
+            return Forall(effects=args[-2], variables=args[3])
+        if args[1] == Symbols.WHEN.value:
+            return When(args[2], args[3])
+        if args[1] == Symbols.ONEOF.value:
+            if not bool({Requirements.NON_DETERMINISTIC} & self._extended_requirements):
                 raise PDDLMissingRequirementError(Requirements.NON_DETERMINISTIC)
             return OneOf(*args[2:-1])
+        raise ValueError()
 
     def p_effect(self, args):
         """Process the 'p_effect' rule."""
@@ -165,6 +194,14 @@ class DomainTransformer(Transformer):
         else:
             return Not(args[2])
 
+    def cond_effect(self, args):
+        """Process the 'cond_effect' rule."""
+        if len(args) >= 3 and args[1] == Symbols.AND.value:
+            p_effects = args[2:-1]
+            return And(*p_effects)
+        assert len(args) == 1
+        return args[0]
+
     def atomic_formula_term(self, args):
         """Process the 'atomic_formula_term' rule."""
 
@@ -172,7 +209,7 @@ class DomainTransformer(Transformer):
             return t if isinstance(t, Constant) else self._current_parameters_by_name[t]
 
         if args[1] == Symbols.EQUAL.value:
-            if not bool({Requirements.EQUALITY} & self._requirements):
+            if not bool({Requirements.EQUALITY} & self._extended_requirements):
                 raise PDDLMissingRequirementError(Requirements.EQUALITY)
             left = constant_or_variable(args[2])
             right = constant_or_variable(args[3])
@@ -202,6 +239,9 @@ class DomainTransformer(Transformer):
         Process the 'typed_list_name' rule.
 
         Return a dictionary with as keys the names and as value a set of types for each name.
+
+        :param args: the argument of this grammar rule
+        :return: a typed list (name)
         """
         return self._typed_list_x(args)
 
@@ -210,6 +250,9 @@ class DomainTransformer(Transformer):
         Process the 'typed_list_variable' rule.
 
         Return a dictionary with as keys the terms and as value a set of types for each name.
+
+        :param args: the argument of this grammar rule
+        :return: a typed list (variable)
         """
         return self._typed_list_x(args)
 

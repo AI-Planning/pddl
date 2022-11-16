@@ -18,8 +18,8 @@
   <a href="">
     <img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/pddl">
   </a>
-  <a href="https://github.com/whitemech/pddl/blob/master/LICENSE">
-    <img alt="GitHub" src="https://img.shields.io/github/license/whitemech/pddl">
+  <a href="https://github.com/AI-Planning/pddl/blob/master/LICENSE">
+    <img alt="GitHub" src="https://img.shields.io/github/license/AI-Planning/pddl">
   </a>
 </p>
 <p align="center">
@@ -113,13 +113,11 @@ that gives:
     (:requirements :strips :typing)
     (:types type_1)
     (:constants a b c)
-    (:predicates (p1 ?x ?y ?z) (p2 ?x ?y))
-    (:actions
-        (action-1
-            :parameters (?x ?y ?z)
-            :precondition (and (p1 ?x ?y ?z) (not (p2 ?y ?z)))
-            :effect (p2 ?y ?z)
-        )
+    (:predicates (p1 ?x - type_1 ?y - type_1 ?z - type_1)  (p2 ?x - type_1 ?y - type_1))
+    (:action action-1
+        :parameters (?x - type_1 ?y - type_1 ?z - type_1 )
+        :precondition (and (p1 ?x ?y ?z) (not (p2 ?y ?z)))
+        :effect (p2 ?y ?z)
     )
 )
 ```
@@ -142,7 +140,7 @@ Output:
 (define (problem problem-1)
     (:domain my_domain)
     (:requirements :strips :typing)
-    (:objects a b c)
+    (:objects a - type_1 b - type_1 c - type_1)
     (:init (not (p2 b c)) (p1 a b c))
     (:goal (p2 b c))
 )
@@ -168,14 +166,14 @@ requirements:
 - [ ] `:existential-preconditions`  
 - [ ] `:universal-preconditions`  
 - [ ] `:quantified-preconditions`  
-- [ ] `:conditional-effects`  
+- [x] `:conditional-effects`  
 - [ ] `:fluents`  
 - [ ] `:numeric-fluents`  
 - [x] `:non-deterministic` (see [6th IPC: Uncertainty Part](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.163.7140&rep=rep1&type=pdf))  
 - [ ] `:adl`  
 - [ ] `:durative-actions`  
 - [ ] `:duration-inequalities`  
-- [ ] `:derived-predicates`  
+- [x] `:derived-predicates`  
 - [ ] `:timed-initial-literals`  
 - [ ] `:preferences`  
 - [ ] `:constraints`  
@@ -211,6 +209,14 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 ## License
 
-`pddl` is released under the GNU Lesser General Public License v3.0 or later (LGPLv3+).
+`pddl` is released under the MIT License.
 
-Copyright 2021 WhiteMech
+Copyright (c) 2021-2022 WhiteMech
+
+## Acknowledgements
+
+The `pddl` project is partially supported by the ERC Advanced Grant WhiteMech 
+(No. 834228), the EU ICT-48 2020 project TAILOR (No. 952215), 
+the PRIN project RIPER (No. 20203FFYLK), and the JPMorgan AI Faculty 
+Research Award "Resilience-based Generalized Planning and Strategic 
+Reasoning".

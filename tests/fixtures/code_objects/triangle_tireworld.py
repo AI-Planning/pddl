@@ -1,23 +1,14 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2021 WhiteMech
+# Copyright 2021-2022 WhiteMech
 #
 # ------------------------------
 #
 # This file is part of pddl.
 #
-# pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# pddl is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with pddl.  If not, see <https://www.gnu.org/licenses/>.
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/MIT.
 #
 
 """This test module contains the fixtures for 'triangle-tireworld' domain and problem."""
@@ -25,6 +16,7 @@ import pytest
 
 from pddl.core import Action, Domain, Problem, Requirements
 from pddl.logic.base import And, OneOf
+from pddl.logic.effects import AndEffect
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
 
@@ -53,10 +45,10 @@ def triangle_tireworld_domain():
     move_car_name = "move-car"
     move_car_parameters = [from_, to]
     move_car_precondition = vehicleat(from_) & road(from_, to) & not_flattire
-    move_car_effect = And(
+    move_car_effect = AndEffect(
         OneOf(
-            vehicleat(to) & ~vehicleat(from_),
-            vehicleat(to) & ~vehicleat(from_) & ~not_flattire,
+            AndEffect(vehicleat(to), ~vehicleat(from_)),
+            AndEffect(vehicleat(to), ~vehicleat(from_), ~not_flattire),
         )
     )
     move_car = Action(
@@ -67,7 +59,7 @@ def triangle_tireworld_domain():
     changetire_name = "changetire"
     changetire_parameters = [loc]
     changetire_precondition = spare_in(loc) & vehicleat(loc)
-    changetire_effect = ~spare_in(loc) & not_flattire
+    changetire_effect = AndEffect(~spare_in(loc), not_flattire)
     changetire = Action(
         changetire_name,
         changetire_parameters,

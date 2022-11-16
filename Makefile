@@ -82,7 +82,6 @@ vulture: ## check unused code
 
 darglint: ## check docstrings
 	darglint pddl scripts/whitelist.py
-	darglint aea
 
 test: ## run tests quickly with the default Python
 	pytest tests --doctest-modules \

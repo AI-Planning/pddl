@@ -1,23 +1,14 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2021 WhiteMech
+# Copyright 2021-2022 WhiteMech
 #
 # ------------------------------
 #
 # This file is part of pddl.
 #
-# pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# pddl is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with pddl.  If not, see <https://www.gnu.org/licenses/>.
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/MIT.
 #
 
 """This class implements PDDL predicates."""
@@ -28,8 +19,9 @@ from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike
 from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
-from pddl.logic.base import Atomic
+from pddl.logic.base import Atomic, Formula
 from pddl.logic.terms import Term
+from pddl.parser.symbols import Symbols
 
 
 @cache_hash
@@ -136,8 +128,55 @@ class EqualTo(Atomic):
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"(= {self.left} {self.right})"
+        return f"({Symbols.EQUAL} {self.left} {self.right})"
 
     def __repr__(self) -> str:
         """Get the string representation."""
         return f"{type(self).__name__}({self.left}, {self.right})"
+
+
+@cache_hash
+@functools.total_ordering
+class DerivedPredicate(Atomic):
+    """A class for a Derived Predicates in PDDL."""
+
+    def __init__(self, predicate: Predicate, condition: Formula) -> None:
+        """
+        Initialize the derived predicate.
+
+        :param predicate: the predicate
+        :param condition: the condition
+        """
+        self._predicate = predicate
+        self._condition = condition
+
+    @property
+    def predicate(self) -> Predicate:
+        """Get the predicate."""
+        return self._predicate
+
+    @property
+    def condition(self) -> Formula:
+        """Get the condition."""
+        return self._condition
+
+    def __hash__(self) -> int:
+        """Get the hash."""
+        return hash((DerivedPredicate, self.predicate, self.condition))
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return f"({Symbols.DERIVED.value} {self.predicate} {self.condition})"
+
+    def __repr__(self) -> str:
+        """Get the string representation."""
+        return f"{type(self).__name__}({self.predicate}, {self.condition})"
+
+    def __lt__(self, other):
+        """Compare with another object."""
+        if isinstance(other, DerivedPredicate):
+            return (self.predicate, self._predicate) < (
+                other.predicate,
+                other.condition,
+            )
+        return super().__lt__(other)

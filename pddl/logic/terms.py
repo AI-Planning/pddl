@@ -1,28 +1,18 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2021 WhiteMech
+# Copyright 2021-2022 WhiteMech
 #
 # ------------------------------
 #
 # This file is part of pddl.
 #
-# pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# pddl is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with pddl.  If not, see <https://www.gnu.org/licenses/>.
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/MIT.
 #
 
 """This modules implements PDDL terms."""
 import functools
-from abc import ABC
 from typing import AbstractSet, Collection, Optional
 
 from pddl.custom_types import name as name_type
@@ -33,7 +23,7 @@ from pddl.helpers.cache_hash import cache_hash
 
 @cache_hash
 @functools.total_ordering
-class Term(ABC):
+class Term:
     """A term in a formula."""
 
     def __init__(
@@ -80,6 +70,7 @@ class Constant(Term):
         Initialize a constant.
 
         :param name: the name.
+        :param type_tags: the type tags
         """
         super().__init__(name, type_tags=type_tags)
 
@@ -110,6 +101,7 @@ class Variable(Term):
         Initialize the variable.
 
         :param name: the name.
+        :param type_tags: the type tags
         """
         super().__init__(name, type_tags=type_tags)
 

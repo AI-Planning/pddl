@@ -1,23 +1,14 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2021 WhiteMech
+# Copyright 2021-2022 WhiteMech
 #
 # ------------------------------
 #
 # This file is part of pddl.
 #
-# pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# pddl is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with pddl.  If not, see <https://www.gnu.org/licenses/>.
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/MIT.
 #
 
 """This module contains the configurations for the tests."""
@@ -42,6 +33,7 @@ FIXTURES_DIR = TEST_DIRECTORY / "fixtures"
 FIXTURES_PDDL_FILES = FIXTURES_DIR / "pddl_files"
 BLOCKSWORLD_FILES = FIXTURES_PDDL_FILES / "blocksworld-ipc08"
 TRIANGLE_FILES = FIXTURES_PDDL_FILES / "triangle-tireworld"
+BLOCKSWORLD_FOND_FILES = FIXTURES_PDDL_FILES / "blocksworld_fond"
 
 # TODO once missing features are supported, uncomment this
 # DOMAIN_FILES = [
@@ -52,6 +44,7 @@ DOMAIN_NAMES = [
     "acrobatics",
     "beam-walk",
     "blocksworld-ipc08",
+    "blocksworld_fond",
     "doors",
     # "earth_observation",
     "elevators",
@@ -59,6 +52,7 @@ DOMAIN_NAMES = [
     # "first-responders-ipc08",
     "islands",
     "miner",
+    "rovers_fond",
     "spiky-tireworld",
     "tireworld",
     "tireworld-truck",
@@ -93,6 +87,10 @@ def markdown_parser():
 
 #################################################
 # Import PDDL fixtures
+from tests.fixtures.code_objects.blocksworld_fond import (  # noqa: E402, F401
+    blocksworld_fond_01,
+    blocksworld_fond_domain,
+)
 from tests.fixtures.code_objects.blocksworld_ipc08 import (  # noqa: E402, F401
     blocksworld_domain,
     blocksworld_problem_01,

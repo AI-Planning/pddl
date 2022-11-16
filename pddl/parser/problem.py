@@ -1,23 +1,14 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2021 WhiteMech
+# Copyright 2021-2022 WhiteMech
 #
 # ------------------------------
 #
 # This file is part of pddl.
 #
-# pddl is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# pddl is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with pddl.  If not, see <https://www.gnu.org/licenses/>.
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/MIT.
 #
 
 """Implementation of the PDDL problem parser."""
@@ -78,6 +69,9 @@ class ProblemTransformer(Transformer):
         Process the 'typed_list_name' rule.
 
         Return a dictionary with as keys the names and as value a set of types for each name.
+
+        :param args: the argument of this grammar rule
+        :return: a typed list (name)
         """
         return self._domain_transformer._typed_list_x(args)
 
@@ -122,7 +116,12 @@ class ProblemTransformer(Transformer):
             return EqualTo(obj1, obj2)
         else:
             name = args[1]
-            terms = [self._objects_by_name.get(str(name)) for name in args[2:-1]]
+            terms = [
+                Constant(str(_term_name))
+                if self._objects_by_name.get(str(_term_name)) is None
+                else self._objects_by_name.get(str(_term_name))
+                for _term_name in args[2:-1]
+            ]
             return Predicate(name, *terms)
 
 
