@@ -18,8 +18,8 @@
   <a href="">
     <img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/pddl">
   </a>
-  <a href="https://github.com/whitemech/pddl/blob/master/LICENSE">
-    <img alt="GitHub" src="https://img.shields.io/github/license/whitemech/pddl">
+  <a href="https://github.com/AI-Planning/pddl/blob/master/LICENSE">
+    <img alt="GitHub" src="https://img.shields.io/github/license/AI-Planning/pddl">
   </a>
 </p>
 <p align="center">
@@ -211,4 +211,12 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 `pddl` is released under the MIT License.
 
-Copyright 2021-2022 WhiteMech
+Copyright (c) 2021-2022 WhiteMech
+
+## Acknowledgements
+
+The `pddl` project is partially supported by the ERC Advanced Grant WhiteMech 
+(No. 834228), the EU ICT-48 2020 project TAILOR (No. 952215), 
+the PRIN project RIPER (No. 20203FFYLK), and the JPMorgan AI Faculty 
+Research Award "Resilience-based Generalized Planning and Strategic 
+Reasoning".
