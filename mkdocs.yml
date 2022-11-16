@@ -1,7 +1,7 @@
 site_name: pddl
-repo_name: 'whitemech/pddl'
-repo_url: https://github.com/whitemech/pddl
-site_url: https://whitemech.github.io/pddl
+repo_name: 'AI-Planning/pddl'
+repo_url: https://github.com/AI-Planning/pddl
+site_url: https://ai-planning.github.io/pddl
 
 nav:
     - Home: index.md
