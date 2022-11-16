@@ -20,7 +20,6 @@ _Put an `x` in the boxes that apply_
 _Put an `x` in the boxes that apply._
 
 - [ ] I have read the [CONTRIBUTING](../blob/main/CONTRIBUTING.md) doc
-- [ ] I am making a pull request against the `develop` branch (left side). Also you should start your branch off our `develop`.
 - [ ] Lint and unit tests pass locally with my changes
 - [ ] I have added tests that prove my fix is effective or that my feature works
 
