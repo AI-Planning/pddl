@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://whitemech.github.io/pddl/</loc>
+         <loc>https://ai-planning.github.io/pddl/</loc>
          <lastmod>2022-11-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://whitemech.github.io/pddl/authors/</loc>
+         <loc>https://ai-planning.github.io/pddl/authors/</loc>
          <lastmod>2022-11-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://whitemech.github.io/pddl/changelog/</loc>
+         <loc>https://ai-planning.github.io/pddl/changelog/</loc>
          <lastmod>2022-11-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://whitemech.github.io/pddl/contributing/</loc>
+         <loc>https://ai-planning.github.io/pddl/contributing/</loc>
          <lastmod>2022-11-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://whitemech.github.io/pddl/references/</loc>
+         <loc>https://ai-planning.github.io/pddl/references/</loc>
          <lastmod>2022-11-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
