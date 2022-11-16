@@ -18,22 +18,22 @@
   <a href="">
     <img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/pddl">
   </a>
-  <a href="https://github.com/AI-Planning/pddl/blob/master/LICENSE">
+  <a href="https://github.com/AI-Planning/pddl/blob/main/LICENSE">
     <img alt="GitHub" src="https://img.shields.io/github/license/AI-Planning/pddl">
   </a>
 </p>
 <p align="center">
   <a href="">
-    <img alt="test" src="https://github.com/whitemech/pddl/workflows/test/badge.svg">
+    <img alt="test" src="https://github.com/AI-Planning/pddl/workflows/test/badge.svg">
   </a>
   <a href="">
-    <img alt="lint" src="https://github.com/whitemech/pddl/workflows/lint/badge.svg">
+    <img alt="lint" src="https://github.com/AI-Planning/pddl/workflows/lint/badge.svg">
   </a>
   <a href="">
-    <img alt="docs" src="https://github.com/whitemech/pddl/workflows/docs/badge.svg">
+    <img alt="docs" src="https://github.com/AI-Planning/pddl/workflows/docs/badge.svg">
   </a>
-  <a href="https://codecov.io/gh/whitemech/pddl">
-    <img alt="codecov" src="https://codecov.io/gh/whitemech/pddl/branch/master/graph/badge.svg?token=FG3ATGP5P5">
+  <a href="https://codecov.io/gh/AI-Planning/pddl">
+    <img alt="codecov" src="https://codecov.io/gh/AI-Planning/pddl/branch/main/graph/badge.svg?token=FG3ATGP5P5">
   </a>
 </p>
 <p align="center">
@@ -60,14 +60,14 @@
 pip install pddl
 ```
 
-- from source (`master` branch):
+- from source (`main` branch):
 ```
-pip install git+https://github.com/whitemech/pddl.git
+pip install git+https://github.com/AI-Planning/pddl.git
 ```
 
 - or, clone the repository and install:
 ```
-git clone https://github.com/whitemech/pddl.git
+git clone https://github.com/AI-Planning/pddl.git
 cd pddl
 pip install .
 ```
@@ -189,7 +189,7 @@ requirements:
 If you want to contribute, here's how to set up your development environment.
 
 - Install [Pipenv](https://pipenv-fork.readthedocs.io/en/latest/)
-- Clone the repository: `git clone https://github.com/whitemech/pddl.git && cd pddl`
+- Clone the repository: `git clone https://github.com/AI-Planning/pddl.git && cd pddl`
 - Install development dependencies: `pipenv shell --python 3.7 && pipenv install --dev`
 
 ## Tests
@@ -209,8 +209,8 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 ## Authors
 
-- [Marco Favorito](https://marcofavorito.github.io/)
-- [Francesco Fuggitti](https://francescofuggitti.github.io/)
+- [Marco Favorito](https://marcofavorito.me)
+- [Francesco Fuggitti](https://francescofuggitti.github.io)
 
 ## License
 
