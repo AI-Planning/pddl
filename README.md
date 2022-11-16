@@ -18,7 +18,7 @@
   <a href="">
     <img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/pddl">
   </a>
-  <a href="https://github.com/AI-Planning/pddl/blob/master/LICENSE">
+  <a href="https://github.com/AI-Planning/pddl/blob/main/LICENSE">
     <img alt="GitHub" src="https://img.shields.io/github/license/AI-Planning/pddl">
   </a>
 </p>
@@ -33,7 +33,7 @@
     <img alt="docs" src="https://github.com/whitemech/pddl/workflows/docs/badge.svg">
   </a>
   <a href="https://codecov.io/gh/whitemech/pddl">
-    <img alt="codecov" src="https://codecov.io/gh/whitemech/pddl/branch/master/graph/badge.svg?token=FG3ATGP5P5">
+    <img alt="codecov" src="https://codecov.io/gh/whitemech/pddl/branch/main/graph/badge.svg?token=FG3ATGP5P5">
   </a>
 </p>
 <p align="center">
@@ -60,7 +60,7 @@
 pip install pddl
 ```
 
-- from source (`master` branch):
+- from source (`main` branch):
 ```
 pip install git+https://github.com/whitemech/pddl.git
 ```
