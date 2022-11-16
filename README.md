@@ -55,6 +55,11 @@
 
 ## Install
 
+- from PyPI:
+```
+pip install pddl
+```
+
 - from source (`master` branch):
 ```
 pip install git+https://github.com/whitemech/pddl.git
