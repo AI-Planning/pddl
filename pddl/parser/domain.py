@@ -19,7 +19,7 @@ from lark import Lark, ParseError, Transformer
 from pddl.core import Action, Domain, Requirements
 from pddl.exceptions import PDDLMissingRequirementError
 from pddl.helpers.base import assert_, safe_get, safe_index
-from pddl.logic.base import And, FalseFormula, Imply, Not, OneOf, Or
+from pddl.logic.base import And, FalseFormula, Imply, Not, OneOf, Or, ForallCondition, ExistsCondition
 from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
@@ -157,6 +157,24 @@ class DomainTransformer(Transformer):
             ):
                 raise PDDLMissingRequirementError(Requirements.DIS_PRECONDITION)
             return Imply(args[2], args[3])
+        elif args[1] == Symbols.FORALL.value:
+            if not bool(
+                {Requirements.UNIVERSAL_PRECONDITION, Requirements.QUANTIFIED_PRECONDITION, Requirements.ADL}
+                & self._extended_requirements
+            ):
+                raise PDDLMissingRequirementError(Requirements.UNIVERSAL_PRECONDITION)
+            variables = [Variable(name, tags) for name, tags in args[3].items()]
+            condition = args[5]
+            return ForallCondition(cond=condition, variables=variables)
+        elif args[1] == Symbols.EXISTS.value:
+            if not bool(
+                {Requirements.EXISTENTIAL_PRECONDITION, Requirements.QUANTIFIED_PRECONDITION, Requirements.ADL}
+                & self._extended_requirements
+            ):
+                raise PDDLMissingRequirementError(Requirements.EXISTENTIAL_PRECONDITION)
+            variables = [Variable(name, tags) for name, tags in args[3].items()]
+            condition = args[5]
+            return ExistsCondition(cond=condition, variables=variables)
 
     def emptyor_effect(self, args):
         """Process the 'emptyor_effect' rule."""
@@ -178,7 +196,7 @@ class DomainTransformer(Transformer):
         if len(args) == 1:
             return args[0]
         if args[1] == Symbols.FORALL.value:
-            return Forall(effects=args[-2], variables=args[3])
+            return Forall(effect=args[-2], variables=args[3])
         if args[1] == Symbols.WHEN.value:
             return When(args[2], args[3])
         if args[1] == Symbols.ONEOF.value:
@@ -206,6 +224,9 @@ class DomainTransformer(Transformer):
         """Process the 'atomic_formula_term' rule."""
 
         def constant_or_variable(t):
+            # Case where the term is a free variable (bug) or comes from a parent quantifier
+            if not isinstance(t, Constant) and t not in self._current_parameters_by_name:
+                return Variable(str(t), {})
             return t if isinstance(t, Constant) else self._current_parameters_by_name[t]
 
         if args[1] == Symbols.EQUAL.value:

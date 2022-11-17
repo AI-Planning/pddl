@@ -25,6 +25,8 @@ gd:                atomic_formula_term
   |                LPAR NOT gd RPAR
   |                LPAR AND gd* RPAR
   |                LPAR IMPLY gd gd RPAR
+  |                LPAR EXISTS LPAR typed_list_variable RPAR gd RPAR
+  |                LPAR FORALL LPAR typed_list_variable RPAR gd RPAR
 
 // effects
 emptyor_effect:    LPAR RPAR
@@ -76,6 +78,7 @@ type_def:          LPAR EITHER primitive_type+ RPAR
 %import .common.EFFECT -> EFFECT
 %import .common.DERIVED -> DERIVED
 %import .common.FORALL -> FORALL
+%import .common.EXISTS -> EXISTS
 %import .common.WHEN -> WHEN
 %import .common.OBJECT -> OBJECT
 %import .common.AND -> AND

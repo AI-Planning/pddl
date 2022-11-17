@@ -6,6 +6,9 @@ NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
             | NON_DETERMINISTIC
             | NEG_PRECONDITION
             | DIS_PRECONDITION
+            | EXISTENTIAL_PRECONDITIONS
+            | UNIVERSAL_PRECONDITIONS
+            | QUANTIFIED_PRECONDITIONS
             | ADL
             | DERIVED_PREDICATES
             | CONDITIONAL_EFFECTS
@@ -24,6 +27,7 @@ PRECONDITION: ":precondition"
 EFFECT: ":effect"
 DERIVED: ":derived"
 FORALL: "forall"
+EXISTS: "exists"
 WHEN: "when"
 OBJECT: "object"
 AND: "and"
@@ -44,6 +48,9 @@ NEG_PRECONDITION: ":negative-preconditions"
 DIS_PRECONDITION: ":disjunctive-preconditions"
 DERIVED_PREDICATES: ":derived-predicates"
 CONDITIONAL_EFFECTS: ":conditional-effects"
+EXISTENTIAL_PRECONDITIONS: ":existential-preconditions"
+UNIVERSAL_PRECONDITIONS: ":universal-preconditions"
+QUANTIFIED_PRECONDITIONS: ":quantified-preconditions"
 
 // others
 LPAR : "("
