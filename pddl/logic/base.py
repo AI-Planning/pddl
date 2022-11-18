@@ -241,7 +241,11 @@ class QuantifiedCondition(Formula):
 
     def __str__(self) -> str:
         """Get the string representation."""
-        var_block = ' '.join([f'{v} - {" ".join(v.type_tags)}' for v in self.variables])
+        def build_tags(tags):
+            if len(tags) == 0:
+                return ""
+            return f" - {' '.join(tags)}"
+        var_block = ' '.join([f'{v}{build_tags(v.type_tags)}' for v in self.variables])
         return f"({self.SYMBOL} ({var_block}) {self.condition})"
 
     def __repr__(self) -> str:
