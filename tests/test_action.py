@@ -99,10 +99,7 @@ def test_build_action_quantified_conditions():
     c1 = ExistsCondition(cond=~p2(y, z2), variables=[z2])
     c2 = ForallCondition(cond=p2(y, z2) & p1(x, y, z), variables=[z2])
     action = Action(
-        "action-1",
-        parameters=[x, y, z],
-        precondition=c1 & c2,
-        effect=p2(y, z)
+        "action-1", parameters=[x, y, z], precondition=c1 & c2, effect=p2(y, z)
     )
 
     assert action

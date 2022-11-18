@@ -19,7 +19,16 @@ from lark import Lark, ParseError, Transformer
 from pddl.core import Action, Domain, Requirements
 from pddl.exceptions import PDDLMissingRequirementError
 from pddl.helpers.base import assert_, safe_get, safe_index
-from pddl.logic.base import And, FalseFormula, Imply, Not, OneOf, Or, ForallCondition, ExistsCondition
+from pddl.logic.base import (
+    And,
+    FalseFormula,
+    Imply,
+    Not,
+    OneOf,
+    Or,
+    ForallCondition,
+    ExistsCondition,
+)
 from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
@@ -129,8 +138,8 @@ class DomainTransformer(Transformer):
     def gd_not(self, args):
         """Process the 'gd' not rule."""
         if not bool(
-                {Requirements.NEG_PRECONDITION, Requirements.ADL}
-                & self._extended_requirements
+            {Requirements.NEG_PRECONDITION, Requirements.ADL}
+            & self._extended_requirements
         ):
             # raise PDDLMissingRequirementError(Requirements.NEG_PRECONDITION)
             # TODO temporary change; remove
@@ -164,8 +173,14 @@ class DomainTransformer(Transformer):
     def gd_quantifiers(self, args):
         """Process the 'gd' quantifiers rule."""
         req, cond_class = {
-            Symbols.FORALL.value: (Requirements.UNIVERSAL_PRECONDITION, ForallCondition),
-            Symbols.EXISTS.value: (Requirements.EXISTENTIAL_PRECONDITION, ExistsCondition),
+            Symbols.FORALL.value: (
+                Requirements.UNIVERSAL_PRECONDITION,
+                ForallCondition,
+            ),
+            Symbols.EXISTS.value: (
+                Requirements.EXISTENTIAL_PRECONDITION,
+                ExistsCondition,
+            ),
         }[args[1]]
         if not bool(
             {req, Requirements.QUANTIFIED_PRECONDITION, Requirements.ADL}
@@ -240,7 +255,10 @@ class DomainTransformer(Transformer):
 
         def constant_or_variable(t):
             # Case where the term is a free variable (bug) or comes from a parent quantifier
-            if not isinstance(t, Constant) and t not in self._current_parameters_by_name:
+            if (
+                not isinstance(t, Constant)
+                and t not in self._current_parameters_by_name
+            ):
                 return Variable(str(t), {})
             return t if isinstance(t, Constant) else self._current_parameters_by_name[t]
 
