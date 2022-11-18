@@ -21,13 +21,13 @@ from pddl.exceptions import PDDLMissingRequirementError
 from pddl.helpers.base import assert_, safe_get, safe_index
 from pddl.logic.base import (
     And,
+    ExistsCondition,
     FalseFormula,
+    ForallCondition,
     Imply,
     Not,
     OneOf,
     Or,
-    ForallCondition,
-    ExistsCondition,
 )
 from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate

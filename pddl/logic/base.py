@@ -17,7 +17,6 @@ from typing import AbstractSet, Collection, Optional, Sequence
 
 from pddl.helpers.base import ensure_set
 from pddl.helpers.cache_hash import cache_hash
-
 from pddl.logic.terms import Variable
 from pddl.parser.symbols import Symbols
 
