@@ -126,55 +126,70 @@ class DomainTransformer(Transformer):
             assert_(len(args) == 1)
             return args[0]
 
+    def gd_not(self, args):
+        """Process the 'gd' not rule."""
+        if not bool(
+                {Requirements.NEG_PRECONDITION, Requirements.ADL}
+                & self._extended_requirements
+        ):
+            # raise PDDLMissingRequirementError(Requirements.NEG_PRECONDITION)
+            # TODO temporary change; remove
+            pass
+        return Not(args[2])
+
+    def gd_and(self, args):
+        """Process the 'gd_and' rule."""
+        operands = args[2:-1]
+        return And(*operands)
+
+    def gd_or(self, args):
+        """Process the 'gd' or rule."""
+        if not bool(
+            {Requirements.DIS_PRECONDITION, Requirements.ADL}
+            & self._extended_requirements
+        ):
+            raise PDDLMissingRequirementError(Requirements.DIS_PRECONDITION)
+        operands = args[2:-1]
+        return Or(*operands)
+
+    def gd_imply(self, args):
+        """Process the 'gd' imply rule."""
+        if not bool(
+            {Requirements.DIS_PRECONDITION, Requirements.ADL}
+            & self._extended_requirements
+        ):
+            raise PDDLMissingRequirementError(Requirements.DIS_PRECONDITION)
+        return Imply(args[2], args[3])
+
+    def gd_quantifiers(self, args):
+        """Process the 'gd' quantifiers rule."""
+        req, cond_class = {
+            Symbols.FORALL.value: (Requirements.UNIVERSAL_PRECONDITION, ForallCondition),
+            Symbols.EXISTS.value: (Requirements.EXISTENTIAL_PRECONDITION, ExistsCondition),
+        }[args[1]]
+        if not bool(
+            {req, Requirements.QUANTIFIED_PRECONDITION, Requirements.ADL}
+            & self._extended_requirements
+        ):
+            raise PDDLMissingRequirementError(req)
+        variables = [Variable(name, tags) for name, tags in args[3].items()]
+        condition = args[5]
+        return cond_class(cond=condition, variables=variables)
+
     def gd(self, args):
         """Process the 'gd' rule."""
         if len(args) == 1:
             return args[0]
         elif args[1] == Symbols.NOT.value:
-            if not bool(
-                {Requirements.NEG_PRECONDITION, Requirements.ADL}
-                & self._extended_requirements
-            ):
-                # raise PDDLMissingRequirementError(Requirements.NEG_PRECONDITION)
-                # TODO temporary change; remove
-                pass
-            return Not(args[2])
+            return self.gd_not(args)
         elif args[1] == Symbols.AND.value:
-            operands = args[2:-1]
-            return And(*operands)
+            return self.gd_and(args)
         elif args[1] == Symbols.OR.value:
-            if not bool(
-                {Requirements.DIS_PRECONDITION, Requirements.ADL}
-                & self._extended_requirements
-            ):
-                raise PDDLMissingRequirementError(Requirements.DIS_PRECONDITION)
-            operands = args[2:-1]
-            return Or(*operands)
+            return self.gd_or(args)
         elif args[1] == Symbols.IMPLY.value:
-            if not bool(
-                {Requirements.DIS_PRECONDITION, Requirements.ADL}
-                & self._extended_requirements
-            ):
-                raise PDDLMissingRequirementError(Requirements.DIS_PRECONDITION)
-            return Imply(args[2], args[3])
-        elif args[1] == Symbols.FORALL.value:
-            if not bool(
-                {Requirements.UNIVERSAL_PRECONDITION, Requirements.QUANTIFIED_PRECONDITION, Requirements.ADL}
-                & self._extended_requirements
-            ):
-                raise PDDLMissingRequirementError(Requirements.UNIVERSAL_PRECONDITION)
-            variables = [Variable(name, tags) for name, tags in args[3].items()]
-            condition = args[5]
-            return ForallCondition(cond=condition, variables=variables)
-        elif args[1] == Symbols.EXISTS.value:
-            if not bool(
-                {Requirements.EXISTENTIAL_PRECONDITION, Requirements.QUANTIFIED_PRECONDITION, Requirements.ADL}
-                & self._extended_requirements
-            ):
-                raise PDDLMissingRequirementError(Requirements.EXISTENTIAL_PRECONDITION)
-            variables = [Variable(name, tags) for name, tags in args[3].items()]
-            condition = args[5]
-            return ExistsCondition(cond=condition, variables=variables)
+            return self.gd_imply(args)
+        elif args[1] in [Symbols.FORALL.value, Symbols.EXISTS.value]:
+            return self.gd_quantifiers(args)
 
     def emptyor_effect(self, args):
         """Process the 'emptyor_effect' rule."""

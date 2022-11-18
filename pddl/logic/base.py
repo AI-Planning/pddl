@@ -214,6 +214,7 @@ class Not(UnaryOp):
 
     SYMBOL = "not"
 
+
 @cache_hash
 @functools.total_ordering
 class QuantifiedCondition(Formula):
