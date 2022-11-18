@@ -57,7 +57,7 @@ DOMAIN_NAMES = [
     "tireworld",
     "tireworld-truck",
     "triangle-tireworld",
-    # "zenotravel",
+    "zenotravel",
 ]
 
 DOMAIN_FILES = [
