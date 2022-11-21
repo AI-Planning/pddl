@@ -14,7 +14,7 @@
 
 from pddl.core import Action
 from pddl.logic import Predicate, Variable, variables
-from pddl.logic.base import Imply, OneOf
+from pddl.logic.base import ExistsCondition, ForallCondition, Imply, OneOf
 
 
 class TestActionEmpty:
@@ -83,4 +83,23 @@ def test_build_action_2():
         precondition=Imply(p & q, r),
         effect=OneOf(p & ~q, p & q),
     )
+    assert action
+
+
+def test_build_action_quantified_conditions():
+    """Test PDDL action with quantified conditions."""
+    # set up variables and constants
+    x, y, z, z2 = variables("x y z z2", types=["type_1"])
+
+    # define predicates
+    p1 = Predicate("p1", x, y, z)
+    p2 = Predicate("p2", x, y)
+
+    # define actions
+    c1 = ExistsCondition(cond=~p2(y, z2), variables=[z2])
+    c2 = ForallCondition(cond=p2(y, z2) & p1(x, y, z), variables=[z2])
+    action = Action(
+        "action-1", parameters=[x, y, z], precondition=c1 & c2, effect=p2(y, z)
+    )
+
     assert action

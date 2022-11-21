@@ -1,5 +1,5 @@
 (define (domain zenotravel)
-  (:requirements :typing :non-deterministic)
+  (:requirements :typing :universal-preconditions :non-deterministic)
   (:types aircraft person city flevel)
   (:predicates (atperson ?p - person ?c - city)
                (at-aircraft ?a - aircraft ?c - city)

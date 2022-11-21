@@ -12,9 +12,13 @@
 #
 
 """Base classes for PDDL logic formulas."""
-from typing import Optional, Sequence
+import functools
+from typing import AbstractSet, Collection, Optional, Sequence
 
+from pddl.helpers.base import ensure_set
 from pddl.helpers.cache_hash import cache_hash
+from pddl.logic.terms import Variable
+from pddl.parser.symbols import Symbols
 
 
 @cache_hash
@@ -208,6 +212,76 @@ class Not(UnaryOp):
     """Not operator."""
 
     SYMBOL = "not"
+
+
+@cache_hash
+@functools.total_ordering
+class QuantifiedCondition(Formula):
+    """Superclass for quantified conditions."""
+
+    SYMBOL: str
+
+    def __init__(
+        self, cond: "Formula", variables: Optional[Collection[Variable]] = None
+    ) -> None:
+        """Initialize the quantified condition."""
+        self._cond = cond
+        self._variables = ensure_set(variables)
+
+    @property
+    def condition(self) -> "Formula":
+        """Get the condition."""
+        return self._cond
+
+    @property
+    def variables(self) -> AbstractSet[Variable]:
+        """Get the variables."""
+        return self._variables
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+
+        def build_tags(tags):
+            if len(tags) == 0:
+                return ""
+            return f" - {' '.join(tags)}"
+
+        var_block = " ".join([f"{v}{build_tags(v.type_tags)}" for v in self.variables])
+        return f"({self.SYMBOL} ({var_block}) {self.condition})"
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return f"{type(self).__name__}({self.variables}, {self.condition})"
+
+    def __eq__(self, other) -> bool:
+        """Compare with another object."""
+        return (
+            isinstance(other, type(self))
+            and self.variables == other.variables
+            and self.condition == other.condition
+        )
+
+    def __hash__(self) -> int:
+        """Compute the hash of the object."""
+        return hash((type(self), self.variables, self.condition))
+
+    def __lt__(self, other):
+        """Compare with another object."""
+        if isinstance(other, QuantifiedCondition):
+            return (self.variables, self.condition) < (other.variables, other.condition)
+        return super().__lt__(other)
+
+
+class ForallCondition(QuantifiedCondition):
+    """Forall Condition."""
+
+    SYMBOL = Symbols.FORALL.value
+
+
+class ExistsCondition(QuantifiedCondition):
+    """Exists Condition."""
+
+    SYMBOL = Symbols.EXISTS.value
 
 
 def ensure_formula(f: Optional[Formula], is_none_true: bool) -> Formula:

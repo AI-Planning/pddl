@@ -77,7 +77,7 @@ You can use the `pddl` package in two ways: as a library, and as a CLI tool.
 
 ### As a library
 
-This is an example of how you can build a PDDL domain or problem 
+This is an example of how you can build a PDDL domain or problem
 programmatically:
 ```python
 from pddl.logic import Predicate, constants, variables
@@ -160,29 +160,29 @@ Supported commands are:
 
 ## Features
 
-Supported [PDDL 3.1](https://helios.hud.ac.uk/scommv/IPC-14/repository/kovacs-pddl-3.1-2011.pdf) 
-requirements:  
+Supported [PDDL 3.1](https://helios.hud.ac.uk/scommv/IPC-14/repository/kovacs-pddl-3.1-2011.pdf)
+requirements:
 
-- [x] `:strips`  
-- [x] `:typing`  
-- [x] `:negative-preconditions`  
-- [x] `:disjunctive-preconditions`  
-- [x] `:equality`  
-- [ ] `:existential-preconditions`  
-- [ ] `:universal-preconditions`  
-- [ ] `:quantified-preconditions`  
-- [x] `:conditional-effects`  
-- [ ] `:fluents`  
-- [ ] `:numeric-fluents`  
-- [x] `:non-deterministic` (see [6th IPC: Uncertainty Part](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.163.7140&rep=rep1&type=pdf))  
-- [ ] `:adl`  
-- [ ] `:durative-actions`  
-- [ ] `:duration-inequalities`  
-- [x] `:derived-predicates`  
-- [ ] `:timed-initial-literals`  
-- [ ] `:preferences`  
-- [ ] `:constraints`  
-- [ ] `:action-costs`  
+- [x] `:strips`
+- [x] `:typing`
+- [x] `:negative-preconditions`
+- [x] `:disjunctive-preconditions`
+- [x] `:equality`
+- [x] `:existential-preconditions`
+- [x] `:universal-preconditions`
+- [x] `:quantified-preconditions`
+- [x] `:conditional-effects`
+- [ ] `:fluents`
+- [ ] `:numeric-fluents`
+- [x] `:non-deterministic` (see [6th IPC: Uncertainty Part](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.163.7140&rep=rep1&type=pdf))
+- [x] `:adl`
+- [ ] `:durative-actions`
+- [ ] `:duration-inequalities`
+- [x] `:derived-predicates`
+- [ ] `:timed-initial-literals`
+- [ ] `:preferences`
+- [ ] `:constraints`
+- [ ] `:action-costs`
 
 ## Development
 
@@ -220,8 +220,8 @@ Copyright (c) 2021-2022 WhiteMech
 
 ## Acknowledgements
 
-The `pddl` project is partially supported by the ERC Advanced Grant WhiteMech 
-(No. 834228), the EU ICT-48 2020 project TAILOR (No. 952215), 
-the PRIN project RIPER (No. 20203FFYLK), and the JPMorgan AI Faculty 
-Research Award "Resilience-based Generalized Planning and Strategic 
+The `pddl` project is partially supported by the ERC Advanced Grant WhiteMech
+(No. 834228), the EU ICT-48 2020 project TAILOR (No. 952215),
+the PRIN project RIPER (No. 20203FFYLK), and the JPMorgan AI Faculty
+Research Award "Resilience-based Generalized Planning and Strategic
 Reasoning".
