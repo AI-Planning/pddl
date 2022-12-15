@@ -151,6 +151,13 @@ Output:
 )
 ```
 
+Example parsing:
+```python
+from pddl import parse_domain, parse_problem
+domain = parse_domain('d.pddl')
+problem = parse_problem('p.pddl')
+```
+
 ### As CLI tool
 
 The package can also be used as a CLI tool.
