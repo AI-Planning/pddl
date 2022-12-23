@@ -12,6 +12,7 @@
 #
 
 """Implementation of the PDDL problem parser."""
+import sys
 from typing import Dict
 
 from lark import Lark, ParseError, Transformer
@@ -41,6 +42,10 @@ class ProblemTransformer(Transformer):
 
     def problem(self, args):
         """Process the 'problem' rule."""
+        args = [arg for arg in args if arg is not None]
+        assert (
+            args[0].value + args[1].value + args[-1].value == "(define)"
+        ), "Problem should start with '(define' and close with ')'"
         return Problem(**dict(args[2:-1]))
 
     def problem_def(self, args):
@@ -140,6 +145,8 @@ class ProblemParser:
 
     def __call__(self, text):
         """Call."""
+        sys.tracebacklimit = 0
         tree = self._parser.parse(text)
+        sys.tracebacklimit = None
         formula = self._transformer.transform(tree)
         return formula
