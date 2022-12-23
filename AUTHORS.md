@@ -7,4 +7,4 @@
 
 ## Contributors
 
-None yet. [Why not be the first](./contributing.md)? 
+* [Christian Muise](http://www.haz.ca) <[christian.muise@gmail.com](mailto:christian.muise@gmail.com)>

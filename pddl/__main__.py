@@ -14,13 +14,11 @@
 """Main entrypoint for the PDDL parser CLI tool."""
 import os
 import sys
-from pathlib import Path
 
 import click
 
+from pddl import parse_domain, parse_problem
 from pddl.formatter import domain_to_string, problem_to_string
-from pddl.parser.domain import DomainParser
-from pddl.parser.problem import ProblemParser
 
 
 @click.group()
@@ -38,7 +36,7 @@ def domain(domain_file, quiet):
     """Check a PDDL domain file is correct."""
     if quiet:
         sys.stdout = open(os.devnull, "a")
-    print(domain_to_string(DomainParser()(Path(domain_file).read_text())))
+    print(domain_to_string(parse_domain(domain_file)))
 
 
 @cli.command()
@@ -48,7 +46,7 @@ def problem(problem_file, quiet):
     """Check a PDDL problem file is correct."""
     if quiet:
         sys.stdout = open(os.devnull, "a")
-    print(problem_to_string(ProblemParser()(Path(problem_file).read_text())))
+    print(problem_to_string(parse_problem(problem_file)))
 
 
 if __name__ == "__main__":
