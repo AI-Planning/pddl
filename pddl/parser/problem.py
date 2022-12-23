@@ -145,8 +145,8 @@ class ProblemParser:
 
     def __call__(self, text):
         """Call."""
-        sys.tracebacklimit = 0
+        sys.tracebacklimit = 0  # noqa
         tree = self._parser.parse(text)
-        sys.tracebacklimit = None
+        sys.tracebacklimit = None  # noqa
         formula = self._transformer.transform(tree)
         return formula
