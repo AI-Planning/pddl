@@ -30,12 +30,15 @@ _ROOT_PATH = _get_current_path()
 # Simple helpers
 def parse_domain(fn):
     from pddl.parser.domain import DomainParser
-    with open(fn, 'r') as f:
+
+    with open(fn, "r") as f:
         dtext = f.read()
     return DomainParser()(dtext)
 
+
 def parse_problem(fn):
     from pddl.parser.problem import ProblemParser
-    with open(fn, 'r') as f:
+
+    with open(fn, "r") as f:
         ptext = f.read()
     return ProblemParser()(ptext)
