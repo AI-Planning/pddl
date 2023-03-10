@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - ci/add-python-39-310-311-to-github-workflows
   pull_request:
 
 jobs:
