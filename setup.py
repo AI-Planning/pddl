@@ -56,7 +56,7 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
     ],
-    python_requires='>=3.7, <=3.11',
+    python_requires='>=3.7',
     install_requires=install_requires,
     license=about["__license__"],
     include_package_data=True,
