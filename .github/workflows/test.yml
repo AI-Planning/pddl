@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - ci/add-python-39-310-311-to-github-workflows
   pull_request:
 
 jobs:
@@ -13,7 +14,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.7, 3.8]
+        python-version: [3.7, 3.8, 3.9, 3.10, 3.11]
 
     timeout-minutes: 30
 
