@@ -131,11 +131,11 @@ class FunctionOperator(Atomic):
 
     def __hash__(self) -> int:
         """Get the hash."""
-        return hash((self, self.function, self.value))
+        return hash((self.symbol, self.function, self.value))
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"({self.symbol} {self.function} {self.value})"
+        return f"({self.symbol.value} {self.function} {self.value})"
 
     def __repr__(self) -> str:
         """Get the string representation."""

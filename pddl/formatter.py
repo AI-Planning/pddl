@@ -41,11 +41,9 @@ def _print_predicates_with_types(predicates: Collection):
         else:
             result += f"({p.name}"
             for t in p.terms:
-                result += (
-                    f" ?{t.name} - {' '.join(t.type_tags)}"
-                    if t.type_tags
-                    else f"?{t.name}"
-                )
+                result += f" ?{t.name}"
+                if t.type_tags:
+                   result += f" - {' '.join(t.type_tags)}"
             result += ") "
         result += " "
     return result.strip()
@@ -67,7 +65,10 @@ def domain_to_string(domain: Domain) -> str:
     body += _sort_and_print_collection("(:requirements ", domain.requirements, ")\n")
     body += _sort_and_print_collection("(:types ", domain.types, ")\n")
     body += _sort_and_print_collection("(:constants ", domain.constants, ")\n")
-    body += f"(:predicates {_print_predicates_with_types(domain.predicates)})\n"
+    if domain.predicates:
+        body += f"(:predicates {_print_predicates_with_types(domain.predicates)})\n"
+    if domain.functions:
+        body += f"(:functions {_print_predicates_with_types(domain.functions)})\n"
     body += _sort_and_print_collection(
         "",
         domain.derived_predicates,
@@ -91,7 +92,8 @@ def problem_to_string(problem: Problem) -> str:
     body = f"(:domain {problem.domain_name})\n"
     indentation = " " * 4
     body += _sort_and_print_collection("(:requirements ", problem.requirements, ")\n")
-    body += f"(:objects {_print_objects_with_types(problem.objects)})\n"
+    if problem.objects:
+        body += f"(:objects {_print_objects_with_types(problem.objects)})\n"
     body += _sort_and_print_collection("(:init ", problem.init, ")\n")
     body += f"{'(:goal ' + str(problem.goal) + ')'}\n" if problem.goal != TRUE else ""
     result = result + "\n" + indent(body, indentation) + "\n)"
