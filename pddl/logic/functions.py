@@ -92,7 +92,7 @@ class Function(Atomic):
 
 
 class FunctionOperator(Atomic):
-    """Assign value to numerical fluent."""
+    """Operator for to numerical fluent."""
 
     def __init__(self, function: Function, value: Number, symbol: Symbols):
         """
@@ -142,40 +142,56 @@ class FunctionOperator(Atomic):
 
 
 class EqualTo(FunctionOperator):
+    """Check if numerical fluent is equal to value."""
+
     def __init__(self, function: Function, value: Number):
         super().__init__(function, value, Symbols.EQUAL)
 
 
 class LesserThan(FunctionOperator):
+    """Check if numerical fluent is lesser than value."""
+
     def __init__(self, function: Function, value: Number):
         super().__init__(function, value, Symbols.LESSER)
 
 
 class LesserEqualThan(FunctionOperator):
+    """Check if numerical fluent is lesser or equal than value."""
+
     def __init__(self, function: Function, value: Number):
         super().__init__(function, value, Symbols.LESSER_EQUAL)
 
 
 class GreaterThan(FunctionOperator):
+    """Check if numerical fluent is greater than value."""
+
     def __init__(self, function: Function, value: Number):
         super().__init__(function, value, Symbols.GREATER)
 
 
 class GreaterEqualThan(FunctionOperator):
+    """Check if numerical fluent is greater or equal than value."""
+
     def __init__(self, function: Function, value: Number):
         super().__init__(function, value, Symbols.GREATER_EQUAL)
 
 
 class AssignTo(FunctionOperator):
+    """Assign value to numerical fluent."""
+
     def __init__(self, function: Function, value: Number):
         super().__init__(function, value, Symbols.ASSIGN)
 
 
 class Increase(FunctionOperator):
+    """Increase numerical fluent by value."""
+
     def __init__(self, function: Function, value: Number):
         super().__init__(function, value, Symbols.INCREASE)
 
 
 class Decrease(FunctionOperator):
+    """Decrease numerical fluent by value."""
+
     def __init__(self, function: Function, value: Number):
         super().__init__(function, value, Symbols.DECREASE)
