@@ -19,7 +19,7 @@ from pddl.logic.helpers import variables
 class TestFunctionsimpleInitialisation:
     """Test simple function initialisation."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the tests."""
         self.a, self.b = variables("a b")
         self.function = Function("P", self.a, self.b)

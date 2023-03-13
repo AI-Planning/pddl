@@ -21,7 +21,7 @@ from pddl.logic.predicates import Predicate
 class TestDomainEmpty:
     """Test the empty domain."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the tests."""
         self.domain = Domain("empty_domain")
 
