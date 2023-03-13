@@ -1,2 +1,0 @@
-lark-parser>=0.9.0,<1
-click>=8,<9
