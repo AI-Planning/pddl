@@ -50,6 +50,13 @@ class Symbols(Enum):
     ROUND_BRACKET_RIGHT = ")"
     TYPE_SEP = "-"
     EQUAL = "="
+    GREATER_EQUAL = ">="
+    GREATER = ">"
+    LESSER_EQUAL = "<="
+    LESSER = "<"
+    ASSIGN = "assign"
+    INCREASE = "increase"
+    DECREASE = "decrease"
 
 
 ALL_SYMBOLS = {v.value for v in Symbols}  # type: Set[str]
@@ -70,6 +77,7 @@ class RequirementSymbols(Enum):
     ADL = ":adl"
     DERIVED_PREDICATES = ":derived-predicates"
     NON_DETERMINISTIC = ":non-deterministic"
+    FLUENTS = ":fluents"
 
     def strip(self) -> str:
         """Strip the leading colon."""

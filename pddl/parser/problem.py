@@ -19,6 +19,7 @@ from lark import Lark, ParseError, Transformer
 from pddl.core import Problem, Requirements
 from pddl.logic.base import And, Not
 from pddl.logic.predicates import EqualTo, Predicate
+from pddl.logic.functions import Function
 from pddl.logic.terms import Constant
 from pddl.parser import PARSERS_DIRECTORY, PROBLEM_GRAMMAR_FILE
 from pddl.parser.domain import DomainTransformer
@@ -123,6 +124,22 @@ class ProblemTransformer(Transformer):
                 for _term_name in args[2:-1]
             ]
             return Predicate(name, *terms)
+
+    def atomic_function_init(self, args):
+        """Process the 'atomic_function_init' rule."""
+        if args[1] == Symbols.EQUAL.value:
+            obj1 = self._objects_by_name.get(args[1])
+            obj2 = self._objects_by_name.get(args[2])
+            return EqualTo(obj1, obj2)
+        else:
+            name = args[1]
+            terms = [
+                Constant(str(_term_name))
+                if self._objects_by_name.get(str(_term_name)) is None
+                else self._objects_by_name.get(str(_term_name))
+                for _term_name in args[2:-1]
+            ]
+            return Function(name, *terms)
 
 
 _problem_parser_lark = PROBLEM_GRAMMAR_FILE.read_text()

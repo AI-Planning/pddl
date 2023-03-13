@@ -31,6 +31,7 @@ from pddl.logic.base import (
 )
 from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
+from pddl.logic.functions import Function
 from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
 from pddl.parser.symbols import Symbols
@@ -101,6 +102,12 @@ class DomainTransformer(Transformer):
         predicates = args[2:-1]
         self._predicates_by_name = {p.name: p for p in predicates}
         return dict(predicates=predicates)
+
+    def functions(self, args):
+        """Process the 'predicates' rule."""
+        functions = args[2:-1]
+        self._functions_by_name = {f.name: f for f in functions}
+        return dict(functions=functions)
 
     def action_def(self, args):
         """Process the 'action_def' rule."""
@@ -281,12 +288,21 @@ class DomainTransformer(Transformer):
             raise ParseError(f"Constant '{args[0]}' not defined.")
         return constant
 
-    def atomic_formula_skeleton(self, args):
-        """Process the 'atomic_formula_skeleton' rule."""
+    def _formula_skeleton(self, args):
         name = args[1]
         variable_data: Dict[str, Set[str]] = args[2]
         variables = [Variable(name, tags) for name, tags in variable_data.items()]
+        return name, variables
+
+    def atomic_predicate_skeleton(self, args):
+        """Process the 'atomic_formula_skeleton' rule."""
+        name, variables = self._formula_skeleton(args)
         return Predicate(name, *variables)
+
+    def atomic_function_skeleton(self, args):
+        """Process the 'atomic_function_skeleton' rule."""
+        name, variables = self._formula_skeleton(args)
+        return Function(name, *variables)
 
     def typed_list_name(self, args):
         """

@@ -42,6 +42,22 @@ class Formula:
         return Or(Not(self), other)
 
 
+@cache_hash
+class Number:
+    """Base class for all the numbers."""
+
+    def __init__(self, value: float) -> None:
+        self._value = value
+
+    def __hash__(self) -> int:
+        """Compute the hash of the object."""
+        return hash(self._value)
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return str(self._value)
+
+
 class BinaryOp(Formula):
     """Binary operator."""
 

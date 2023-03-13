@@ -12,6 +12,7 @@ NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
             | ADL
             | DERIVED_PREDICATES
             | CONDITIONAL_EFFECTS
+            | FLUENTS
 
 COMMENT: /;[^\n]*/
 
@@ -21,6 +22,7 @@ REQUIREMENTS: ":requirements"
 TYPES: ":types"
 CONSTANTS: ":constants"
 PREDICATES: ":predicates"
+FUNCTIONS: ":functions"
 ACTION: ":action"
 PARAMETERS: ":parameters"
 PRECONDITION: ":precondition"
@@ -37,6 +39,13 @@ IMPLY: "imply"
 EITHER: "either"
 ONEOF: "oneof"
 EQUAL_OP: "="
+GREATER_EQUAL_OP: ">="
+GREATER_OP: ">"
+LESSER_EQUAL_OP: "<="
+LESSER_OP: "<"
+INCREASE: "increase"
+DECREASE: "decrease"
+NUMBER: /[0-9]+/
 
 // available requirements
 STRIPS: ":strips"
@@ -51,6 +60,7 @@ CONDITIONAL_EFFECTS: ":conditional-effects"
 EXISTENTIAL_PRECONDITIONS: ":existential-preconditions"
 UNIVERSAL_PRECONDITIONS: ":universal-preconditions"
 QUANTIFIED_PRECONDITIONS: ":quantified-preconditions"
+FLUENTS: ":fluents"
 
 // others
 LPAR : "("

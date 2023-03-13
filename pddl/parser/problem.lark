@@ -9,15 +9,26 @@ objects:   LPAR OBJECTS typed_list_name RPAR
 init:                  LPAR INIT init_el* RPAR
 ?init_el:              literal_name
 literal_name:          atomic_formula_name
+            |          atomic_function_init
             |          LPAR NOT atomic_formula_name RPAR
 atomic_formula_name:   LPAR predicate NAME* RPAR
                    |   LPAR EQUAL_OP NAME NAME RPAR
+
+atomic_function_init:  LPAR EQUAL_OP numeric_variable NUMBER RPAR
+
 
 goal:  LPAR GOAL gd_name RPAR
 
 gd_name:    atomic_formula_name
        |    LPAR NOT atomic_formula_name RPAR
        |    LPAR AND gd_name* RPAR
+       |    atomic_function_goal
+
+atomic_function_goal: atomic_function_init
+                    |  LPAR GREATER_OP numeric_variable NUMBER RPAR
+                    |  LPAR GREATER_EQUAL_OP numeric_variable NUMBER RPAR
+                    |  LPAR LESSER_OP numeric_variable NUMBER RPAR
+                    |  LPAR LESSER_EQUAL_OP numeric_variable NUMBER RPAR
 
 DOMAIN_P: ":domain"
 PROBLEM: "problem"
@@ -32,6 +43,7 @@ GOAL: ":goal"
 %import .domain.requirements -> requirements
 %import .domain.typed_list_name -> typed_list_name
 %import .domain.predicate -> predicate
+%import .domain.numeric_variable -> numeric_variable
 %import .common.NAME -> NAME
 %import .common.DEFINE -> DEFINE
 %import .common.DOMAIN -> DOMAIN
@@ -49,6 +61,10 @@ GOAL: ":goal"
 %import .common.EITHER -> EITHER
 %import .common.ONEOF -> ONEOF
 %import .common.EQUAL_OP -> EQUAL_OP
+%import .common.GREATER_OP -> GREATER_OP
+%import .common.GREATER_EQUAL_OP -> GREATER_EQUAL_OP
+%import .common.LESSER_OP -> LESSER_OP
+%import .common.LESSER_EQUAL_OP -> LESSER_EQUAL_OP
 %import .common.TYPING -> TYPING
 %import .common.EQUALITY -> EQUALITY
 %import .common.STRIPS -> STRIPS
@@ -56,3 +72,4 @@ GOAL: ":goal"
 %import .common.LPAR -> LPAR
 %import .common.RPAR -> RPAR
 %import .common.TYPE_SEP -> TYPE_SEP
+%import .common.NUMBER -> NUMBER

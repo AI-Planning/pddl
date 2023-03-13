@@ -31,6 +31,7 @@ from pddl.helpers.base import (
 )
 from pddl.logic.base import Formula, TrueFormula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
+from pddl.logic.functions import Function
 from pddl.logic.terms import Constant, Variable
 from pddl.parser.symbols import RequirementSymbols as RS
 
@@ -48,6 +49,7 @@ class Domain:
         derived_predicates: Optional[
             Collection[DerivedPredicate]
         ] = None,  # TODO cannot be empty
+        functions: Optional[Collection[Function]] = None,
         actions: Optional[Collection["Action"]] = None,
     ):
         """
@@ -68,6 +70,7 @@ class Domain:
         self._predicates = ensure_set(predicates)
         self._derived_predicates = ensure_set(derived_predicates)
         self._actions = ensure_set(actions)
+        self._functions = ensure_set(functions)
 
     @property
     def name(self) -> str:
@@ -88,6 +91,11 @@ class Domain:
     def predicates(self) -> AbstractSet[Predicate]:
         """Get the predicates."""
         return self._predicates
+
+    @property
+    def functions(self) -> AbstractSet[Function]:
+        """Get the functions."""
+        self._functions
 
     @property
     def derived_predicates(self) -> AbstractSet[DerivedPredicate]:
@@ -316,6 +324,7 @@ class Requirements(Enum):
     ADL = RS.ADL.strip()
     DERIVED_PREDICATES = RS.DERIVED_PREDICATES.strip()
     NON_DETERMINISTIC = RS.NON_DETERMINISTIC.strip()
+    FLUENTS = RS.FLUENTS.strip()
 
     @classmethod
     def strips_requirements(cls) -> Set["Requirements"]:
