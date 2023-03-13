@@ -96,10 +96,11 @@ class FunctionOperator(Atomic):
 
     def __init__(self, function: Function, value: Number, symbol: Symbols):
         """
-        Initialize the equality predicate.
+        Initialize the function operator.
 
-        :param func: the function to assign to.
-        :param right: the right term.
+        :param func: function to operate on.
+        :param value: value of the operator.
+        :param symbol: symbol of the operator.
         """
         self._function = function
         self._value = value
@@ -145,6 +146,12 @@ class EqualTo(FunctionOperator):
     """Check if numerical fluent is equal to value."""
 
     def __init__(self, function: Function, value: Number):
+        """
+        Initialize the EqualTo operator.
+
+        :param func: function to operate on.
+        :param value: value of the operator.
+        """
         super().__init__(function, value, Symbols.EQUAL)
 
 
@@ -152,6 +159,12 @@ class LesserThan(FunctionOperator):
     """Check if numerical fluent is lesser than value."""
 
     def __init__(self, function: Function, value: Number):
+        """
+        Initialize the LesserThan operator.
+
+        :param func: function to operate on.
+        :param value: value of the operator.
+        """
         super().__init__(function, value, Symbols.LESSER)
 
 
@@ -159,6 +172,12 @@ class LesserEqualThan(FunctionOperator):
     """Check if numerical fluent is lesser or equal than value."""
 
     def __init__(self, function: Function, value: Number):
+        """
+        Initialize the LesserEqualThan operator.
+
+        :param func: function to operate on.
+        :param value: value of the operator.
+        """
         super().__init__(function, value, Symbols.LESSER_EQUAL)
 
 
@@ -166,6 +185,12 @@ class GreaterThan(FunctionOperator):
     """Check if numerical fluent is greater than value."""
 
     def __init__(self, function: Function, value: Number):
+        """
+        Initialize the GreaterThan operator.
+
+        :param func: function to operate on.
+        :param value: value of the operator.
+        """
         super().__init__(function, value, Symbols.GREATER)
 
 
@@ -173,6 +198,12 @@ class GreaterEqualThan(FunctionOperator):
     """Check if numerical fluent is greater or equal than value."""
 
     def __init__(self, function: Function, value: Number):
+        """
+        Initialize the GreaterEqualThan operator.
+
+        :param func: function to operate on.
+        :param value: value of the operator.
+        """
         super().__init__(function, value, Symbols.GREATER_EQUAL)
 
 
@@ -180,6 +211,12 @@ class AssignTo(FunctionOperator):
     """Assign value to numerical fluent."""
 
     def __init__(self, function: Function, value: Number):
+        """
+        Initialize the AssignTo operator.
+
+        :param func: function to operate on.
+        :param value: value of the operator.
+        """
         super().__init__(function, value, Symbols.ASSIGN)
 
 
@@ -187,6 +224,12 @@ class Increase(FunctionOperator):
     """Increase numerical fluent by value."""
 
     def __init__(self, function: Function, value: Number):
+        """
+        Initialize the Increase operator.
+
+        :param func: function to operate on.
+        :param value: value of the operator.
+        """
         super().__init__(function, value, Symbols.INCREASE)
 
 
@@ -194,4 +237,10 @@ class Decrease(FunctionOperator):
     """Decrease numerical fluent by value."""
 
     def __init__(self, function: Function, value: Number):
+        """
+        Initialize the Decrease operator.
+
+        :param func: function to operate on.
+        :param value: value of the operator.
+        """
         super().__init__(function, value, Symbols.DECREASE)
