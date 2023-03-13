@@ -30,8 +30,8 @@ from pddl.logic.base import (
     Or,
 )
 from pddl.logic.effects import AndEffect, Forall, When
-from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.functions import Function
+from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
 from pddl.parser.symbols import Symbols

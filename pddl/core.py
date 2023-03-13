@@ -30,8 +30,8 @@ from pddl.helpers.base import (
     ensure_set,
 )
 from pddl.logic.base import Formula, TrueFormula, is_literal
-from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.functions import Function
+from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser.symbols import RequirementSymbols as RS
 
