@@ -107,17 +107,17 @@ class FunctionOperator(Atomic):
         self._symbol = symbol
 
     @property
-    def function(self) -> Term:
+    def function(self) -> Function:
         """Get the numerical fluent."""
         return self._function
 
     @property
-    def symbol(self) -> Term:
+    def symbol(self) -> Symbols:
         """Get the operation symbol."""
         return self._symbol
 
     @property
-    def value(self) -> Term:
+    def value(self) -> Number:
         """Get the value of the operation."""
         return self._value
 

@@ -95,7 +95,7 @@ class Domain:
     @property
     def functions(self) -> AbstractSet[Function]:
         """Get the functions."""
-        self._functions
+        return self._functions
 
     @property
     def derived_predicates(self) -> AbstractSet[DerivedPredicate]:

@@ -47,6 +47,7 @@ class Number:
     """Base class for all the numbers."""
 
     def __init__(self, value: float) -> None:
+        """Init the number object."""
         self._value = value
 
     def __hash__(self) -> int:
