@@ -114,7 +114,7 @@ class Variable(Term):
 
     def __eq__(self, other) -> bool:
         """Compare with another object."""
-        return isinstance(other, Variable) and self.name == other.name
+        return isinstance(other, Variable) and self.name == other.name and self.type_tags == other.type_tags
 
     def __hash__(self) -> int:
         """Get the hash."""

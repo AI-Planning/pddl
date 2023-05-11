@@ -50,6 +50,7 @@ DOMAIN_NAMES = [
     # "faults-ipc08",
     # "first-responders-ipc08",
     "islands",
+    "maintenance-sequential-satisficing-ipc2014",
     "miner",
     "rovers_fond",
     "spiky-tireworld",
