@@ -98,7 +98,7 @@ def _typed_parameters(parameters) -> str:
             result += f"?{p.name} - {' '.join(map(str, p.type_tags))} "
         else:
             result += str(p) + " "
-    return result
+    return result.strip()
 
 
 class RegexConstrainedString(str):
