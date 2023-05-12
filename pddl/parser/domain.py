@@ -12,6 +12,7 @@
 #
 
 """Implementation of the PDDL domain parser."""
+import sys
 from typing import Dict, Set
 
 from lark import Lark, ParseError, Transformer
@@ -55,6 +56,7 @@ class DomainTransformer(Transformer):
 
     def domain(self, args):
         """Process the 'domain' rule."""
+        args = [arg for arg in args if arg is not None]
         kwargs = {}
         actions = []
         derived_predicates = []
@@ -349,6 +351,8 @@ class DomainParser:
 
     def __call__(self, text):
         """Call."""
+        sys.tracebacklimit = 0  # noqa
         tree = self._parser.parse(text)
+        sys.tracebacklimit = None  # noqa
         formula = self._transformer.transform(tree)
         return formula
