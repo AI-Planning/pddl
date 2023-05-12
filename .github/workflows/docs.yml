@@ -23,6 +23,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run:  pip install tox
+      run:  pip install "tox>=4.5.1,<4.6.0"
     - name: Generate Documentation
       run: tox -e docs
