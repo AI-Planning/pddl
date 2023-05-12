@@ -26,6 +26,7 @@ jobs:
       run:  pip install tox
     - name: Unit tests and coverage
       run: |
+        pyver=`echo ${{ matrix.python-version }} | tr -d "."`
         tox -e py${{ matrix.python-version }}
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
