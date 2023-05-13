@@ -18,6 +18,7 @@ from typing import Dict
 from lark import Lark, ParseError, Transformer
 
 from pddl.core import Problem, Requirements
+from pddl.helpers.base import assert_
 from pddl.logic.base import And, Not
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant
@@ -43,9 +44,10 @@ class ProblemTransformer(Transformer):
     def problem(self, args):
         """Process the 'problem' rule."""
         args = [arg for arg in args if arg is not None]
-        assert (
-            args[0].value + args[1].value + args[-1].value == "(define)"
-        ), "Problem should start with '(define' and close with ')'"
+        assert_(
+            (args[0].value + args[1].value + args[-1].value == "(define)"),
+            "Problem should start with '(define' and close with ')'",
+        )
         return Problem(**dict(args[2:-1]))
 
     def problem_def(self, args):
@@ -82,7 +84,7 @@ class ProblemTransformer(Transformer):
 
     def domain__type_def(self, names):
         """Process a domain type def."""
-        assert len(names) == 1
+        assert_(len(names) == 1)
         return str(names[0])
 
     def init(self, args):
