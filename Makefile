@@ -57,7 +57,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .mypy_cache
 	rm -fr coverage.xml
 
-lint-all: black isort lint static vulture darglint ## run all linters
+lint-all: black isort lint static safety vulture darglint ## run all linters
 
 lint: ## check style with flake8
 	flake8 pddl tests
@@ -76,6 +76,9 @@ black: ## apply black formatting
 
 black-check: ## check black formatting
 	black --check --verbose pddl tests
+
+safety: ## run safety
+	safety check
 
 vulture: ## check unused code
 	vulture pddl scripts/whitelist.py

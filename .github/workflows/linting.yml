@@ -37,3 +37,6 @@ jobs:
       run: tox -e mypy
     - name: Check copyright
       run: tox -e check-copyright
+    - name: Misc checks
+      run: |
+        tox -e safety
