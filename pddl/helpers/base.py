@@ -26,8 +26,14 @@ def _get_current_path() -> Path:
     return Path(os.path.dirname(inspect.getfile(inspect.currentframe()))).parent  # type: ignore
 
 
-def assert_(condition: bool, message: str = ""):
-    """User-defined assert."""
+def assert_(condition: bool, message: str = "") -> None:
+    """
+    User-defined assert.
+
+    This function is useful to avoid the use of the built-in assert statement, which is removed
+        when the code is compiled in optimized mode. For more information, see
+        https://bandit.readthedocs.io/en/1.7.5/plugins/b101_assert_used.html
+    """
     if not condition:
         raise AssertionError(message)
 

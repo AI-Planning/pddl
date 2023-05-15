@@ -12,7 +12,7 @@
 #
 
 """Test the cache hash class decorator."""
-import pickle
+import pickle  # nosec
 
 from pddl.helpers.cache_hash import cache_hash
 
@@ -45,6 +45,6 @@ def test_hashable():
     assert hasattr(obj, "__hash")
     assert obj.__hash == h1 == h2
 
-    dumped_obj = pickle.dumps(obj)
-    actual_obj = pickle.loads(dumped_obj)
+    dumped_obj = pickle.dumps(obj)  # nosec
+    actual_obj = pickle.loads(dumped_obj)  # nosec
     assert not hasattr(actual_obj, "__hash")

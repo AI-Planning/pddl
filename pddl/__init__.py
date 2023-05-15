@@ -27,6 +27,7 @@ from .helpers.base import _get_current_path
 
 _ROOT_PATH = _get_current_path()
 
+
 # Simple helpers
 def parse_domain(fn):
     from pddl.parser.domain import DomainParser

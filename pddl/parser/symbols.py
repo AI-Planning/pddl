@@ -52,7 +52,7 @@ class Symbols(Enum):
     EQUAL = "="
 
 
-ALL_SYMBOLS = {v.value for v in Symbols}  # type: Set[str]
+ALL_SYMBOLS: Set[str] = {v.value for v in Symbols}
 
 
 class RequirementSymbols(Enum):
@@ -76,4 +76,4 @@ class RequirementSymbols(Enum):
         return self.value[1:]
 
 
-ALL_REQUIREMENTS = {v.value for v in RequirementSymbols}  # type: Set[str]
+ALL_REQUIREMENTS: Set[str] = {v.value for v in RequirementSymbols}

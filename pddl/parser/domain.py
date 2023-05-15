@@ -66,7 +66,7 @@ class DomainTransformer(Transformer):
             elif isinstance(arg, DerivedPredicate):
                 derived_predicates.append(arg)
             else:
-                assert isinstance(arg, dict)
+                assert_(isinstance(arg, dict))
                 kwargs.update(arg)
         kwargs.update(actions=actions, derived_predicates=derived_predicates)
         return Domain(**kwargs)
@@ -249,7 +249,7 @@ class DomainTransformer(Transformer):
         if len(args) >= 3 and args[1] == Symbols.AND.value:
             p_effects = args[2:-1]
             return And(*p_effects)
-        assert len(args) == 1
+        assert_(len(args) == 1)
         return args[0]
 
     def atomic_formula_term(self, args):

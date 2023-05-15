@@ -57,7 +57,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .mypy_cache
 	rm -fr coverage.xml
 
-lint-all: black isort lint static vulture darglint ## run all linters
+lint-all: black isort lint static bandit safety vulture ## run all linters
 
 lint: ## check style with flake8
 	flake8 pddl tests
@@ -77,11 +77,14 @@ black: ## apply black formatting
 black-check: ## check black formatting
 	black --check --verbose pddl tests
 
+bandit: ## run bandit
+	bandit --configfile .bandit.yml --recursive pddl tests scripts
+
+safety: ## run safety
+	safety check
+
 vulture: ## check unused code
 	vulture pddl scripts/whitelist.py
-
-darglint: ## check docstrings
-	darglint pddl scripts/whitelist.py
 
 test: ## run tests quickly with the default Python
 	pytest tests --doctest-modules \
