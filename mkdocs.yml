@@ -13,5 +13,8 @@ nav:
 theme:
   name: "material"
 markdown_extensions:
-    - markdown_include.include:
-        base_path: docs
+  - markdown_include.include:
+      base_path: docs
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
