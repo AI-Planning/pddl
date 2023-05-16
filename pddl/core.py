@@ -32,6 +32,7 @@ from pddl.helpers.base import (
 from pddl.logic.base import Formula, TrueFormula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant, Variable
+from pddl.logic.axioms import Axiom
 from pddl.parser.symbols import RequirementSymbols as RS
 
 
@@ -49,6 +50,7 @@ class Domain:
             Collection[DerivedPredicate]
         ] = None,  # TODO cannot be empty
         actions: Optional[Collection["Action"]] = None,
+        axioms: Optional[Collection["Axiom"]] = None,
     ):
         """
         Initialize a PDDL domain.
@@ -60,6 +62,7 @@ class Domain:
         :param predicates: the predicates.
         :param derived_predicates: the derived predicates.
         :param actions: the actions.
+        :param axioms: the axioms.
         """
         self._name = name_type(name)
         self._requirements = ensure_set(requirements)
@@ -68,6 +71,7 @@ class Domain:
         self._predicates = ensure_set(predicates)
         self._derived_predicates = ensure_set(derived_predicates)
         self._actions = ensure_set(actions)
+        self._axioms = ensure_set(axioms)
 
     @property
     def name(self) -> str:
@@ -98,6 +102,11 @@ class Domain:
     def actions(self) -> AbstractSet["Action"]:
         """Get the actions."""
         return self._actions
+    
+    @property
+    def axioms(self) -> AbstractSet["Axiom"]:
+        """Get the actions."""
+        return self._axioms
 
     @property
     def types(self) -> AbstractSet[name_type]:
@@ -316,6 +325,7 @@ class Requirements(Enum):
     ADL = RS.ADL.strip()
     DERIVED_PREDICATES = RS.DERIVED_PREDICATES.strip()
     NON_DETERMINISTIC = RS.NON_DETERMINISTIC.strip()
+    DOMAIN_AXIOMS = RS.DOMAIN_AXIOMS.strip()
 
     @classmethod
     def strips_requirements(cls) -> Set["Requirements"]:
