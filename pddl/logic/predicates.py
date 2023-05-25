@@ -131,7 +131,7 @@ class EqualTo(Atomic):
 
     def __repr__(self) -> str:
         """Get the string representation."""
-        return f"{type(self).__name__}({self.left}, {self.right})"
+        return f"{type(self).__name__}({repr(self.left)}, {repr(self.right)})"
 
 
 @cache_hash
