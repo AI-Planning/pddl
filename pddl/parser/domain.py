@@ -86,7 +86,7 @@ class DomainTransformer(Transformer):
 
     def types(self, args):
         """Parse the 'types' rule."""
-        if not bool({Requirements.TYPING} & self._extended_requirements):
+        if any(args[2].values()) and not bool({Requirements.TYPING} & self._extended_requirements):
             raise PDDLMissingRequirementError(Requirements.TYPING)
         return dict(types=list(args[2].keys()))
 
