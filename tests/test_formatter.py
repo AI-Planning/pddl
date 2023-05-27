@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -17,9 +17,8 @@ from pathlib import Path
 import pytest
 
 from pddl.formatter import domain_to_string
-from tests.conftest import (
-    DOMAIN_FILES,
-)
+from tests.conftest import DOMAIN_FILES
+
 
 @pytest.mark.parametrize("pddl_file", DOMAIN_FILES)
 def test_domain_formatter(domain_parser, pddl_file: Path):

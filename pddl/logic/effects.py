@@ -14,7 +14,7 @@
 import functools
 from typing import AbstractSet, Collection, Generic, Optional, Sequence, TypeVar, Union
 
-from pddl.helpers.base import ensure_set, _typed_parameters
+from pddl.helpers.base import _typed_parameters, ensure_set
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic import Variable
 from pddl.logic.base import Atomic, Formula, Not, OneOf
