@@ -24,6 +24,6 @@ from tests.conftest import DOMAIN_FILES
 def test_domain_formatter(domain_parser, pddl_file: Path):
     """Test generated domain formatting."""
     expected_domain_obj = domain_parser(pddl_file.read_text())
-    actual_domain_str   = domain_to_string(expected_domain_obj)
-    actual_domain_obj   = domain_parser(actual_domain_str)
+    actual_domain_str = domain_to_string(expected_domain_obj)
+    actual_domain_obj = domain_parser(actual_domain_str)
     assert actual_domain_obj == expected_domain_obj
