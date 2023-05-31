@@ -15,8 +15,8 @@
 __title__ = "pddl"
 __description__ = "PDDL parser"
 __url__ = "https://github.com/AI-Planning/pddl.git"
-__version__ = "0.2.0"
-__author__ = "Marco Favorito, Francesco Fuggitti"
+__version__ = "0.3.0"
+__author__ = "Marco Favorito, Francesco Fuggitti, Christian Muise"
 __author_email__ = (
     "marco.favorito@gmail.com, fuggitti@diag.uniroma1.it, christian.muise@queensu.ca"
 )
