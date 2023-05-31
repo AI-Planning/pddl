@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -115,7 +114,11 @@ class Variable(Term):
 
     def __eq__(self, other) -> bool:
         """Compare with another object."""
-        return isinstance(other, Variable) and self.name == other.name
+        return (
+            isinstance(other, Variable)
+            and self.name == other.name
+            and self.type_tags == other.type_tags
+        )
 
     def __hash__(self) -> int:
         """Get the hash."""

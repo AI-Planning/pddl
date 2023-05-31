@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -44,7 +43,7 @@ def _print_predicates_with_types(predicates: Collection):
                 result += (
                     f" ?{t.name} - {' '.join(t.type_tags)}"
                     if t.type_tags
-                    else f"?{t.name}"
+                    else f" ?{t.name}"
                 )
             result += ") "
         result += " "

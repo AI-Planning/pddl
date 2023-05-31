@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -25,9 +25,9 @@ import re
 import sys
 from pathlib import Path
 
-HEADER_REGEX = r"""(# -\*- coding: utf-8 -\*-
-#
-# Copyright 2021-2022 WhiteMech
+HEADER_REGEX = r"""(#!/usr/bin/env python3
+)?#
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -36,7 +36,7 @@ HEADER_REGEX = r"""(# -\*- coding: utf-8 -\*-
 # Use of this source code is governed by an MIT-style
 # license that can be found in the LICENSE file or at
 # https://opensource\.org/licenses/MIT\.
-#)
+#
 """
 
 

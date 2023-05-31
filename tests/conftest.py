@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -51,6 +50,7 @@ DOMAIN_NAMES = [
     # "faults-ipc08",
     # "first-responders-ipc08",
     "islands",
+    "maintenance-sequential-satisficing-ipc2014",
     "miner",
     "rovers_fond",
     "spiky-tireworld",

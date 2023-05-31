@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -253,7 +252,8 @@ class DomainTransformer(Transformer):
         if len(args) == 1:
             return args[0]
         if args[1] == Symbols.FORALL.value:
-            return Forall(effect=args[-2], variables=args[3])
+            variables = [Variable(name, tags) for name, tags in args[3].items()]
+            return Forall(effect=args[-2], variables=variables)
         if args[1] == Symbols.WHEN.value:
             return When(args[2], args[3])
         if args[1] == Symbols.ONEOF.value:
