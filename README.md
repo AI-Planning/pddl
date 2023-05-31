@@ -218,6 +218,7 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 - [Marco Favorito](https://marcofavorito.me)
 - [Francesco Fuggitti](https://francescofuggitti.github.io)
+- [Christian Muise](http://www.haz.ca/)
 
 ## License
 
