@@ -14,7 +14,7 @@
 import functools
 from typing import AbstractSet, Collection, Generic, Optional, Sequence, TypeVar, Union
 
-from pddl.helpers.base import ensure_set
+from pddl.helpers.base import _typed_parameters, ensure_set
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic import Variable
 from pddl.logic.base import Atomic, Formula, Not, OneOf
@@ -140,7 +140,7 @@ class Forall:
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"({Symbols.FORALL.value} ({' '.join(map(str, self.variables))}) {self.effect})"
+        return f"({Symbols.FORALL.value} ({_typed_parameters(self.variables)}) {self.effect})"
 
     def __repr__(self) -> str:
         """Get an unambiguous string representation."""
