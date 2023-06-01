@@ -54,6 +54,7 @@ DOMAIN_NAMES = [
     "miner",
     "rovers_fond",
     "spiky-tireworld",
+    "storage",
     "tireworld",
     "tireworld-truck",
     "triangle-tireworld",
