@@ -86,9 +86,11 @@ class DomainTransformer(Transformer):
 
     def types(self, args):
         """Parse the 'types' rule."""
-        if any(args[2].values()) and not bool({Requirements.TYPING} & self._extended_requirements):
+        if any(args[2].values()) and not bool(
+            {Requirements.TYPING} & self._extended_requirements
+        ):
             raise PDDLMissingRequirementError(Requirements.TYPING)
-        return dict(types=list(args[2].keys()))
+        return dict(types=args[2])
 
     def constants(self, args):
         """Process the 'constant_def' rule."""
@@ -317,11 +319,20 @@ class DomainTransformer(Transformer):
         type_sep_index = safe_index(args, Symbols.TYPE_SEP.value)
         if type_sep_index is not None:
             objs = args[:type_sep_index]
-            type_obj = args[type_sep_index + 1]
+            type_obj = (
+                args[type_sep_index + 1][1:]
+                if type(args[type_sep_index + 1]) is list
+                else args[type_sep_index + 1]
+            )
             typed_list_dict = dict()
             other_typed_list_dict = safe_get(args, type_sep_index + 2, default=dict())
             for obj in objs:
-                typed_list_dict.setdefault(obj, set()).add(str(type_obj))
+                if isinstance(type_obj, list):
+                    typed_list_dict.setdefault(obj, set()).update(
+                        [str(x) for x in type_obj]
+                    )
+                else:
+                    typed_list_dict.setdefault(obj, set()).add(str(type_obj))
             return {**typed_list_dict, **other_typed_list_dict}
         elif len(args) > 0:
             return {obj: set() for obj in args}
