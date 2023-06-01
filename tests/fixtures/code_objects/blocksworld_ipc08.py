@@ -138,7 +138,7 @@ def blocksworld_domain():
         Requirements.TYPING,
         Requirements.NEG_PRECONDITION,
     }
-    types = {block}
+    types = {block: []}
     actions = {
         pick_up,
         pick_up_from_table,

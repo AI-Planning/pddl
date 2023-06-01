@@ -72,7 +72,7 @@ def triangle_tireworld_domain():
         Requirements.NON_DETERMINISTIC,
         Requirements.TYPING,
     }
-    types = {location}
+    types = {location: []}
     actions = {
         move_car,
         changetire,
