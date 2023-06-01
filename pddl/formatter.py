@@ -12,7 +12,7 @@
 
 """Formatting utilities for PDDL domains and problems."""
 from textwrap import indent
-from typing import Callable, Collection
+from typing import Callable, Collection, Dict
 
 from pddl.core import Domain, Problem
 from pddl.logic.base import TRUE
@@ -40,12 +40,23 @@ def _print_predicates_with_types(predicates: Collection):
         else:
             result += f"({p.name}"
             for t in p.terms:
-                result += (
-                    f" ?{t.name} - {' '.join(t.type_tags)}"
-                    if t.type_tags
-                    else f" ?{t.name}"
-                )
+                if len(t.type_tags) > 1:
+                    result += f" ?{t.name} - (either {' '.join(t.type_tags)})"
+                else:
+                    result += (
+                        f" ?{t.name} - {list(t.type_tags)[0]}"
+                        if t.type_tags
+                        else f" ?{t.name}"
+                    )
             result += ") "
+        result += " "
+    return result.strip()
+
+
+def _print_types_with_parents(types: Dict):
+    result = ""
+    for t in sorted(types.keys()):
+        result += f"{t} - {types[t]}" if types[t] else f"{t}"
         result += " "
     return result.strip()
 
@@ -64,7 +75,7 @@ def domain_to_string(domain: Domain) -> str:
     body = ""
     indentation = " " * 4
     body += _sort_and_print_collection("(:requirements ", domain.requirements, ")\n")
-    body += _sort_and_print_collection("(:types ", domain.types, ")\n")
+    body += f"(:types {_print_types_with_parents(domain.types)})\n"
     body += _sort_and_print_collection("(:constants ", domain.constants, ")\n")
     body += f"(:predicates {_print_predicates_with_types(domain.predicates)})\n"
     body += _sort_and_print_collection(

@@ -17,10 +17,10 @@ It contains the class definitions to build and modify PDDL domains or problems.
 """
 import functools
 from enum import Enum
-from typing import AbstractSet, Collection, Optional, Sequence, Set, cast
+from typing import AbstractSet, Collection, Dict, Optional, Sequence, Set, cast
 
 from pddl.custom_types import name as name_type
-from pddl.custom_types import namelike, to_names
+from pddl.custom_types import namelike, to_names_types
 from pddl.helpers.base import (
     _typed_parameters,
     assert_,
@@ -41,7 +41,7 @@ class Domain:
         self,
         name: namelike,
         requirements: Optional[Collection["Requirements"]] = None,
-        types: Optional[Collection[namelike]] = None,
+        types: Optional[Dict[namelike, Collection[namelike]]] = None,
         constants: Optional[Collection[Constant]] = None,
         predicates: Optional[Collection[Predicate]] = None,  # TODO cannot be empty
         derived_predicates: Optional[
@@ -54,7 +54,7 @@ class Domain:
 
         :param name: the name of the domain.
         :param requirements: the requirements supported.
-        :param types: the list of supported types.
+        :param types: the hierarchy of supported types.
         :param constants: the constants.
         :param predicates: the predicates.
         :param derived_predicates: the derived predicates.
@@ -62,7 +62,7 @@ class Domain:
         """
         self._name = name_type(name)
         self._requirements = ensure_set(requirements)
-        self._types = set(to_names(ensure_set(types)))
+        self._types = to_names_types(ensure(types, dict()))
         self._constants = ensure_set(constants)
         self._predicates = ensure_set(predicates)
         self._derived_predicates = ensure_set(derived_predicates)
@@ -99,7 +99,7 @@ class Domain:
         return self._actions
 
     @property
-    def types(self) -> AbstractSet[name_type]:
+    def types(self) -> Dict[name_type, Collection[name_type]]:
         """Get the type definitions, if defined. Else, raise error."""
         return self._types
 
