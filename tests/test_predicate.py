@@ -12,8 +12,9 @@
 
 """This module contains tests for PDDL predicates."""
 from pddl.core import Predicate
+from pddl.logic.base import And
 from pddl.logic.helpers import variables
-from pddl.logic.predicates import EqualTo
+from pddl.logic.predicates import DerivedPredicate, EqualTo
 
 
 class TestPredicateSimpleInitialisation:
@@ -35,6 +36,22 @@ class TestPredicateSimpleInitialisation:
     def test_arity(self):
         """Test arity property."""
         assert self.predicate.arity == 2
+
+    def test_to_equal(self):
+        """Test to equal."""
+        other = Predicate("P", self.a, self.b)
+        assert self.predicate == other
+
+    def test_to_str(self):
+        """Test to string."""
+        assert str(self.predicate) == f"({self.predicate.name} {self.a} {self.b})"
+
+    def test_to_repr(self):
+        """Test to repr."""
+        assert (
+            repr(self.predicate)
+            == f"Predicate({self.predicate.name}, {self.a}, {self.b})"
+        )
 
 
 class TestEqualToPredicate:
@@ -65,3 +82,38 @@ class TestEqualToPredicate:
     def test_to_repr(self):
         """Test to repr."""
         assert repr(self.equal_to) == f"EqualTo({repr(self.left)}, {repr(self.right)})"
+
+
+class TestDerivedPredicate:
+    """Test the derived predicate."""
+
+    def setup_method(self):
+        """Set up the tests."""
+        self.a, self.b = variables("a b")
+        self.predicate = Predicate("dp", self.a, self.b)
+        self.condition = And(self.a, self.b)
+        self.derived = DerivedPredicate(self.predicate, self.condition)
+
+    def test_predicate(self):
+        """Test predicate getter."""
+        assert self.derived.predicate == self.predicate
+
+    def test_condition(self):
+        """Test condition getter."""
+        assert self.derived.condition == self.condition
+
+    def test_to_equal(self):
+        """Test to equal."""
+        other = DerivedPredicate(self.predicate, self.condition)
+        assert self.derived == other
+
+    def test_to_str(self):
+        """Test to string."""
+        assert str(self.derived) == f"(:derived {self.predicate} {self.condition})"
+
+    def test_to_repr(self):
+        """Test to repr."""
+        assert (
+            repr(self.derived)
+            == f"DerivedPredicate({repr(self.predicate)}, {repr(self.condition)})"
+        )
