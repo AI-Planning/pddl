@@ -12,11 +12,13 @@
 
 """This module contains the tests for the domain parser."""
 from pathlib import Path
+from textwrap import dedent
 
 import pytest
 from pytest import lazy_fixture  # type:ignore  # noqa
 
 from pddl.core import Domain, Problem
+from pddl.parser.domain import DomainParser
 from tests.conftest import (
     BLOCKSWORLD_FILES,
     BLOCKSWORLD_FOND_FILES,
@@ -82,3 +84,38 @@ def test_check_problem_parser_output(problem_parser, pddl_file: Path, expected_p
 
     assert isinstance(actual_problem, Problem)
     assert actual_problem == expected_problem
+
+
+def test_hierarchical_types() -> None:
+    """Test correct parsing of hierarchical types (see https://github.com/AI-Planning/pddl/issues/70)."""
+    domain_str = dedent(
+        """
+    (define (domain logistics)
+        (:requirements :strips :typing)
+        (:types truck airplane - vehicle
+            package vehicle - physobj
+            airport location - place
+            city place physobj - object)
+        (:predicates (in-city ?loc - place ?city - city)
+            (at ?obj - physobj ?loc - place)
+            (in ?pkg - package ?veh - vehicle))
+        (:action LOAD-TRUCK
+            :parameters   (?pkg - package ?truck - truck ?loc - place)
+            :precondition (and (at ?truck ?loc) (at ?pkg ?loc))
+            :effect       (and (not (at ?pkg ?loc)) (in ?pkg ?truck)))
+    )
+    """
+    )
+    domain = DomainParser()(domain_str)
+
+    assert domain.types == {
+        "truck": "vehicle",
+        "airplane": "vehicle",
+        "package": "physobj",
+        "vehicle": "physobj",
+        "airport": "place",
+        "location": "place",
+        "city": "object",
+        "place": "object",
+        "physobj": "object",
+    }
