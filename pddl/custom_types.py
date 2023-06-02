@@ -45,7 +45,9 @@ def to_names(names: Collection[namelike]) -> List[name]:
     return list(map(name, names))
 
 
-def to_names_types(names: Dict[namelike, Optional[namelike]]) -> Dict[name, Optional[name]]:
+def to_names_types(
+    names: Dict[namelike, Optional[namelike]]
+) -> Dict[name, Optional[name]]:
     """From name-like dictionary to name dictionary."""
     return {
         name(type_): name(ancestor) if ancestor else None
