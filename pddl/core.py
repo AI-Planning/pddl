@@ -41,7 +41,7 @@ class Domain:
         self,
         name: namelike,
         requirements: Optional[Collection["Requirements"]] = None,
-        types: Optional[Dict[namelike, Collection[namelike]]] = None,
+        types: Optional[Dict[namelike, Optional[namelike]]] = None,
         constants: Optional[Collection[Constant]] = None,
         predicates: Optional[Collection[Predicate]] = None,  # TODO cannot be empty
         derived_predicates: Optional[
@@ -55,6 +55,7 @@ class Domain:
         :param name: the name of the domain.
         :param requirements: the requirements supported.
         :param types: the hierarchy of supported types.
+            types is a dictionary mapping a type name to its ancestor.
         :param constants: the constants.
         :param predicates: the predicates.
         :param derived_predicates: the derived predicates.
@@ -99,7 +100,7 @@ class Domain:
         return self._actions
 
     @property
-    def types(self) -> Dict[name_type, Collection[name_type]]:
+    def types(self) -> Dict[name_type, Optional[name_type]]:
         """Get the type definitions, if defined. Else, raise error."""
         return self._types
 

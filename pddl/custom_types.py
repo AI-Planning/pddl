@@ -13,7 +13,7 @@
 """This module defines useful custom types."""
 
 import re
-from typing import Collection, Dict, List, Union
+from typing import Collection, Dict, List, Optional, Union
 
 from pddl.helpers.base import RegexConstrainedString
 
@@ -45,15 +45,9 @@ def to_names(names: Collection[namelike]) -> List[name]:
     return list(map(name, names))
 
 
-def to_names_types(
-    names: Dict[namelike, Collection[namelike]]
-) -> Dict[name, Collection[name]]:
-    """From name-like collection to name dictionary."""
-    return (
-        {
-            name(type_def): [name(list(parents)[0])]
-            for type_def, parents in names.items()
-        }
-        if isinstance(names.values(), list)
-        else {name(type_def): [] for type_def in names}
-    )
+def to_names_types(names: Dict[namelike, Optional[namelike]]) -> Dict[name, Optional[name]]:
+    """From name-like dictionary to name dictionary."""
+    return {
+        name(type_): name(ancestor) if ancestor else None
+        for type_, ancestor in names.items()
+    }

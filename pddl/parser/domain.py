@@ -312,16 +312,18 @@ class DomainTransformer(Transformer):
         :param args: the argument of this grammar rule
         :return: a typed list (variable)
         """
-        return self._typed_list_x(args)
+        return self._typed_list_x(args, is_variable=True)
 
-    def _typed_list_x(self, args):
+    def _typed_list_x(self, args, is_variable=False):
         """Process generic 'typed_list_x' rules."""
         type_sep_index = safe_index(args, Symbols.TYPE_SEP.value)
         if type_sep_index is not None:
             objs = args[:type_sep_index]
             type_obj = (
+                # `either` type_def is allowed, we slice from the type_sep on to get the full list of types
                 args[type_sep_index + 1][1:]
                 if type(args[type_sep_index + 1]) is list
+                # when `either` is not allowed, we get the single parent type
                 else args[type_sep_index + 1]
             )
             typed_list_dict = dict()
@@ -332,7 +334,9 @@ class DomainTransformer(Transformer):
                         [str(x) for x in type_obj]
                     )
                 else:
-                    typed_list_dict.setdefault(obj, set()).add(str(type_obj))
+                    typed_list_dict.setdefault(obj, set()).add(
+                        str(type_obj)
+                    ) if is_variable else typed_list_dict.setdefault(obj, str(type_obj))
             return {**typed_list_dict, **other_typed_list_dict}
         elif len(args) > 0:
             return {obj: set() for obj in args}

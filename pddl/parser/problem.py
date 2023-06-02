@@ -79,7 +79,7 @@ class ProblemTransformer(Transformer):
         :param args: the argument of this grammar rule
         :return: a typed list (name)
         """
-        return self._domain_transformer._typed_list_x(args)
+        return self._domain_transformer._typed_list_x(args, is_variable=True)
 
     def domain__type_def(self, names):
         """Process a domain type def."""
