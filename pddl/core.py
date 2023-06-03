@@ -19,7 +19,7 @@ import functools
 from enum import Enum
 from typing import AbstractSet, Collection, Dict, Optional, Sequence, Set, cast
 
-from pddl.custom_types import _check_types_dictionary
+from pddl._validation import _check_constant_types, _check_types_dictionary
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names_types
 from pddl.helpers.base import (
@@ -70,11 +70,22 @@ class Domain:
         self._derived_predicates = ensure_set(derived_predicates)
         self._actions = ensure_set(actions)
 
+        self._all_types_set = self._get_all_types()
+
         self._check_consistency()
+
+    def _get_all_types(self) -> Set[name_type]:
+        """Get all types supported by this domain."""
+        if self._types is None:
+            return set()
+        result = set(self._types.keys()) | set(self._types.values())
+        result.discard(None)
+        return cast(Set[name_type], result)
 
     def _check_consistency(self) -> None:
         """Check consistency of a domain instance object."""
         _check_types_dictionary(self._types)
+        _check_constant_types(self._constants, self._all_types_set)
 
     @property
     def name(self) -> str:

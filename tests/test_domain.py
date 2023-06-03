@@ -15,6 +15,7 @@ import pytest
 
 from pddl.core import Action, Domain
 from pddl.exceptions import PDDLValidationError
+from pddl.logic import Constant
 from pddl.logic.base import Not
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
@@ -67,3 +68,14 @@ def test_cycles_in_type_defs_not_allowed() -> None:
         PDDLValidationError, match="cycle detected in the type hierarchy: A -> B -> C"
     ):
         Domain("dummy", types={"A": "B", "B": "C", "C": "A"})
+
+
+def test_constants_type_not_available() -> None:
+    """Test that when a type of a constant is not declared we raise error."""
+    a = Constant("a", type_tag="t1")
+
+    with pytest.raises(
+        PDDLValidationError,
+        match="type 't1' of constant Constant\\(a\\) is not in available types set\\(\\)",
+    ):
+        Domain("test", constants={a})
