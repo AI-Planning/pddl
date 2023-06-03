@@ -12,9 +12,10 @@
 
 """Formatting utilities for PDDL domains and problems."""
 from textwrap import indent
-from typing import Callable, Collection, Dict
+from typing import Callable, Collection, Dict, Optional
 
 from pddl.core import Domain, Problem
+from pddl.custom_types import name
 from pddl.logic.base import TRUE
 
 
@@ -53,7 +54,13 @@ def _print_predicates_with_types(predicates: Collection):
     return result.strip()
 
 
-def _print_types_with_parents(types: Dict):
+def _print_types_with_parents(types: Dict[name, Optional[name]]):
+    """
+    Print types with parent types..
+
+    :param types: the type definition in dict format.
+    :return: the domain types definition in string format.
+    """
     result = ""
     for t in sorted(types.keys()):
         result += f"{t} - {types[t]}" if types[t] else f"{t}"
