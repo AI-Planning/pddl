@@ -11,6 +11,8 @@
 #
 
 """This module contains tests for a PDDL domain."""
+import pytest
+
 from pddl.core import Action, Domain
 from pddl.logic.base import Not
 from pddl.logic.helpers import constants, variables
@@ -56,3 +58,11 @@ def test_build_simple_domain():
     )
 
     assert domain
+
+
+def test_cycles_in_type_defs_not_allowed() -> None:
+    """Test that type defs with cycles are not allowed."""
+    with pytest.raises(
+        ValueError, match="cycle detected in the type hierarchy: A -> B -> C"
+    ):
+        Domain("dummy", types={"A": "B", "B": "C", "C": "A"})

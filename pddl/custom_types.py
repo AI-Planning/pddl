@@ -15,7 +15,7 @@
 import re
 from typing import Collection, Dict, List, Optional, Union
 
-from pddl.helpers.base import RegexConstrainedString
+from pddl.helpers.base import RegexConstrainedString, find_cycle
 
 
 class name(RegexConstrainedString):
@@ -53,3 +53,28 @@ def to_names_types(
         name(type_): name(ancestor) if ancestor else None
         for type_, ancestor in names.items()
     }
+
+
+def _check_types_dictionary(type_dict: Dict[name, Optional[name]]) -> None:
+    """
+    Check the consistency of the types dictionary.
+
+    >>> # empty types dictionary is correct
+    >>> _check_types_dictionary({})
+
+    >>> # if cycles are present, an error is raised
+    >>> a, b, c = to_names(["a", "b", "c"])
+    >>> _check_types_dictionary({a: b, b: c, c: a})
+    Traceback (most recent call last):
+    ...
+    ValueError: cycle detected in the type hierarchy: a -> b -> c
+
+    :param type_dict: the types dictionary
+    """
+    if len(type_dict) == 0:
+        return
+
+    # check cycles
+    cycle = find_cycle(type_dict)  # type: ignore
+    if cycle is not None:
+        raise ValueError("cycle detected in the type hierarchy: " + " -> ".join(cycle))
