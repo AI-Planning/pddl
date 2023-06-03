@@ -12,12 +12,12 @@
 
 """Implementation of the PDDL domain parser."""
 import sys
-from typing import Dict, Set
+from typing import Dict, Mapping, Optional, Sequence, Set, Tuple
 
 from lark import Lark, ParseError, Transformer
 
 from pddl.core import Action, Domain, Requirements
-from pddl.exceptions import PDDLMissingRequirementError
+from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_, safe_get, safe_index
 from pddl.logic.base import (
     And,
@@ -293,16 +293,40 @@ class DomainTransformer(Transformer):
         variables = [Variable(name, tags) for name, tags in variable_data.items()]
         return Predicate(name, *variables)
 
-    def typed_list_name(self, args):
+    def typed_list_name(self, args) -> Dict[str, Optional[str]]:
         """
         Process the 'typed_list_name' rule.
 
-        Return a dictionary with as keys the names and as value a set of types for each name.
+        Return a dictionary with as keys the names and as value the type of the name.
+
+        Steps:
+        - if the '-' symbol is not present, then return the list of names
+        - if the '-' symbol is present, parse the names with their type tags
 
         :param args: the argument of this grammar rule
         :return: a typed list (name)
         """
-        return self._typed_list_x(args)
+        type_sep_index = safe_index(args, Symbols.TYPE_SEP.value)
+
+        if type_sep_index is None:
+            # simple list of names
+            return self._parse_simple_typed_list(args)
+
+        # if we are here, the matched pattern is: [name_1, ..., name_n], "-", parent_name, other_typed_list_dict
+        # make sure there are only two tokens after "-"
+        assert_(len(args[type_sep_index:]) == 3, "unexpected parser state")
+
+        names: Tuple[str, ...] = tuple(args[:type_sep_index])
+        parent_name: str = str(args[type_sep_index + 1])
+        other_typed_list_dict: Mapping[str, Optional[str]] = args[type_sep_index + 2]
+        new_typed_list_dict: Mapping[str, Optional[str]] = {
+            obj: parent_name for obj in names
+        }
+
+        # check type conflicts
+        self._check_type_conflicts(other_typed_list_dict, new_typed_list_dict)
+
+        return {**new_typed_list_dict, **other_typed_list_dict}
 
     def typed_list_variable(self, args):
         """
@@ -354,6 +378,40 @@ class DomainTransformer(Transformer):
     def _has_requirement(self, requirement: Requirements) -> bool:
         """Check whether a requirement is satisfied by the current state of the domain parsing."""
         return requirement in self._extended_requirements
+
+    def _check_type_conflicts(
+        self,
+        other_typed_list_dict: Mapping[str, Optional[str]],
+        new_typed_list_dict: Mapping[str, Optional[str]],
+    ) -> None:
+        new_names = set(new_typed_list_dict.keys())
+        other_names = set(other_typed_list_dict.keys())
+        names_intersection = new_names & other_names
+        if len(names_intersection) != 0:
+            names_list_as_strings = map(repr, map(str, names_intersection))
+            names_list_str = ", ".join(sorted(names_list_as_strings))
+            raise PDDLParsingError(
+                f"detected conflicting names in a typed list: names occurred twice: [{names_list_str}]"
+            )
+
+    def _parse_simple_typed_list(self, args: Sequence[str]) -> Dict[str, Optional[str]]:
+        """
+        Parse a 'simple' typed list.
+
+        In this simple case, there are no type specifications, i.e. just a list of items.
+
+        A check for duplicates is performed.
+        """
+        # check for duplicates
+        if len(set(args)) != len(args):
+            # find duplicates
+            seen = set()
+            dupes = [str(x) for x in args if x in seen or seen.add(x)]  # type: ignore
+            raise PDDLParsingError(
+                f"duplicate items {dupes} found in the typed list: {list(map(str, args))}'"
+            )
+
+        return {arg: None for arg in args}
 
 
 _domain_parser_lark = DOMAIN_GRAMMAR_FILE.read_text()

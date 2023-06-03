@@ -14,6 +14,7 @@
 from pathlib import Path
 from textwrap import dedent
 
+import lark
 import pytest
 from pytest import lazy_fixture  # type:ignore  # noqa
 
@@ -119,3 +120,41 @@ def test_hierarchical_types() -> None:
         "place": "object",
         "physobj": "object",
     }
+
+
+def test_names_repetition_in_simple_typed_lists_not_allowed() -> None:
+    """Check names repetition in simple typed lists is detected and a parsing error is raised."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing)
+        (:types a b c a)
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match="duplicate items \\['a'\\] found in the typed list: "
+        "\\['a', 'b', 'c', 'a'\\]",
+    ):
+        DomainParser()(domain_str)
+
+
+def test_names_repetition_in_typed_lists_not_allowed() -> None:
+    """Check names repetition in typed lists is detected and a parsing error is raised."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing)
+        (:types a - t1 b c - t2 a - t3)
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match="detected conflicting names in a typed list: names occurred "
+        "twice: \\['a'\\]",
+    ):
+        DomainParser()(domain_str)

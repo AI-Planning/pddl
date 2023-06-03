@@ -3,7 +3,7 @@
 
 (define (domain Storage-Propositional)
 (:requirements :typing)
-(:types hoist surface place area - object
+(:types hoist surface place - object
 	container depot - place
 	storearea transitarea - area
 	area crate - surface)
