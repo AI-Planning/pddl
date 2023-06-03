@@ -122,8 +122,8 @@ def test_hierarchical_types() -> None:
     }
 
 
-def test_names_repetition_in_simple_typed_lists_not_allowed() -> None:
-    """Check names repetition in simple typed lists is detected and a parsing error is raised."""
+def test_types_repetition_in_simple_typed_lists_not_allowed() -> None:
+    """Check types repetition in simple typed lists is detected and a parsing error is raised."""
     domain_str = dedent(
         """
     (define (domain test)
@@ -141,8 +141,8 @@ def test_names_repetition_in_simple_typed_lists_not_allowed() -> None:
         DomainParser()(domain_str)
 
 
-def test_names_repetition_in_typed_lists_not_allowed() -> None:
-    """Check names repetition in typed lists is detected and a parsing error is raised."""
+def test_types_repetition_in_typed_lists_not_allowed() -> None:
+    """Check types repetition in typed lists is detected and a parsing error is raised."""
     domain_str = dedent(
         """
     (define (domain test)
@@ -154,7 +154,47 @@ def test_names_repetition_in_typed_lists_not_allowed() -> None:
 
     with pytest.raises(
         lark.exceptions.VisitError,
-        match="detected conflicting names in a typed list: names occurred "
+        match="detected conflicting items in a typed list: items occurred "
         "twice: \\['a'\\]",
+    ):
+        DomainParser()(domain_str)
+
+
+def test_constants_repetition_in_simple_typed_lists_not_allowed() -> None:
+    """Check constants repetition in simple typed lists is detected and a parsing error is raised."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing)
+        (:types t1)
+        (:constants c1 c2 c3 c1)
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match="duplicate items \\['c1'\\] found in the typed list: "
+        "\\['c1', 'c2', 'c3', 'c1'\\]",
+    ):
+        DomainParser()(domain_str)
+
+
+def test_constants_repetition_in_typed_lists_not_allowed() -> None:
+    """Check constants repetition in typed lists is detected and a parsing error is raised."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing)
+        (:types t1 t2)
+        (:constants c1 - t1 c1 - t2)
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match="detected conflicting items in a typed list: items occurred "
+        "twice: \\['c1'\\]",
     ):
         DomainParser()(domain_str)

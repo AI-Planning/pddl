@@ -12,7 +12,7 @@
 
 """Implementation of the PDDL domain parser."""
 import sys
-from typing import Dict, Mapping, Optional, Sequence, Set, Tuple
+from typing import AbstractSet, Dict, Mapping, Optional, Sequence, Set, Tuple
 
 from lark import Lark, ParseError, Transformer
 
@@ -310,7 +310,7 @@ class DomainTransformer(Transformer):
 
         if type_sep_index is None:
             # simple list of names
-            return self._parse_simple_typed_list(args)
+            return self._parse_simple_typed_list(args, check_for_duplicates=True)
 
         # if we are here, the matched pattern is: [name_1, ..., name_n], "-", parent_name, other_typed_list_dict
         # make sure there are only two tokens after "-"
@@ -324,7 +324,7 @@ class DomainTransformer(Transformer):
         }
 
         # check type conflicts
-        self._check_type_conflicts(other_typed_list_dict, new_typed_list_dict)
+        self._check_duplicates(other_typed_list_dict.keys(), new_typed_list_dict.keys())
 
         return {**new_typed_list_dict, **other_typed_list_dict}
 
@@ -379,31 +379,31 @@ class DomainTransformer(Transformer):
         """Check whether a requirement is satisfied by the current state of the domain parsing."""
         return requirement in self._extended_requirements
 
-    def _check_type_conflicts(
+    def _check_duplicates(
         self,
-        other_typed_list_dict: Mapping[str, Optional[str]],
-        new_typed_list_dict: Mapping[str, Optional[str]],
+        other_names: AbstractSet[str],
+        new_names: AbstractSet[str],
     ) -> None:
-        new_names = set(new_typed_list_dict.keys())
-        other_names = set(other_typed_list_dict.keys())
         names_intersection = new_names & other_names
         if len(names_intersection) != 0:
             names_list_as_strings = map(repr, map(str, names_intersection))
             names_list_str = ", ".join(sorted(names_list_as_strings))
             raise PDDLParsingError(
-                f"detected conflicting names in a typed list: names occurred twice: [{names_list_str}]"
+                f"detected conflicting items in a typed list: items occurred twice: [{names_list_str}]"
             )
 
-    def _parse_simple_typed_list(self, args: Sequence[str]) -> Dict[str, Optional[str]]:
+    def _parse_simple_typed_list(
+        self, args: Sequence[str], check_for_duplicates: bool = True
+    ) -> Dict[str, Optional[str]]:
         """
         Parse a 'simple' typed list.
 
         In this simple case, there are no type specifications, i.e. just a list of items.
 
-        A check for duplicates is performed.
+        If check_for_duplicates is True, a check for duplicates is performed.
         """
         # check for duplicates
-        if len(set(args)) != len(args):
+        if check_for_duplicates and len(set(args)) != len(args):
             # find duplicates
             seen = set()
             dupes = [str(x) for x in args if x in seen or seen.add(x)]  # type: ignore
