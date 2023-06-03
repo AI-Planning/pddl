@@ -86,9 +86,10 @@ class DomainTransformer(Transformer):
 
     def types(self, args):
         """Parse the 'types' rule."""
-        if any(args[2].values()) and not bool(
-            {Requirements.TYPING} & self._extended_requirements
-        ):
+        has_typing_requirement = self._has_requirement(Requirements.TYPING)
+        type_definition = args[2]
+        have_type_hierarchy = any(type_definition.values())
+        if have_type_hierarchy and not has_typing_requirement:
             raise PDDLMissingRequirementError(Requirements.TYPING)
         return dict(types=args[2])
 
@@ -349,6 +350,10 @@ class DomainTransformer(Transformer):
             return args[0]
         else:
             return args[1:-1]
+
+    def _has_requirement(self, requirement: Requirements) -> bool:
+        """Check whether a requirement is satisfied by the current state of the domain parsing."""
+        return requirement in self._extended_requirements
 
 
 _domain_parser_lark = DOMAIN_GRAMMAR_FILE.read_text()
