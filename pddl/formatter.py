@@ -42,10 +42,10 @@ def _print_predicates_with_types(predicates: Collection):
             result += f"({p.name}"
             for t in p.terms:
                 if len(t.type_tags) > 1:
-                    result += f" ?{t.name} - (either {' '.join(t.type_tags)})"
+                    result += f" ?{t.name} - (either {' '.join(sorted(t.type_tags))})"
                 else:
                     result += (
-                        f" ?{t.name} - {list(t.type_tags)[0]}"
+                        f" ?{t.name} - {sorted(t.type_tags)[0]}"
                         if t.type_tags
                         else f" ?{t.name}"
                     )
