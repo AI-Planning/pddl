@@ -86,7 +86,7 @@ from pddl.formatter import domain_to_string, problem_to_string
 
 # set up variables and constants
 x, y, z = variables("x y z", types=["type_1"])
-a, b, c = constants("a b c", types=["type_1"])
+a, b, c = constants("a b c", type_="type_1")
 
 # define predicates
 p1 = Predicate("p1", x, y, z)

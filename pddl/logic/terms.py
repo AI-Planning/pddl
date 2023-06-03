@@ -62,16 +62,14 @@ class Term:
 class Constant(Term):
     """A constant term."""
 
-    def __init__(
-        self, name: namelike, type_tags: Optional[Collection[namelike]] = None
-    ):
+    def __init__(self, name: namelike, type_tag: Optional[namelike] = None):
         """
         Initialize a constant.
 
         :param name: the name.
-        :param type_tags: the type tags
+        :param type_tag: the type tag
         """
-        super().__init__(name, type_tags=type_tags)
+        super().__init__(name, type_tags={type_tag} if type_tag is not None else None)
 
     def __str__(self) -> str:
         """Get the string representation."""
