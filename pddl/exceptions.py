@@ -19,6 +19,10 @@ class PDDLError(Exception):
     """Base class for PDDL error."""
 
 
+class PDDLValidationError(PDDLError):
+    """Raised for PDDL error regarding validation of PDDL data structures."""
+
+
 class PDDLParsingError(PDDLError):
     """Raised for PDDL parsing error."""
 

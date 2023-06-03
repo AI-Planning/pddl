@@ -15,6 +15,7 @@
 import re
 from typing import Collection, Dict, List, Optional, Union
 
+from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import RegexConstrainedString, find_cycle
 
 
@@ -77,4 +78,6 @@ def _check_types_dictionary(type_dict: Dict[name, Optional[name]]) -> None:
     # check cycles
     cycle = find_cycle(type_dict)  # type: ignore
     if cycle is not None:
-        raise ValueError("cycle detected in the type hierarchy: " + " -> ".join(cycle))
+        raise PDDLValidationError(
+            "cycle detected in the type hierarchy: " + " -> ".join(cycle)
+        )
