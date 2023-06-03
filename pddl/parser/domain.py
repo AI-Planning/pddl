@@ -18,7 +18,7 @@ from lark import Lark, ParseError, Transformer
 
 from pddl.core import Action, Domain, Requirements
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
-from pddl.helpers.base import assert_, safe_get, safe_index
+from pddl.helpers.base import assert_, safe_index
 from pddl.logic.base import (
     And,
     ExistsCondition,
@@ -328,52 +328,37 @@ class DomainTransformer(Transformer):
 
         return {**new_typed_list_dict, **other_typed_list_dict}
 
-    def typed_list_variable(self, args):
+    def typed_list_variable(self, args) -> Dict[str, Set[str]]:
         """
         Process the 'typed_list_variable' rule.
 
         Return a dictionary with as keys the terms and as value a set of types for each name.
 
         :param args: the argument of this grammar rule
-        :return: a typed list (variable)
+        :return: a typed list (variable), i.e. a mapping from variables to the supported types
         """
-        return self._typed_list_x(args, is_variable=True)
-
-    def _typed_list_x(self, args, is_variable=False):
-        """Process generic 'typed_list_x' rules."""
         type_sep_index = safe_index(args, Symbols.TYPE_SEP.value)
-        if type_sep_index is not None:
-            objs = args[:type_sep_index]
-            type_obj = (
-                # `either` type_def is allowed, we slice from the type_sep on to get the full list of types
-                args[type_sep_index + 1][1:]
-                if type(args[type_sep_index + 1]) is list
-                # when `either` is not allowed, we get the single parent type
-                else args[type_sep_index + 1]
-            )
-            typed_list_dict = dict()
-            other_typed_list_dict = safe_get(args, type_sep_index + 2, default=dict())
-            for obj in objs:
-                if isinstance(type_obj, list):
-                    typed_list_dict.setdefault(obj, set()).update(
-                        [str(x) for x in type_obj]
-                    )
-                else:
-                    typed_list_dict.setdefault(obj, set()).add(
-                        str(type_obj)
-                    ) if is_variable else typed_list_dict.setdefault(obj, str(type_obj))
-            return {**typed_list_dict, **other_typed_list_dict}
-        elif len(args) > 0:
-            return {obj: set() for obj in args}
-        else:
-            return {}
+        if type_sep_index is None:
+            result = self._parse_simple_typed_list(args, check_for_duplicates=False)
+            return {var: set() for var in result}
+
+        # if we are here, the matched pattern is: [name_1, ..., name_n], "-", parent_name, other_typed_list_dict
+        # make sure there are only two tokens after "-"
+        assert_(len(args[type_sep_index:]) == 3, "unexpected parser state")
+
+        variables: Tuple[str, ...] = tuple(args[:type_sep_index])
+        type_def: Set[str] = args[type_sep_index + 1]
+        other_typed_list_dict: Mapping[str, Set[str]] = args[type_sep_index + 2]
+        new_typed_list_dict: Mapping[str, Set[str]] = {v: type_def for v in variables}
+
+        # check type conflicts
+        self._check_duplicates(other_typed_list_dict.keys(), new_typed_list_dict.keys())
+
+        return {**new_typed_list_dict, **other_typed_list_dict}
 
     def type_def(self, args):
         """Parse the 'type_def' rule."""
-        if len(args) == 1:
-            return args[0]
-        else:
-            return args[1:-1]
+        return args if len(args) == 1 else args[1:-1]
 
     def _has_requirement(self, requirement: Requirements) -> bool:
         """Check whether a requirement is satisfied by the current state of the domain parsing."""
