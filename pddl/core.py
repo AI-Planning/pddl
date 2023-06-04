@@ -338,6 +338,13 @@ class Action:
         """Get the hash."""
         return hash((self.name, self.parameters, self.precondition, self.effect))
 
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return (
+            f"{type(self).__name__}({self.name}, parameters={', '.join(map(str, self.parameters))}, "
+            f"precondition={self.precondition}, effect={self.effect})"
+        )
+
 
 @functools.total_ordering
 class Requirements(Enum):
