@@ -92,6 +92,16 @@ class Domain:
         _check_constant_types(self._constants, self._all_types_set)
         _check_types_in_has_terms_objects(self._predicates, self._all_types_set)
         _check_types_in_has_terms_objects(self._actions, self._all_types_set)  # type: ignore
+        self._check_types_in_derived_predicates()
+
+    def _check_types_in_derived_predicates(self) -> None:
+        """Check types in derived predicates."""
+        dp_list = (
+            [dp.predicate for dp in self._derived_predicates]
+            if self._derived_predicates
+            else set()
+        )
+        _check_types_in_has_terms_objects(dp_list, self._all_types_set)
 
     @property
     def name(self) -> str:

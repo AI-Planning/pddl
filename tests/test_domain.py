@@ -18,9 +18,9 @@ import pytest
 from pddl.core import Action, Domain
 from pddl.exceptions import PDDLValidationError
 from pddl.logic import Constant, Variable
-from pddl.logic.base import Not
+from pddl.logic.base import Not, TrueFormula
 from pddl.logic.helpers import constants, variables
-from pddl.logic.predicates import Predicate
+from pddl.logic.predicates import DerivedPredicate, Predicate
 
 
 class TestDomainEmpty:
@@ -116,3 +116,20 @@ def test_action_parameter_type_not_available() -> None:
         f"available types {{'{my_type}'}}",
     ):
         Domain("test", actions={action}, types=type_set)  # type: ignore
+
+
+def test_derived_predicate_type_not_available() -> None:
+    """Test that when a type of a term of a derived predicate is not declared we raise error."""
+    x = Variable("a", type_tags={"t1", "t2"})
+    p = Predicate("p", x)
+    dp = DerivedPredicate(p, TrueFormula())
+
+    my_type = "my_type"
+    type_set = {my_type: None}
+
+    with pytest.raises(
+        PDDLValidationError,
+        match=rf"type '(t1|t2)' of term {re.escape(repr(x))} in atomic expression {re.escape(repr(p))} is not in "
+        f"available types {{'{my_type}'}}",
+    ):
+        Domain("test", derived_predicates={dp}, types=type_set)  # type: ignore
