@@ -12,10 +12,11 @@
 
 """Implementation of the PDDL domain parser."""
 import sys
-from typing import AbstractSet, Dict, Mapping, Optional, Sequence, Set, Tuple
+from typing import AbstractSet, Dict, List, Mapping, Optional, Sequence, Set, Tuple
 
 from lark import Lark, ParseError, Transformer
 
+from pddl.constants import EITHER
 from pddl.core import Action, Domain, Requirements
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_, safe_index
@@ -342,12 +343,12 @@ class DomainTransformer(Transformer):
             result = self._parse_simple_typed_list(args, check_for_duplicates=False)
             return {var: set() for var in result}
 
-        # if we are here, the matched pattern is: [name_1, ..., name_n], "-", parent_name, other_typed_list_dict
+        # if we are here, the matched pattern is: [name_1 ... name_n], "-", type_def, other_typed_list_dict  # noqa
         # make sure there are only two tokens after "-"
         assert_(len(args[type_sep_index:]) == 3, "unexpected parser state")
 
         variables: Tuple[str, ...] = tuple(args[:type_sep_index])
-        type_def: Set[str] = args[type_sep_index + 1]
+        type_def: Set[str] = self._process_type_def(args[type_sep_index + 1])
         other_typed_list_dict: Mapping[str, Set[str]] = args[type_sep_index + 2]
         new_typed_list_dict: Mapping[str, Set[str]] = {v: type_def for v in variables}
 
@@ -397,6 +398,19 @@ class DomainTransformer(Transformer):
             )
 
         return {arg: None for arg in args}
+
+    def _process_type_def(self, type_def: List[str]) -> Set[str]:
+        """Process a raw type_def and return a set of types."""
+        assert_(len(type_def) != 0, "unexpected parser state: empty type_def")
+
+        if len(type_def) == 1:
+            # single-typed type-def, return
+            return set(type_def)
+
+        # if we are here, type_def is of the form (either t1 ... tn)
+        either_keyword, types = type_def[0], type_def[1:]
+        assert_(str(either_keyword) == EITHER)
+        return set(types)
 
 
 _domain_parser_lark = DOMAIN_GRAMMAR_FILE.read_text()
