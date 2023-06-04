@@ -19,7 +19,11 @@ import functools
 from enum import Enum
 from typing import AbstractSet, Collection, Dict, Optional, Sequence, Set, cast
 
-from pddl._validation import _check_constant_types, _check_types_dictionary
+from pddl._validation import (
+    _check_constant_types,
+    _check_types_dictionary,
+    _check_types_in_has_terms_objects,
+)
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names_types
 from pddl.helpers.base import (
@@ -31,7 +35,7 @@ from pddl.helpers.base import (
 )
 from pddl.logic.base import Formula, TrueFormula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
-from pddl.logic.terms import Constant, Variable
+from pddl.logic.terms import Constant, Term, Variable
 from pddl.parser.symbols import RequirementSymbols as RS
 
 
@@ -86,6 +90,8 @@ class Domain:
         """Check consistency of a domain instance object."""
         _check_types_dictionary(self._types)
         _check_constant_types(self._constants, self._all_types_set)
+        _check_types_in_has_terms_objects(self._predicates, self._all_types_set)
+        _check_types_in_has_terms_objects(self._actions, self._all_types_set)  # type: ignore
 
     @property
     def name(self) -> str:
@@ -281,6 +287,11 @@ class Action:
     def parameters(self) -> Sequence[Variable]:
         """Get the parameters."""
         return self._parameters
+
+    @property
+    def terms(self) -> Sequence[Term]:
+        """Get the terms."""
+        return self.parameters
 
     @property
     def precondition(self) -> Optional[Formula]:

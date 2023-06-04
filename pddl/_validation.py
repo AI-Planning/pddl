@@ -12,12 +12,13 @@
 
 """This module defines validation functions for PDDL data structures."""
 
-from typing import Collection, Dict, Optional, Set
+from typing import Collection, Dict, Optional, Set, Tuple
 
 from pddl.custom_types import name, to_names  # noqa: F401
 from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import find_cycle
-from pddl.logic import Constant
+from pddl.logic import Constant, Predicate
+from pddl.logic.terms import Term
 
 
 def _check_types_dictionary(type_dict: Dict[name, Optional[name]]) -> None:
@@ -47,15 +48,49 @@ def _check_types_dictionary(type_dict: Dict[name, Optional[name]]) -> None:
         )
 
 
+def _find_inconsistencies_in_typed_terms(
+    terms: Optional[Collection[Term]], all_types: Set[name]
+) -> Optional[Tuple[Term, name]]:
+    """
+    Check that the terms in input all have legal types according to the list of available types.
+
+    :param terms: the terms to check
+    :param all_types: all available types
+    :return: the type tag that raised the error, None otherwise
+    """
+    if terms is None:
+        return None
+    for term in terms:
+        for type_tag in sorted(term.type_tags):
+            if type_tag is not None and type_tag not in all_types:
+                return term, type_tag
+    return None
+
+
 def _check_constant_types(
     constants: Optional[Collection[Constant]], all_types: Set[name]
 ) -> None:
-    """Check that the constants all have legal types."""
-    if constants is None:
+    check_result = _find_inconsistencies_in_typed_terms(constants, all_types)
+    if check_result is not None:
+        constant, type_tag = check_result
+        raise PDDLValidationError(
+            f"type {repr(type_tag)} of constant {repr(constant)} is not in available types {all_types}"
+        )
+
+
+def _check_types_in_has_terms_objects(
+    has_terms_objects: Optional[Collection[Predicate]],
+    all_types: Set[name],
+) -> None:
+    """Check that the terms in the set of predicates all have legal types."""
+    if has_terms_objects is None:
         return
-    for c in constants:
-        type_tag = c.type_tag
-        if type_tag is not None and type_tag not in all_types:
+
+    for has_terms in has_terms_objects:
+        check_result = _find_inconsistencies_in_typed_terms(has_terms.terms, all_types)
+        if check_result is not None:
+            term, type_tag = check_result
             raise PDDLValidationError(
-                f"type {repr(type_tag)} of constant {repr(c)} is not in available types {all_types}"
+                f"type {repr(type_tag)} of term {repr(term)} in atomic expression "
+                f"{repr(has_terms)} is not in available types {all_types}"
             )
