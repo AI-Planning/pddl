@@ -16,6 +16,7 @@ from pathlib import Path
 
 import mistune
 import pytest
+from pytest_lazyfixture import lazy_fixture
 
 import pddl
 from pddl.parser.domain import DomainParser
@@ -100,5 +101,16 @@ from tests.fixtures.code_objects.triangle_tireworld import (  # noqa: E402, F401
     triangle_tireworld_domain,
     triangle_tireworld_problem_01,
 )
+
+pddl_objects_domains = [
+    lazy_fixture("blocksworld_domain"),  # type:ignore
+    lazy_fixture("triangle_tireworld_domain"),  # type:ignore
+    lazy_fixture("blocksworld_fond_domain"),  # type:ignore
+]
+pddl_objects_problems = [
+    lazy_fixture("blocksworld_fond_01"),  # type:ignore
+    lazy_fixture("blocksworld_problem_01"),  # type:ignore
+    lazy_fixture("triangle_tireworld_problem_01"),  # type:ignore
+]
 
 #################################################
