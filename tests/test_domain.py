@@ -11,6 +11,7 @@
 #
 
 """This module contains tests for a PDDL domain."""
+import pickle  # nosec
 import re
 
 import pytest
@@ -22,6 +23,15 @@ from pddl.logic import Constant, Variable
 from pddl.logic.base import Not, TrueFormula
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import DerivedPredicate, Predicate
+from tests.conftest import pddl_objects_domains
+
+
+@pytest.mark.parametrize("domain_obj", pddl_objects_domains)
+def test_pickle_domain(domain_obj: Domain) -> None:
+    """Test that domain objects can be pickled correctly."""
+    domain_obj_bytes = pickle.dumps(domain_obj)  # nosec
+    actual_domain_obj = pickle.loads(domain_obj_bytes)  # nosec
+    assert domain_obj == actual_domain_obj
 
 
 class TestDomainEmpty:

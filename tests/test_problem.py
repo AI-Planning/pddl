@@ -11,12 +11,24 @@
 #
 
 """This module contains tests for a PDDL problem."""
+import pickle  # nosec
 from unittest.mock import MagicMock
+
+import pytest
 
 from pddl.core import Domain, Problem
 from pddl.logic.base import Not, TrueFormula
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
+from tests.conftest import pddl_objects_problems
+
+
+@pytest.mark.parametrize("problem_obj", pddl_objects_problems)
+def test_pickle_problem(problem_obj: Problem) -> None:
+    """Test that problem objects can be pickled correctly."""
+    problem_obj_bytes = pickle.dumps(problem_obj)  # nosec
+    actual_problem_obj = pickle.loads(problem_obj_bytes)  # nosec
+    assert problem_obj == actual_problem_obj
 
 
 class TestProblemEmpty:
