@@ -53,6 +53,9 @@ def _getstate(fn):
     @wraps(fn)
     def __getstate__(self):
         d = fn(self)
+        if d is None:
+            return None
+        # assuming d is a dictionary
         d.pop("__hash", None)
         return d
 
