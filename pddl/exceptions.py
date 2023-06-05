@@ -12,11 +12,13 @@
 
 """Custom Exception classes."""
 
-from pddl.core import Requirements
-
 
 class PDDLError(Exception):
     """Base class for PDDL error."""
+
+
+class PDDLValidationError(PDDLError):
+    """Raised for PDDL error regarding validation of PDDL data structures."""
 
 
 class PDDLParsingError(PDDLError):
@@ -31,7 +33,7 @@ class PDDLParsingError(PDDLError):
 class PDDLMissingRequirementError(PDDLParsingError):
     """Raised for PDDL missing requirement error."""
 
-    def __init__(self, requirement: Requirements):
+    def __init__(self, requirement: "Requirements"):  # type: ignore # noqa: F821
         """Initialize the PDDL missing requirement error exception."""
         self.requirement = requirement
         self.message = "Missing PDDL requirement"

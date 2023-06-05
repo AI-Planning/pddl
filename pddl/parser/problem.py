@@ -65,8 +65,7 @@ class ProblemTransformer(Transformer):
         """Process the 'problem_domain' rule."""
         object_names = args[2]
         self._objects_by_name = {
-            name: Constant(name, type_tags=types)
-            for name, types in object_names.items()
+            name: Constant(name, type_tag=type_) for name, type_ in object_names.items()
         }
         return "objects", list(self._objects_by_name.values())
 
@@ -79,7 +78,7 @@ class ProblemTransformer(Transformer):
         :param args: the argument of this grammar rule
         :return: a typed list (name)
         """
-        return self._domain_transformer._typed_list_x(args)
+        return self._domain_transformer.typed_list_name(args)
 
     def domain__type_def(self, names):
         """Process a domain type def."""

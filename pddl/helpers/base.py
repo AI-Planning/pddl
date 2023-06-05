@@ -14,7 +14,18 @@
 
 import re
 from pathlib import Path
-from typing import AbstractSet, Any, Callable, Collection, Optional, Sequence, Type
+from typing import (
+    AbstractSet,
+    Any,
+    Callable,
+    Collection,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Type,
+)
 
 
 def _get_current_path() -> Path:
@@ -132,3 +143,29 @@ class RegexConstrainedString(str):
                 data=self, regex=self.REGEX
             )
         )
+
+
+def find_cycle(graph: Dict[str, Optional[str]]) -> Optional[Sequence[str]]:
+    """
+    Check whether a graph (represented as a dictionary-based adjacency list) has a cycle.
+
+    This implementation assumes the constraint that each node has at most one successor.
+    """
+    visited: Set = set()
+    stack: List = []
+
+    for node in graph:
+        if node not in visited:
+            stack.append((node, []))
+
+            while stack:
+                current, path = stack.pop()
+                if current in path:
+                    return path
+
+                visited.add(current)
+                neighbor = graph.get(current)
+                if neighbor is not None:
+                    stack.append((neighbor, path + [current]))
+
+    return None

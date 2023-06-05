@@ -12,11 +12,14 @@
 
 """This module contains the tests for the domain parser."""
 from pathlib import Path
+from textwrap import dedent
 
+import lark
 import pytest
 from pytest import lazy_fixture  # type:ignore  # noqa
 
 from pddl.core import Domain, Problem
+from pddl.parser.domain import DomainParser
 from tests.conftest import (
     BLOCKSWORLD_FILES,
     BLOCKSWORLD_FOND_FILES,
@@ -82,3 +85,116 @@ def test_check_problem_parser_output(problem_parser, pddl_file: Path, expected_p
 
     assert isinstance(actual_problem, Problem)
     assert actual_problem == expected_problem
+
+
+def test_hierarchical_types() -> None:
+    """Test correct parsing of hierarchical types (see https://github.com/AI-Planning/pddl/issues/70)."""
+    domain_str = dedent(
+        """
+    (define (domain logistics)
+        (:requirements :strips :typing)
+        (:types truck airplane - vehicle
+            package vehicle - physobj
+            airport location - place
+            city place physobj - object)
+        (:predicates (in-city ?loc - place ?city - city)
+            (at ?obj - physobj ?loc - place)
+            (in ?pkg - package ?veh - vehicle))
+        (:action LOAD-TRUCK
+            :parameters   (?pkg - package ?truck - truck ?loc - place)
+            :precondition (and (at ?truck ?loc) (at ?pkg ?loc))
+            :effect       (and (not (at ?pkg ?loc)) (in ?pkg ?truck)))
+    )
+    """
+    )
+    domain = DomainParser()(domain_str)
+
+    assert domain.types == {
+        "truck": "vehicle",
+        "airplane": "vehicle",
+        "package": "physobj",
+        "vehicle": "physobj",
+        "airport": "place",
+        "location": "place",
+        "city": "object",
+        "place": "object",
+        "physobj": "object",
+    }
+
+
+def test_types_repetition_in_simple_typed_lists_not_allowed() -> None:
+    """Check types repetition in simple typed lists is detected and a parsing error is raised."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing)
+        (:types a b c a)
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match="duplicate items \\['a'\\] found in the typed list: "
+        "\\['a', 'b', 'c', 'a'\\]",
+    ):
+        DomainParser()(domain_str)
+
+
+def test_types_repetition_in_typed_lists_not_allowed() -> None:
+    """Check types repetition in typed lists is detected and a parsing error is raised."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing)
+        (:types a - t1 b c - t2 a - t3)
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match="detected conflicting items in a typed list: items occurred "
+        "twice: \\['a'\\]",
+    ):
+        DomainParser()(domain_str)
+
+
+def test_constants_repetition_in_simple_typed_lists_not_allowed() -> None:
+    """Check constants repetition in simple typed lists is detected and a parsing error is raised."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing)
+        (:types t1)
+        (:constants c1 c2 c3 c1)
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match="duplicate items \\['c1'\\] found in the typed list: "
+        "\\['c1', 'c2', 'c3', 'c1'\\]",
+    ):
+        DomainParser()(domain_str)
+
+
+def test_constants_repetition_in_typed_lists_not_allowed() -> None:
+    """Check constants repetition in typed lists is detected and a parsing error is raised."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing)
+        (:types t1 t2)
+        (:constants c1 - t1 c1 - t2)
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match="detected conflicting items in a typed list: items occurred "
+        "twice: \\['c1'\\]",
+    ):
+        DomainParser()(domain_str)

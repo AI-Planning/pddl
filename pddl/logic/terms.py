@@ -16,7 +16,7 @@ from typing import AbstractSet, Collection, Optional
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names
-from pddl.helpers.base import ensure_set
+from pddl.helpers.base import assert_, ensure_set
 from pddl.helpers.cache_hash import cache_hash
 
 
@@ -62,16 +62,21 @@ class Term:
 class Constant(Term):
     """A constant term."""
 
-    def __init__(
-        self, name: namelike, type_tags: Optional[Collection[namelike]] = None
-    ):
+    def __init__(self, name: namelike, type_tag: Optional[namelike] = None):
         """
         Initialize a constant.
 
         :param name: the name.
-        :param type_tags: the type tags
+        :param type_tag: the type tag
         """
-        super().__init__(name, type_tags=type_tags)
+        super().__init__(name, type_tags={type_tag} if type_tag is not None else None)
+
+    @property
+    def type_tag(self) -> Optional[name_type]:
+        """Get the type of this constant."""
+        type_tags = self.type_tags
+        assert_(len(type_tags) <= 1)
+        return next(iter(type_tags)) if len(type_tags) == 1 else None
 
     def __str__(self) -> str:
         """Get the string representation."""

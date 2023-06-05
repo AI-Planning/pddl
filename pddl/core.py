@@ -17,10 +17,15 @@ It contains the class definitions to build and modify PDDL domains or problems.
 """
 import functools
 from enum import Enum
-from typing import AbstractSet, Collection, Optional, Sequence, Set, cast
+from typing import AbstractSet, Collection, Dict, Optional, Sequence, Set, cast
 
+from pddl._validation import (
+    _check_constant_types,
+    _check_types_dictionary,
+    _check_types_in_has_terms_objects,
+)
 from pddl.custom_types import name as name_type
-from pddl.custom_types import namelike, to_names
+from pddl.custom_types import namelike, to_names_types
 from pddl.helpers.base import (
     _typed_parameters,
     assert_,
@@ -30,7 +35,7 @@ from pddl.helpers.base import (
 )
 from pddl.logic.base import Formula, TrueFormula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
-from pddl.logic.terms import Constant, Variable
+from pddl.logic.terms import Constant, Term, Variable
 from pddl.parser.symbols import RequirementSymbols as RS
 
 
@@ -41,7 +46,7 @@ class Domain:
         self,
         name: namelike,
         requirements: Optional[Collection["Requirements"]] = None,
-        types: Optional[Collection[namelike]] = None,
+        types: Optional[Dict[namelike, Optional[namelike]]] = None,
         constants: Optional[Collection[Constant]] = None,
         predicates: Optional[Collection[Predicate]] = None,  # TODO cannot be empty
         derived_predicates: Optional[
@@ -54,7 +59,8 @@ class Domain:
 
         :param name: the name of the domain.
         :param requirements: the requirements supported.
-        :param types: the list of supported types.
+        :param types: the hierarchy of supported types.
+            types is a dictionary mapping a type name to its ancestor.
         :param constants: the constants.
         :param predicates: the predicates.
         :param derived_predicates: the derived predicates.
@@ -62,11 +68,40 @@ class Domain:
         """
         self._name = name_type(name)
         self._requirements = ensure_set(requirements)
-        self._types = set(to_names(ensure_set(types)))
+        self._types = to_names_types(ensure(types, dict()))
         self._constants = ensure_set(constants)
         self._predicates = ensure_set(predicates)
         self._derived_predicates = ensure_set(derived_predicates)
         self._actions = ensure_set(actions)
+
+        self._all_types_set = self._get_all_types()
+
+        self._check_consistency()
+
+    def _get_all_types(self) -> Set[name_type]:
+        """Get all types supported by this domain."""
+        if self._types is None:
+            return set()
+        result = set(self._types.keys()) | set(self._types.values())
+        result.discard(None)
+        return cast(Set[name_type], result)
+
+    def _check_consistency(self) -> None:
+        """Check consistency of a domain instance object."""
+        _check_types_dictionary(self._types)
+        _check_constant_types(self._constants, self._all_types_set)
+        _check_types_in_has_terms_objects(self._predicates, self._all_types_set)
+        _check_types_in_has_terms_objects(self._actions, self._all_types_set)  # type: ignore
+        self._check_types_in_derived_predicates()
+
+    def _check_types_in_derived_predicates(self) -> None:
+        """Check types in derived predicates."""
+        dp_list = (
+            [dp.predicate for dp in self._derived_predicates]
+            if self._derived_predicates
+            else set()
+        )
+        _check_types_in_has_terms_objects(dp_list, self._all_types_set)
 
     @property
     def name(self) -> str:
@@ -99,7 +134,7 @@ class Domain:
         return self._actions
 
     @property
-    def types(self) -> AbstractSet[name_type]:
+    def types(self) -> Dict[name_type, Optional[name_type]]:
         """Get the type definitions, if defined. Else, raise error."""
         return self._types
 
@@ -264,6 +299,11 @@ class Action:
         return self._parameters
 
     @property
+    def terms(self) -> Sequence[Term]:
+        """Get the terms."""
+        return self.parameters
+
+    @property
     def precondition(self) -> Optional[Formula]:
         """Get the precondition."""
         return self._precondition
@@ -297,6 +337,13 @@ class Action:
     def __hash__(self):
         """Get the hash."""
         return hash((self.name, self.parameters, self.precondition, self.effect))
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return (
+            f"{type(self).__name__}({self.name}, parameters={', '.join(map(str, self.parameters))}, "
+            f"precondition={self.precondition}, effect={self.effect})"
+        )
 
 
 @functools.total_ordering

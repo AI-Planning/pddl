@@ -138,7 +138,7 @@ def blocksworld_domain():
         Requirements.TYPING,
         Requirements.NEG_PRECONDITION,
     }
-    types = {block}
+    types = dict.fromkeys([block])
     actions = {
         pick_up,
         pick_up_from_table,
@@ -163,7 +163,7 @@ def blocksworld_domain():
 def blocksworld_problem_01():
     """Blocksworld ipc08 problem 01."""
     # objects
-    objects = [b1, b2, b3, b4, b5] = constants("b1 b2 b3 b4 b5", types=["block"])
+    objects = [b1, b2, b3, b4, b5] = constants("b1 b2 b3 b4 b5", type_="block")
 
     # predicates
     emptyhand = Predicate("emptyhand")
