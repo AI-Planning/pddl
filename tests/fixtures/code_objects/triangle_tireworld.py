@@ -93,7 +93,7 @@ def triangle_tireworld_problem_01():
     """Triangle-tireworld problem 01."""
     # objects
     objects = [l1, l2, l3, l4, l5, l6, l7, l8, l9] = constants(
-        "l1 l2 l3 l4 l5 l6 l7 l8 l9", types=["location"]
+        "l1 l2 l3 l4 l5 l6 l7 l8 l9", type_="location"
     )
 
     # predicates
