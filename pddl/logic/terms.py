@@ -47,6 +47,14 @@ class Term:
         """Get a set of type tags for this term."""
         return self._type_tags
 
+    def __eq__(self, other):
+        """Compare with another term."""
+        return (
+            isinstance(other, Term)
+            and self.name == other.name
+            and self.type_tags == other.type_tags
+        )
+
     def __lt__(self, other):
         """Compare with another term."""
         if isinstance(other, Constant):

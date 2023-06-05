@@ -169,7 +169,15 @@ class DerivedPredicate(Atomic):
 
     def __repr__(self) -> str:
         """Get the string representation."""
-        return f"{type(self).__name__}({self.predicate}, {self.condition})"
+        return f"{type(self).__name__}({repr(self.predicate)}, {repr(self.condition)})"
+
+    def __eq__(self, other):
+        """Override equal operator."""
+        return (
+            isinstance(other, DerivedPredicate)
+            and self.predicate == other.predicate
+            and self.condition == other.condition
+        )
 
     def __lt__(self, other):
         """Compare with another object."""
