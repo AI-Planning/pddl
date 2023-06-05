@@ -13,3 +13,4 @@
 """Module for library-wide constants, e.g. keywords."""
 
 EITHER = "either"
+OBJECT = "object"

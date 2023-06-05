@@ -14,6 +14,7 @@
 
 from typing import Collection, Dict, Optional, Set, Tuple
 
+from pddl.constants import OBJECT
 from pddl.custom_types import name, to_names  # noqa: F401
 from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import find_cycle
@@ -25,10 +26,17 @@ def _check_types_dictionary(type_dict: Dict[name, Optional[name]]) -> None:
     """
     Check the consistency of the types dictionary.
 
-    >>> # empty types dictionary is correct
+    1) Empty types dictionary is correct by definition:
     >>> _check_types_dictionary({})
 
-    >>> # if cycles are present, an error is raised
+    2) The `object` type cannot be a subtype:
+    >>> a = name("a")
+    >>> _check_types_dictionary({name("object"): a})
+    Traceback (most recent call last):
+    ...
+    pddl.exceptions.PDDLValidationError: object must not have supertypes, but got object is a subtype of a
+
+    3) If cycles in the type hierarchy graph are present, an error is raised:
     >>> a, b, c = to_names(["a", "b", "c"])
     >>> _check_types_dictionary({a: b, b: c, c: a})
     Traceback (most recent call last):
@@ -39,6 +47,14 @@ def _check_types_dictionary(type_dict: Dict[name, Optional[name]]) -> None:
     """
     if len(type_dict) == 0:
         return
+
+    # check `object` type
+    object_name = name(OBJECT)
+    if object_name in type_dict and type_dict[object_name] is not None:
+        object_supertype = type_dict[object_name]
+        raise PDDLValidationError(
+            f"object must not have supertypes, but got object is a subtype of {object_supertype}"
+        )
 
     # check cycles
     cycle = find_cycle(type_dict)  # type: ignore
