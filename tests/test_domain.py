@@ -11,6 +11,7 @@
 #
 
 """This module contains tests for a PDDL domain."""
+import copy
 import pickle  # nosec
 import re
 
@@ -32,6 +33,13 @@ def test_pickle_domain(domain_obj: Domain) -> None:
     domain_obj_bytes = pickle.dumps(domain_obj)  # nosec
     actual_domain_obj = pickle.loads(domain_obj_bytes)  # nosec
     assert domain_obj == actual_domain_obj
+
+
+@pytest.mark.parametrize("domain_obj", pddl_objects_domains)
+def test_deepcopy_domain(domain_obj: Domain) -> None:
+    """Test that domain objects can be deepcopied correctly."""
+    new_domain_obj = copy.deepcopy(domain_obj)
+    assert domain_obj == new_domain_obj
 
 
 class TestDomainEmpty:

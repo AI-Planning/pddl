@@ -11,6 +11,7 @@
 #
 
 """This module contains tests for a PDDL problem."""
+import copy
 import pickle  # nosec
 from unittest.mock import MagicMock
 
@@ -29,6 +30,13 @@ def test_pickle_problem(problem_obj: Problem) -> None:
     problem_obj_bytes = pickle.dumps(problem_obj)  # nosec
     actual_problem_obj = pickle.loads(problem_obj_bytes)  # nosec
     assert problem_obj == actual_problem_obj
+
+
+@pytest.mark.parametrize("problem_obj", pddl_objects_problems)
+def test_deepcopy_problem(problem_obj: Problem) -> None:
+    """Test that problem objects can be deepcopied correctly."""
+    new_problem_obj = copy.deepcopy(problem_obj)
+    assert problem_obj == new_problem_obj
 
 
 class TestProblemEmpty:
