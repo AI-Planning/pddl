@@ -53,7 +53,7 @@ def _getstate(fn):
     @wraps(fn)
     def __getstate__(self):
         d = fn(self)
-        d.pop("__hash")
+        d.pop("__hash", None)
         return d
 
     return __getstate__
