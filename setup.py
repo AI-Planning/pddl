@@ -30,7 +30,7 @@ with open(os.path.join(here, 'pddl', '__version__.py'), 'r') as f:
 
 
 install_requires = [
-    "lark-parser>=0.9.0,<1",
+    "lark>=1.1.5,<1.2.0",
     "click>=8,<9"
 ]
 
