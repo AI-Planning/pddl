@@ -32,6 +32,8 @@ class Symbols(Enum):
     FORALL = "forall"
     EXISTS = "exists"
     WHEN = "when"
+    OBJECT = "object"
+    EITHER = "either"
     DERIVED = ":derived"
     DOMAIN_P = ":domain"
     OBJECTS = ":objects"

@@ -16,7 +16,6 @@ from typing import AbstractSet, Dict, List, Mapping, Optional, Sequence, Set, Tu
 
 from lark import Lark, ParseError, Transformer
 
-from pddl.constants import EITHER
 from pddl.core import Action, Domain, Requirements
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_, safe_index
@@ -409,7 +408,7 @@ class DomainTransformer(Transformer):
 
         # if we are here, type_def is of the form (either t1 ... tn)
         either_keyword, types = type_def[0], type_def[1:]
-        assert_(str(either_keyword) == EITHER)
+        assert_(str(either_keyword) == Symbols.EITHER.value)
         return set(types)
 
 

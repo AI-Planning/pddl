@@ -14,12 +14,12 @@
 
 from typing import Collection, Dict, Optional, Set, Tuple
 
-from pddl.constants import OBJECT
 from pddl.custom_types import name, to_names  # noqa: F401
 from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import find_cycle
 from pddl.logic import Constant, Predicate
 from pddl.logic.terms import Term
+from pddl.parser.symbols import Symbols
 
 
 def _check_types_dictionary(type_dict: Dict[name, Optional[name]]) -> None:
@@ -49,7 +49,7 @@ def _check_types_dictionary(type_dict: Dict[name, Optional[name]]) -> None:
         return
 
     # check `object` type
-    object_name = name(OBJECT)
+    object_name = name(Symbols.OBJECT.value)
     if object_name in type_dict and type_dict[object_name] is not None:
         object_supertype = type_dict[object_name]
         raise PDDLValidationError(

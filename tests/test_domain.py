@@ -17,13 +17,13 @@ import re
 
 import pytest
 
-from pddl.constants import OBJECT
 from pddl.core import Action, Domain
 from pddl.exceptions import PDDLValidationError
 from pddl.logic import Constant, Variable
 from pddl.logic.base import Not, TrueFormula
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import DerivedPredicate, Predicate
+from pddl.parser.symbols import Symbols
 from tests.conftest import pddl_objects_domains
 
 
@@ -94,7 +94,7 @@ def test_cycles_in_type_defs_not_allowed() -> None:
 def test_object_must_not_be_subtype() -> None:
     """Test that when the `object` type is used as subtype we raise error."""
     my_type = "my_type"
-    type_set = {OBJECT: my_type}
+    type_set = {Symbols.OBJECT.value: my_type}
 
     with pytest.raises(
         PDDLValidationError,
