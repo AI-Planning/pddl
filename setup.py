@@ -31,7 +31,7 @@ with open(os.path.join(here, 'pddl', '__version__.py'), 'r') as f:
 
 install_requires = [
     "lark>=1.1.5,<1.2.0",
-    "click>=8,<9"
+    "click>=8.1.3,<9.0.0"
 ]
 
 setup(
