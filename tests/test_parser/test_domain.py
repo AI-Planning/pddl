@@ -148,8 +148,7 @@ def test_keyword_usage_not_allowed_as_name(keyword) -> None:
 
     with pytest.raises(
         lark.exceptions.VisitError,
-        match=f".*error while parsing tokens \\['{keyword}'\\]: "
-        f"invalid name '{keyword}': it is a keyword",
+        match=f".*invalid name '{keyword}': it is a keyword",
     ):
         DomainParser()(domain_str)
 
@@ -168,7 +167,6 @@ def test_keyword_usage_not_allowed_as_type(keyword) -> None:
 
     with pytest.raises(
         lark.exceptions.VisitError,
-        match=f".*error while parsing tokens \\['t1', '-', '{keyword}'\\]: "
-        f"invalid type '{keyword}': it is a keyword",
+        match=f".*invalid type '{keyword}': it is a keyword",
     ):
         DomainParser()(domain_str)

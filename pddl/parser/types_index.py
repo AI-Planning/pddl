@@ -13,11 +13,11 @@
 """Utility to handle typed lists."""
 import itertools
 from collections import OrderedDict
-from typing import Collection, Dict, List, Optional
+from typing import Dict, List, Optional
 from typing import OrderedDict as OrderedDictType
 from typing import Set, Union
 
-from pddl._validation import _is_a_keyword
+from pddl._validation import _check_names_not_a_keyword, _check_types_not_a_keyword
 from pddl.custom_types import name
 from pddl.helpers.base import check, safe_index
 from pddl.parser.symbols import Symbols
@@ -47,8 +47,8 @@ class TypesIndex:
         :param item_name: the item name
         :param type_tags: the types for the item
         """
-        self._check_names_not_a_keyword({item_name})
-        self._check_types_not_a_keyword(type_tags)
+        _check_names_not_a_keyword({item_name})
+        _check_types_not_a_keyword(type_tags)
         self._check_item_name_already_present(item_name)
         self._check_tags_already_present(item_name, type_tags)
         self._add_item(item_name, type_tags)
@@ -207,24 +207,3 @@ class TypesIndex:
             f"typed list names should not have more than one type, got '{item_name}' with "
             f"types {sorted(map(str, types_tags))}"
         )
-
-    def _check_names_not_a_keyword(self, names: Collection[name]) -> None:
-        """Check that items are not keywords."""
-        self._check_not_a_keyword(names, "name", ignore=set())
-
-    def _check_types_not_a_keyword(self, names: Collection[name]) -> None:
-        """
-        Check that types are not keywords.
-
-        We ignore 'object' as it is a proper type.
-        """
-        self._check_not_a_keyword(names, "type", ignore={Symbols.OBJECT.value})
-
-    def _check_not_a_keyword(
-        self, names: Collection[name], item_type: str, ignore: Set[str]
-    ) -> None:
-        """Check that the item name is not a keyword."""
-        for item_name in names:
-            # we ignore 'object' as it is a proper type
-            if _is_a_keyword(item_name, ignore=ignore):
-                raise ValueError(f"invalid {item_type} '{item_name}': it is a keyword")
