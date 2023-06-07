@@ -15,12 +15,14 @@ Core module of the package.
 
 It contains the class definitions to build and modify PDDL domains or problems.
 """
+from operator import xor
 from typing import AbstractSet, Collection, Dict, Optional, Sequence, cast
 
 from pddl._validation import (
     Types,
     _check_constant_types,
     _check_types_in_has_terms_objects,
+    validate,
 )
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names, to_names_types  # noqa: F401
@@ -170,7 +172,7 @@ class Problem:
         self._objects: AbstractSet[Constant] = ensure_set(objects)
         self._init: AbstractSet[Formula] = ensure_set(init)
         self._goal: Formula = ensure(goal, TrueFormula())
-        assert_(
+        validate(
             all(map(is_literal, self.init)),
             "Not all formulas of initial condition are literals!",
         )
@@ -178,14 +180,9 @@ class Problem:
         self._check_consistency()
 
     def _check_consistency(self):
-        assert_(
-            self._domain is not None or self._domain_name is not None,
-            "At least one between 'domain' and 'domain_name' must be set.",
-        )
-        assert_(
-            self._domain is None
-            or self._domain_name is None
-            or self._domain.name == self._domain_name
+        validate(
+            xor(self._domain is not None, self._domain_name is not None),
+            "Only one between 'domain' and 'domain_name' must be set.",
         )
 
     @property
