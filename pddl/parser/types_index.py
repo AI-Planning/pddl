@@ -39,9 +39,11 @@ class TypesIndex:
     def add_item(self, item_name: str, type_tags: Set[str]) -> None:
         """Add an item."""
         if item_name in self._item_to_types:
+            types_list = sorted(map(str, self._item_to_types[item_name]))
+            types_list_str = f" with types {types_list}" if len(types_list) > 0 else ""
             raise ValueError(
-                f"duplicate name '{item_name}' in typed list: already present with "
-                f"types {sorted(map(str,self._item_to_types[item_name]))}"
+                f"duplicate name '{item_name}' in typed list already present"
+                + types_list_str
             )
 
         exisiting_tags = self._item_to_types.get(item_name, set())

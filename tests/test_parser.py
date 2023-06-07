@@ -135,8 +135,8 @@ def test_types_repetition_in_simple_typed_lists_not_allowed() -> None:
 
     with pytest.raises(
         lark.exceptions.VisitError,
-        match="duplicate items \\['a'\\] found in the typed list: "
-        "\\['a', 'b', 'c', 'a'\\]",
+        match=".*error while parsing tokens \\['a', 'b', 'c', 'a'\\]: "
+        "duplicate name 'a' in typed list already present",
     ):
         DomainParser()(domain_str)
 
@@ -154,8 +154,8 @@ def test_types_repetition_in_typed_lists_not_allowed() -> None:
 
     with pytest.raises(
         lark.exceptions.VisitError,
-        match="detected conflicting items in a typed list: items occurred "
-        "twice: \\['a'\\]",
+        match=".*error while parsing tokens \\['a', '-', 't1', 'b', 'c', '-', 't2', 'a', '-', 't3'\\]: "
+        "duplicate name 'a' in typed list already present with types \\['t1'\\]",
     ):
         DomainParser()(domain_str)
 
@@ -174,8 +174,8 @@ def test_constants_repetition_in_simple_typed_lists_not_allowed() -> None:
 
     with pytest.raises(
         lark.exceptions.VisitError,
-        match="duplicate items \\['c1'\\] found in the typed list: "
-        "\\['c1', 'c2', 'c3', 'c1'\\]",
+        match=".*error while parsing tokens \\['c1', 'c2', 'c3', 'c1'\\]: "
+        "duplicate name 'c1' in typed list already present",
     ):
         DomainParser()(domain_str)
 
@@ -194,7 +194,7 @@ def test_constants_repetition_in_typed_lists_not_allowed() -> None:
 
     with pytest.raises(
         lark.exceptions.VisitError,
-        match="detected conflicting items in a typed list: items occurred "
-        "twice: \\['c1'\\]",
+        match=".*error while parsing tokens \\['c1', '-', 't1', 'c1', '-', 't2'\\]: "
+        "duplicate name 'c1' in typed list already present with types \\['t1'\\]",
     ):
         DomainParser()(domain_str)
