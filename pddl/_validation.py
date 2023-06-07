@@ -16,11 +16,20 @@ from typing import AbstractSet, Collection, Dict, Optional, Set, Tuple, cast
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names, to_names_types  # noqa: F401
 from pddl.exceptions import PDDLValidationError
-from pddl.helpers.base import ensure, ensure_set, find_cycle
+from pddl.helpers.base import check, ensure, ensure_set, find_cycle
 from pddl.logic import Constant, Predicate
 from pddl.logic.terms import Term
 from pddl.parser.symbols import ALL_SYMBOLS, Symbols
 from pddl.requirements import Requirements
+
+
+def validate(condition: bool, message: str = "") -> None:
+    """
+    Validate a condition regarding PDDL.
+
+    If the condition is not satisfied, a PDDLValidationError is raised.
+    """
+    check(condition, message, PDDLValidationError)
 
 
 def _find_inconsistencies_in_typed_terms(
