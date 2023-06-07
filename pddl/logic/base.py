@@ -134,6 +134,10 @@ class TrueFormula(Formula):
         """Hash the object."""
         return hash(TrueFormula)
 
+    def __invert__(self) -> Formula:
+        """Negate the formula."""
+        return FALSE
+
     def __neg__(self) -> Formula:
         """Negate."""
         return FALSE
@@ -157,6 +161,10 @@ class FalseFormula(Formula):
     def __hash__(self):
         """Hash the object."""
         return hash(FalseFormula)
+
+    def __invert__(self) -> Formula:
+        """Negate the formula."""
+        return TRUE
 
     def __neg__(self) -> Formula:
         """Negate."""
