@@ -91,7 +91,7 @@ class Domain:
         _check_types_in_has_terms_objects(dp_list, self._types.all_types)
 
     @property
-    def name(self) -> str:
+    def name(self) -> name_type:
         """Get the name."""
         return self._name
 
@@ -189,7 +189,7 @@ class Problem:
         )
 
     @property
-    def name(self) -> str:
+    def name(self) -> name_type:
         """Get the name."""
         return self._name
 
@@ -210,13 +210,13 @@ class Problem:
         self._domain = domain
 
     @property
-    def domain_name(self) -> str:
+    def domain_name(self) -> name_type:
         """Get the domain name."""
         if self._domain is not None:
             return self._domain.name
 
         assert_(self._domain_name is not None, "Domain name is not set.")
-        return cast(str, self._domain_name)
+        return cast(name_type, self._domain_name)
 
     @property
     def requirements(self) -> AbstractSet["Requirements"]:
