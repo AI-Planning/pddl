@@ -307,9 +307,7 @@ class DomainTransformer(Transformer):
             types_index = TypesIndex.parse_typed_list(args)
             return types_index.get_typed_list_of_names()
         except ValueError as e:
-            raise PDDLParsingError(
-                f"error while parsing tokens {list(map(str, args))}: {str(e)}"
-            ) from None
+            raise self._raise_typed_list_parsing_error(args, e) from e
 
     def typed_list_variable(self, args) -> OrderedDictType[name, Set[name]]:
         """
@@ -324,9 +322,15 @@ class DomainTransformer(Transformer):
             types_index = TypesIndex.parse_typed_list(args)
             return types_index.get_typed_list_of_variables()
         except ValueError as e:
-            raise PDDLParsingError(
-                f"error while parsing tokens {list(map(str, args))}: {str(e)}"
-            ) from None
+            raise self._raise_typed_list_parsing_error(args, e) from e
+
+    def _raise_typed_list_parsing_error(self, args, exception) -> PDDLParsingError:
+        string_list = [
+            str(arg) if isinstance(arg, str) else list(map(str, arg)) for arg in args
+        ]
+        return PDDLParsingError(
+            f"error while parsing tokens {string_list}: {str(exception)}"
+        )
 
     def type_def(self, args):
         """Parse the 'type_def' rule."""

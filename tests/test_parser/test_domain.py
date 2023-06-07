@@ -94,6 +94,44 @@ def test_types_repetition_in_typed_lists_not_allowed() -> None:
         DomainParser()(domain_str)
 
 
+@pytest.mark.parametrize("keyword", TEXT_SYMBOLS - {Symbols.OBJECT.value})
+def test_keyword_usage_not_allowed_as_name(keyword) -> None:
+    """Check keywords usage as names is detected and a parsing error is raised."""
+    domain_str = dedent(
+        f"""
+    (define (domain test)
+        (:requirements :typing)
+        (:types {keyword})
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match=f".*invalid name '{keyword}': it is a keyword",
+    ):
+        DomainParser()(domain_str)
+
+
+@pytest.mark.parametrize("keyword", TEXT_SYMBOLS - {Symbols.OBJECT.value})
+def test_keyword_usage_not_allowed_as_type(keyword) -> None:
+    """Check keywords usage as types is detected and a parsing error is raised."""
+    domain_str = dedent(
+        f"""
+    (define (domain test)
+        (:requirements :typing)
+        (:types t1 - {keyword})
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match=f".*invalid type '{keyword}': it is a keyword",
+    ):
+        DomainParser()(domain_str)
+
+
 def test_constants_repetition_in_simple_typed_lists_not_allowed() -> None:
     """Check constants repetition in simple typed lists is detected and a parsing error is raised."""
     domain_str = dedent(
@@ -134,39 +172,40 @@ def test_constants_repetition_in_typed_lists_not_allowed() -> None:
         DomainParser()(domain_str)
 
 
-@pytest.mark.parametrize("keyword", TEXT_SYMBOLS - {Symbols.OBJECT.value})
-def test_keyword_usage_not_allowed_as_name(keyword) -> None:
-    """Check keywords usage as names is detected and a parsing error is raised."""
+def test_variables_repetition_in_simple_typed_lists_not_allowed() -> None:
+    """Check variables repetition in simple typed lists is detected and a parsing error is raised."""
     domain_str = dedent(
-        f"""
+        """
     (define (domain test)
         (:requirements :typing)
-        (:types {keyword})
+        (:predicates (p ?x ?y ?z ?x))
     )
     """
     )
 
     with pytest.raises(
         lark.exceptions.VisitError,
-        match=f".*invalid name '{keyword}': it is a keyword",
+        match=".*error while parsing tokens \\['x', 'y', 'z', 'x'\\]: "
+        "duplicate name 'x' in typed list already present",
     ):
         DomainParser()(domain_str)
 
 
-@pytest.mark.parametrize("keyword", TEXT_SYMBOLS - {Symbols.OBJECT.value})
-def test_keyword_usage_not_allowed_as_type(keyword) -> None:
-    """Check keywords usage as types is detected and a parsing error is raised."""
+def test_variables_repetition_in_typed_lists_not_allowed() -> None:
+    """Check variables repetition in typed lists is detected and a parsing error is raised."""
     domain_str = dedent(
-        f"""
+        """
     (define (domain test)
         (:requirements :typing)
-        (:types t1 - {keyword})
+        (:types t1 t2)
+        (:predicates (p ?x - t1 ?x -t2))
     )
     """
     )
 
     with pytest.raises(
         lark.exceptions.VisitError,
-        match=f".*invalid type '{keyword}': it is a keyword",
+        match=r".*error while parsing tokens \['x', '-', \['t1'\], 'x', '-', \['t2'\]\]: duplicate name 'x' "
+        r"in typed list already present with types \['t1'\]",
     ):
         DomainParser()(domain_str)
