@@ -12,11 +12,13 @@
 
 """This module contains the tests for the domain parser."""
 from pathlib import Path
+from textwrap import dedent
 
 import pytest
 from pytest import lazy_fixture  # type:ignore  # noqa
 
-from pddl.core import Problem
+from pddl.core import Problem, Requirements
+from pddl.parser.problem import ProblemParser
 from tests.conftest import BLOCKSWORLD_FILES, BLOCKSWORLD_FOND_FILES, PROBLEM_FILES
 
 
@@ -45,3 +47,20 @@ def test_check_problem_parser_output(problem_parser, pddl_file: Path, expected_p
 
     assert isinstance(actual_problem, Problem)
     assert actual_problem == expected_problem
+
+
+def test_problem_requirements_section_parsed() -> None:
+    """Check that the requirements section is parsed correctly."""
+    problem_str = dedent(
+        """
+        (define (problem test-problem)
+            (:domain test-domain)
+            (:requirements :typing)
+            (:objects a b c)
+            (:init (p b b b))
+            (:goal (g a a a))
+        )"""
+    )
+    problem = ProblemParser()(problem_str)
+
+    assert problem.requirements == {Requirements.TYPING}
