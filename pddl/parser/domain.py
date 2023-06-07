@@ -17,6 +17,7 @@ from typing import AbstractSet, Dict, List, Mapping, Optional, Sequence, Set, Tu
 from lark import Lark, ParseError, Transformer
 
 from pddl.core import Action, Domain, Requirements
+from pddl.custom_types import name
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_, safe_index
 from pddl.logic.base import (
@@ -294,7 +295,7 @@ class DomainTransformer(Transformer):
         variables = [Variable(name, tags) for name, tags in variable_data.items()]
         return Predicate(name, *variables)
 
-    def typed_list_name(self, args) -> Dict[str, Optional[str]]:
+    def typed_list_name(self, args) -> Dict[name, Optional[name]]:
         """Process the 'typed_list_name' rule."""
         try:
             types_index = TypesIndex.parse_typed_list(args)
