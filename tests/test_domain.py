@@ -17,7 +17,7 @@ import re
 
 import pytest
 
-from pddl.core import Action, Domain
+from pddl.core import Action, Domain, Requirements
 from pddl.exceptions import PDDLValidationError
 from pddl.logic import Constant, Variable
 from pddl.logic.base import Not, TrueFormula
@@ -88,7 +88,11 @@ def test_cycles_in_type_defs_not_allowed() -> None:
     with pytest.raises(
         PDDLValidationError, match="cycle detected in the type hierarchy: A -> B -> C"
     ):
-        Domain("dummy", types={"A": "B", "B": "C", "C": "A"})
+        Domain(
+            "dummy",
+            requirements={Requirements.TYPING},
+            types={"A": "B", "B": "C", "C": "A"},
+        )
 
 
 def test_object_must_not_be_subtype() -> None:
@@ -100,7 +104,7 @@ def test_object_must_not_be_subtype() -> None:
         PDDLValidationError,
         match=rf"object must not have supertypes, but got 'object' is a subtype of '{my_type}'",
     ):
-        Domain("test", types=type_set)  # type: ignore
+        Domain("test", requirements={Requirements.TYPING}, types=type_set)  # type: ignore
 
 
 def test_constants_type_not_available() -> None:
