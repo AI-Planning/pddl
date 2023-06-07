@@ -110,7 +110,7 @@ class DomainTransformer(Transformer):
 
     def action_def(self, args):
         """Process the 'action_def' rule."""
-        name = args[2]
+        action_name = args[2]
         variables = args[4]
 
         # process action body
@@ -118,7 +118,7 @@ class DomainTransformer(Transformer):
         action_body = {
             _children[i][1:]: _children[i + 1] for i in range(0, len(_children), 2)
         }
-        return Action(name, variables, **action_body)
+        return Action(action_name, variables, **action_body)
 
     def derived_predicates(self, args):
         """Process the 'derived_predicates' rule."""
@@ -129,7 +129,7 @@ class DomainTransformer(Transformer):
     def action_parameters(self, args):
         """Process the 'action_parameters' rule."""
         self._current_parameters_by_name = {
-            name: Variable(name, tags) for name, tags in args[1].items()
+            var_name: Variable(var_name, tags) for var_name, tags in args[1].items()
         }
         return list(self._current_parameters_by_name.values())
 
@@ -193,7 +193,7 @@ class DomainTransformer(Transformer):
             & self._extended_requirements
         ):
             raise PDDLMissingRequirementError(req)
-        variables = [Variable(name, tags) for name, tags in args[3].items()]
+        variables = [Variable(var_name, tags) for var_name, tags in args[3].items()]
         condition = args[5]
         return cond_class(cond=condition, variables=variables)
 
@@ -232,7 +232,7 @@ class DomainTransformer(Transformer):
         if len(args) == 1:
             return args[0]
         if args[1] == Symbols.FORALL.value:
-            variables = [Variable(name, tags) for name, tags in args[3].items()]
+            variables = [Variable(var_name, tags) for var_name, tags in args[3].items()]
             return Forall(effect=args[-2], variables=variables)
         if args[1] == Symbols.WHEN.value:
             return When(args[2], args[3])
@@ -276,9 +276,9 @@ class DomainTransformer(Transformer):
             right = constant_or_variable(args[3])
             return EqualTo(left, right)
         else:
-            name = args[1]
+            predicate_name = args[1]
             terms = list(map(constant_or_variable, args[2:-1]))
-            return Predicate(name, *terms)
+            return Predicate(predicate_name, *terms)
 
     def constant(self, args):
         """Process the 'constant' rule."""
@@ -290,10 +290,12 @@ class DomainTransformer(Transformer):
 
     def atomic_formula_skeleton(self, args):
         """Process the 'atomic_formula_skeleton' rule."""
-        name = args[1]
+        predicate_name = args[1]
         variable_data: Dict[str, Set[str]] = args[2]
-        variables = [Variable(name, tags) for name, tags in variable_data.items()]
-        return Predicate(name, *variables)
+        variables = [
+            Variable(var_name, tags) for var_name, tags in variable_data.items()
+        ]
+        return Predicate(predicate_name, *variables)
 
     def typed_list_name(self, args) -> Dict[name, Optional[name]]:
         """Process the 'typed_list_name' rule."""
