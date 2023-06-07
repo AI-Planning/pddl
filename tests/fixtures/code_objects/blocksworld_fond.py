@@ -108,7 +108,7 @@ def blocksworld_fond_01():
         clear(Table),
     }
 
-    goal = And()
+    goal = on(B, A)
 
     problem_name = "sussman-anomaly"
 
