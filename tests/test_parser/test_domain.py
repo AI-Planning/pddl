@@ -18,14 +18,13 @@ import lark
 import pytest
 from pytest import lazy_fixture  # type:ignore  # noqa
 
-from pddl.core import Domain, Problem
+from pddl.core import Domain
 from pddl.parser.domain import DomainParser
 from pddl.parser.symbols import Symbols
 from tests.conftest import (
     BLOCKSWORLD_FILES,
     BLOCKSWORLD_FOND_FILES,
     DOMAIN_FILES,
-    PROBLEM_FILES,
     TEXT_SYMBOLS,
     TRIANGLE_FILES,
 )
@@ -35,12 +34,6 @@ from tests.conftest import (
 def test_domain_parser(domain_parser, pddl_file: Path):
     """Test only that the domain parsing works for all the fixtures."""
     domain_parser(pddl_file.read_text())
-
-
-@pytest.mark.parametrize("pddl_file", PROBLEM_FILES)
-def test_problem_parser(problem_parser, pddl_file: Path):
-    """Test only that the problem parsing works for all the fixtures."""
-    problem_parser(pddl_file.read_text())
 
 
 @pytest.mark.parametrize(
@@ -66,27 +59,6 @@ def test_check_domain_parser_output(domain_parser, pddl_file: Path, expected_dom
 
     assert isinstance(actual_domain, Domain)
     assert actual_domain == expected_domain
-
-
-@pytest.mark.parametrize(
-    "pddl_file,expected_problem",
-    [
-        (
-            BLOCKSWORLD_FILES / "p01.pddl",
-            lazy_fixture("blocksworld_problem_01"),  # type:ignore
-        ),
-        (
-            BLOCKSWORLD_FOND_FILES / "p01.pddl",
-            lazy_fixture("blocksworld_fond_01"),  # type:ignore
-        ),
-    ],
-)
-def test_check_problem_parser_output(problem_parser, pddl_file: Path, expected_problem):
-    """Test problem parsing."""
-    actual_problem = problem_parser(pddl_file.read_text())
-
-    assert isinstance(actual_problem, Problem)
-    assert actual_problem == expected_problem
 
 
 def test_hierarchical_types() -> None:
