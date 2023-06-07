@@ -12,14 +12,16 @@
 
 """Implementation of the PDDL domain parser."""
 import sys
-from typing import AbstractSet, Dict, List, Mapping, Optional, Sequence, Set, Tuple
+from typing import Dict, Optional
+from typing import OrderedDict as OrderedDictType
+from typing import Set
 
 from lark import Lark, ParseError, Transformer
 
 from pddl.core import Action, Domain, Requirements
 from pddl.custom_types import name
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
-from pddl.helpers.base import assert_, safe_index
+from pddl.helpers.base import assert_
 from pddl.logic.base import (
     And,
     ExistsCondition,
@@ -307,7 +309,7 @@ class DomainTransformer(Transformer):
                 f"error while parsing tokens {list(map(str, args))}: {str(e)}"
             ) from None
 
-    def typed_list_variable(self, args) -> Dict[str, Set[str]]:
+    def typed_list_variable(self, args) -> OrderedDictType[name, Set[name]]:
         """
         Process the 'typed_list_variable' rule.
 
@@ -316,79 +318,31 @@ class DomainTransformer(Transformer):
         :param args: the argument of this grammar rule
         :return: a typed list (variable), i.e. a mapping from variables to the supported types
         """
-        type_sep_index = safe_index(args, Symbols.TYPE_SEP.value)
-        if type_sep_index is None:
-            result = self._parse_simple_typed_list(args, check_for_duplicates=False)
-            return {var: set() for var in result}
-
-        # if we are here, the matched pattern is: [name_1 ... name_n], "-", type_def, other_typed_list_dict  # noqa
-        # make sure there are only two tokens after "-"
-        assert_(len(args[type_sep_index:]) == 3, "unexpected parser state")
-
-        variables: Tuple[str, ...] = tuple(args[:type_sep_index])
-        type_def: Set[str] = self._process_type_def(args[type_sep_index + 1])
-        other_typed_list_dict: Mapping[str, Set[str]] = args[type_sep_index + 2]
-        new_typed_list_dict: Mapping[str, Set[str]] = {v: type_def for v in variables}
-
-        # check type conflicts
-        self._check_duplicates(other_typed_list_dict.keys(), new_typed_list_dict.keys())
-
-        return {**new_typed_list_dict, **other_typed_list_dict}
+        try:
+            types_index = TypesIndex.parse_typed_list(args)
+            return types_index.get_typed_list_of_variables()
+        except ValueError as e:
+            raise PDDLParsingError(
+                f"error while parsing tokens {list(map(str, args))}: {str(e)}"
+            ) from None
 
     def type_def(self, args):
         """Parse the 'type_def' rule."""
-        return args if len(args) == 1 else args[1:-1]
+        assert_(len(args) != 0, "unexpected parser state: empty type_def")
+
+        if len(args) == 1:
+            # single-typed type-def, return
+            return args
+
+        # if we are here, type_def is of the form (either t1 ... tn)
+        # ignore first and last tokens since they are brackets.
+        either_keyword, types = args[1], args[2:-1]
+        assert_(str(either_keyword) == Symbols.EITHER.value)
+        return types
 
     def _has_requirement(self, requirement: Requirements) -> bool:
         """Check whether a requirement is satisfied by the current state of the domain parsing."""
         return requirement in self._extended_requirements
-
-    def _check_duplicates(
-        self,
-        other_names: AbstractSet[str],
-        new_names: AbstractSet[str],
-    ) -> None:
-        names_intersection = new_names & other_names
-        if len(names_intersection) != 0:
-            names_list_as_strings = map(repr, map(str, names_intersection))
-            names_list_str = ", ".join(sorted(names_list_as_strings))
-            raise PDDLParsingError(
-                f"detected conflicting items in a typed list: items occurred twice: [{names_list_str}]"
-            )
-
-    def _parse_simple_typed_list(
-        self, args: Sequence[str], check_for_duplicates: bool = True
-    ) -> Dict[str, Optional[str]]:
-        """
-        Parse a 'simple' typed list.
-
-        In this simple case, there are no type specifications, i.e. just a list of items.
-
-        If check_for_duplicates is True, a check for duplicates is performed.
-        """
-        # check for duplicates
-        if check_for_duplicates and len(set(args)) != len(args):
-            # find duplicates
-            seen = set()
-            dupes = [str(x) for x in args if x in seen or seen.add(x)]  # type: ignore
-            raise PDDLParsingError(
-                f"duplicate items {dupes} found in the typed list: {list(map(str, args))}'"
-            )
-
-        return {arg: None for arg in args}
-
-    def _process_type_def(self, type_def: List[str]) -> Set[str]:
-        """Process a raw type_def and return a set of types."""
-        assert_(len(type_def) != 0, "unexpected parser state: empty type_def")
-
-        if len(type_def) == 1:
-            # single-typed type-def, return
-            return set(type_def)
-
-        # if we are here, type_def is of the form (either t1 ... tn)
-        either_keyword, types = type_def[0], type_def[1:]
-        assert_(str(either_keyword) == Symbols.EITHER.value)
-        return set(types)
 
 
 _domain_parser_lark = DOMAIN_GRAMMAR_FILE.read_text()

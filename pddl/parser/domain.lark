@@ -50,7 +50,7 @@ atomic_formula_term:   LPAR predicate term* RPAR
 constant: NAME
 
 typed_list_variable:   variable*
-                   |   variable+ TYPE_SEP type_def (typed_list_variable)
+                   |   (variable+ TYPE_SEP type_def)+ variable*
 ?variable: "?" NAME
 
 typed_list_name:   NAME*
