@@ -15,8 +15,9 @@ import itertools
 from collections import OrderedDict
 from typing import Dict, List, Optional
 from typing import OrderedDict as OrderedDictType
-from typing import Set, Union, cast
+from typing import Set, Union
 
+from pddl.custom_types import name
 from pddl.helpers.base import check, safe_index
 from pddl.parser.symbols import Symbols
 
@@ -33,39 +34,28 @@ class TypesIndex:
 
     def __init__(self) -> None:
         """Initialize the types index."""
-        self._types_to_items: OrderedDictType[str, Set[str]] = OrderedDict()
-        self._item_to_types: OrderedDictType[str, Set[str]] = OrderedDict()
+        self._types_to_items: OrderedDictType[name, Set[name]] = OrderedDict()
+        self._item_to_types: OrderedDictType[name, Set[name]] = OrderedDict()
 
-    def add_item(self, item_name: str, type_tags: Set[str]) -> None:
-        """Add an item."""
-        if item_name in self._item_to_types:
-            types_list = sorted(map(str, self._item_to_types[item_name]))
-            types_list_str = f" with types {types_list}" if len(types_list) > 0 else ""
-            raise ValueError(
-                f"duplicate name '{item_name}' in typed list already present"
-                + types_list_str
-            )
+    def add_item(self, item_name: name, type_tags: Set[name]) -> None:
+        """
+        Add an item to the types index with the given type tags.
 
-        exisiting_tags = self._item_to_types.get(item_name, set())
-        for type_tag in type_tags:
-            if type_tag in exisiting_tags:
-                raise ValueError(
-                    f"duplicate type tag '{type_tag}' in typed list: type already specified for item {item_name}"
-                )
+        Both the item name and the type tags are validated according to the name type regular expression.
 
-        for type_tag in type_tags:
-            self._types_to_items.setdefault(type_tag, set()).add(item_name)
-        self._item_to_types.setdefault(item_name, set()).update(type_tags)
+        :param item_name: the item name
+        :param type_tags: the types for the item
+        """
+        self._check_item_name_already_present(item_name)
+        self._check_tags_already_present(item_name, type_tags)
+        self._add_item(item_name, type_tags)
 
-    def get_typed_list_of_names(self) -> Dict[str, Optional[str]]:
+    def get_typed_list_of_names(self) -> Dict[name, Optional[name]]:
         """Get the typed list of names in form of dictionary."""
-        result: Dict[str, Optional[str]] = {}
+        result: Dict[name, Optional[name]] = {}
         for item, types_tags in self._item_to_types.items():
             if len(types_tags) > 1:
-                raise ValueError(
-                    f"typed list names should not have more than one type, got '{item}' with "
-                    f"types {sorted(map(str,types_tags))}"
-                )
+                self._raise_multiple_types_error(item, types_tags)
             type_tag = next(iter(types_tags)) if len(types_tags) == 1 else None
             result[item] = type_tag
         return result
@@ -157,6 +147,56 @@ class TypesIndex:
         Side-effect on the 'result' dictionary. The start_index and end_index are needed to avoid useless
         sublist copies.
         """
-        for name in itertools.islice(tokens, start_index, end_index):
-            check(isinstance(name, str), f"invalid item '{name}' in typed list")
-            result.add_item(cast(str, name), type_tags)
+        for item_name in itertools.islice(tokens, start_index, end_index):
+            check(
+                isinstance(item_name, str), f"invalid item '{item_name}' in typed list"
+            )
+            # these lines implicitly perform name validation
+            item_name = name(item_name)
+            type_tags_names: Set[name] = set(map(name, type_tags))
+            result.add_item(item_name, type_tags_names)
+
+    def _check_item_name_already_present(self, item_name: name) -> None:
+        """
+        Check if the item name is already present in the index.
+
+        :param item_name: the item name
+        """
+        if item_name in self._item_to_types:
+            types_list = sorted(map(str, self._item_to_types[item_name]))
+            types_list_str = f" with types {types_list}" if len(types_list) > 0 else ""
+            raise ValueError(
+                f"duplicate name '{item_name}' in typed list already present"
+                + types_list_str
+            )
+
+    def _check_tags_already_present(
+        self, item_name: name, type_tags: Set[name]
+    ) -> None:
+        """
+        Check if the type tags are already present for the given item name.
+
+        :param item_name: the item name
+        :param type_tags: the type tags
+        """
+        exisiting_tags = self._item_to_types.get(item_name, set())
+        for type_tag in type_tags:
+            if type_tag in exisiting_tags:
+                raise ValueError(
+                    f"duplicate type tag '{type_tag}' in typed list: type already specified for item {item_name}"
+                )
+
+    def _add_item(self, item_name: name, type_tags: Set[name]) -> None:
+        """Add an item (no validation)."""
+        for type_tag in type_tags:
+            self._types_to_items.setdefault(type_tag, set()).add(item_name)
+        self._item_to_types.setdefault(item_name, set()).update(type_tags)
+
+    def _raise_multiple_types_error(
+        self, item_name: name, types_tags: Set[name]
+    ) -> None:
+        """Raise an error if the item has multiple types."""
+        raise ValueError(
+            f"typed list names should not have more than one type, got '{item_name}' with "
+            f"types {sorted(map(str, types_tags))}"
+        )
