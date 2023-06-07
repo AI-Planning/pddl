@@ -17,8 +17,9 @@ from textwrap import dedent
 import pytest
 from pytest import lazy_fixture  # type:ignore  # noqa
 
-from pddl.core import Problem, Requirements
+from pddl.core import Problem
 from pddl.parser.problem import ProblemParser
+from pddl.requirements import Requirements
 from tests.conftest import BLOCKSWORLD_FILES, BLOCKSWORLD_FOND_FILES, PROBLEM_FILES
 
 
