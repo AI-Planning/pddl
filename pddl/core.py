@@ -15,7 +15,6 @@ Core module of the package.
 
 It contains the class definitions to build and modify PDDL domains or problems.
 """
-from operator import xor
 from typing import AbstractSet, Collection, Dict, Optional, Sequence, Tuple, cast
 
 from pddl._validation import (
@@ -227,7 +226,7 @@ class Problem:
             return set(cast(Collection[Requirements], requirements))
 
         check(
-            requirements == domain.requirements,
+            ensure_set(requirements) == domain.requirements,
             f"got both requirements and domain, but requirements differ: {requirements} != {domain.requirements}",
             exception_cls=ValueError,
         )
@@ -235,10 +234,6 @@ class Problem:
 
     def _check_consistency(self) -> None:
         """Check consistency of the PDDL Problem instance object."""
-        validate(
-            xor(self._domain is not None, self._domain_name is not None),
-            "Only one between 'domain' and 'domain_name' must be set.",
-        )
         if self._domain is not None:
             self.check(self._domain)
 
