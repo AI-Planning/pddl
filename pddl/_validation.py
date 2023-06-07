@@ -214,7 +214,7 @@ class TypeChecker:
         """Check that the types are available in the domain."""
         if not self._types.all_types.issuperset(type_tags):
             raise PDDLValidationError(
-                f"types {repr(set(sorted(type_tags)))} of {what} are not in available types {self._types.all_types}"
+                f"types {sorted(type_tags)} of {what} are not in available types {self._types.all_types}"
             )
 
     @functools.singledispatchmethod  # type: ignore
