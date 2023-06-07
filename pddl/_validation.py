@@ -16,7 +16,7 @@ import functools
 from collections.abc import Iterable
 from typing import AbstractSet, Collection, Dict, Optional, Set, Tuple, cast
 
-from pddl.core import Action
+from pddl.action import Action
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names, to_names_types  # noqa: F401
 from pddl.exceptions import PDDLValidationError

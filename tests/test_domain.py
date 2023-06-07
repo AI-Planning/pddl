@@ -17,7 +17,8 @@ import re
 
 import pytest
 
-from pddl.core import Action, Domain
+from pddl.action import Action
+from pddl.core import Domain
 from pddl.exceptions import PDDLValidationError
 from pddl.logic import Constant, Variable
 from pddl.logic.base import Not, TrueFormula
