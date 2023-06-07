@@ -44,8 +44,15 @@ def assert_(condition: bool, message: str = "") -> None:
         when the code is compiled in optimized mode. For more information, see
         https://bandit.readthedocs.io/en/1.7.5/plugins/b101_assert_used.html
     """
+    check(condition, message=message, exception_cls=AssertionError)
+
+
+def check(
+    condition: bool, message: str = "", exception_cls: Type[Exception] = AssertionError
+) -> None:
+    """Check a condition, and if false, raise exception."""
     if not condition:
-        raise AssertionError(message)
+        raise exception_cls(message)
 
 
 def ensure(arg: Optional[Any], default: Any):
