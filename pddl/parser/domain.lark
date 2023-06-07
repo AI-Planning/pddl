@@ -54,7 +54,7 @@ typed_list_variable:   variable*
 ?variable: "?" NAME
 
 typed_list_name:   NAME*
-               |   NAME+ TYPE_SEP primitive_type (typed_list_name)
+               |   (NAME+ TYPE_SEP primitive_type)+ NAME*
 type_def:          LPAR EITHER primitive_type+ RPAR
         |          primitive_type
 ?primitive_type:   NAME
