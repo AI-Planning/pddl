@@ -16,6 +16,7 @@ import functools
 from collections.abc import Iterable
 from typing import AbstractSet, Collection, Dict, Optional, Set, Tuple, cast
 
+from pddl.core import Action
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names, to_names_types  # noqa: F401
 from pddl.exceptions import PDDLValidationError
@@ -290,3 +291,10 @@ class TypeChecker:
         """Check types annotations of a PDDL forall-effect."""
         self.check_type(effect.variables)
         self.check_type(effect.effect)
+
+    @check_type.register
+    def _(self, action: Action) -> None:
+        """Check types annotations of a PDDL term."""
+        self.check_type(action.parameters)
+        self.check_type(action.precondition)
+        self.check_type(action.effect)

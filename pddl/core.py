@@ -81,6 +81,7 @@ class Domain:
         checker = TypeChecker(self._types, self.requirements)
         checker.check_type(self._constants)
         checker.check_type(self._predicates)
+        checker.check_type(self._actions)
         _check_types_in_has_terms_objects(self._actions, self._types.all_types)  # type: ignore
         self._check_types_in_derived_predicates()
 
