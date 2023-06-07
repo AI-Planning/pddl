@@ -34,7 +34,7 @@ def _check_types_dictionary(type_dict: Dict[name, Optional[name]]) -> None:
     >>> _check_types_dictionary({name("object"): a})
     Traceback (most recent call last):
     ...
-    pddl.exceptions.PDDLValidationError: object must not have supertypes, but got object is a subtype of a
+    pddl.exceptions.PDDLValidationError: object must not have supertypes, but got 'object' is a subtype of 'a'
 
     3) If cycles in the type hierarchy graph are present, an error is raised:
     >>> a, b, c = to_names(["a", "b", "c"])
@@ -53,7 +53,7 @@ def _check_types_dictionary(type_dict: Dict[name, Optional[name]]) -> None:
     if object_name in type_dict and type_dict[object_name] is not None:
         object_supertype = type_dict[object_name]
         raise PDDLValidationError(
-            f"object must not have supertypes, but got object is a subtype of {object_supertype}"
+            f"object must not have supertypes, but got 'object' is a subtype of '{object_supertype}'"
         )
 
     # check cycles

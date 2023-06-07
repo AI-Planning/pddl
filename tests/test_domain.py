@@ -98,7 +98,7 @@ def test_object_must_not_be_subtype() -> None:
 
     with pytest.raises(
         PDDLValidationError,
-        match=rf"object must not have supertypes, but got object is a subtype of {my_type}",
+        match=rf"object must not have supertypes, but got 'object' is a subtype of '{my_type}'",
     ):
         Domain("test", types=type_set)  # type: ignore
 
