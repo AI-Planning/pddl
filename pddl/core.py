@@ -168,7 +168,9 @@ class Problem:
         self._name = name_type(name)
         self._domain: Optional[Domain] = domain
         self._domain_name = name_type(domain_name) if domain_name else None
-        self._requirements: AbstractSet[Requirements] = ensure_set(requirements)
+        self._requirements: AbstractSet[Requirements] = self._parse_requirements(
+            domain, requirements
+        )
         self._objects: AbstractSet[Constant] = ensure_set(objects)
         self._init: AbstractSet[Formula] = ensure_set(init)
         self._goal: Formula = ensure(goal, TrueFormula())
@@ -179,7 +181,22 @@ class Problem:
 
         self._check_consistency()
 
-    def _check_consistency(self):
+    def _parse_requirements(
+        self,
+        domain: Optional[Domain],
+        requirements: Optional[Collection["Requirements"]],
+    ) -> AbstractSet[Requirements]:
+        """
+        Parse the requirements.
+
+        If the requirements set is given, use it. Otherwise, take the requirements from the domain.
+        """
+        if requirements is not None or domain is None:
+            return ensure_set(requirements)
+        return domain.requirements
+
+    def _check_consistency(self) -> None:
+        """Check consistency of the PDDL Problem instance object."""
         validate(
             xor(self._domain is not None, self._domain_name is not None),
             "Only one between 'domain' and 'domain_name' must be set.",
@@ -194,7 +211,7 @@ class Problem:
             "Domain names don't match.",
         )
         validate(
-            self.requirements == domain.requirements,
+            self.requirements is None or self.requirements == domain.requirements,
             "Requirements don't match.",
         )
         # TODO check objects
