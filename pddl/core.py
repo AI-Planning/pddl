@@ -15,24 +15,25 @@ Core module of the package.
 
 It contains the class definitions to build and modify PDDL domains or problems.
 """
-from typing import AbstractSet, Collection, Dict, Optional, Sequence, Set, cast
+from typing import AbstractSet, Collection, Dict, Optional, Sequence, cast
 
-from pddl._validation import _check_constant_types, _check_types_in_has_terms_objects
+from pddl._validation import (
+    Types,
+    _check_constant_types,
+    _check_types_in_has_terms_objects,
+)
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names, to_names_types  # noqa: F401
-from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import (
     _typed_parameters,
     assert_,
     ensure,
     ensure_sequence,
     ensure_set,
-    find_cycle,
 )
 from pddl.logic.base import Formula, TrueFormula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant, Term, Variable
-from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements
 
 
@@ -65,7 +66,7 @@ class Domain:
         """
         self._name = name_type(name)
         self._requirements = ensure_set(requirements)
-        self._types = _Types(types, self._requirements)
+        self._types = Types(types, self._requirements)
         self._constants = ensure_set(constants)
         self._predicates = ensure_set(predicates)
         self._derived_predicates = ensure_set(derived_predicates)
@@ -330,98 +331,3 @@ class Action:
             f"{type(self).__name__}({self.name}, parameters={', '.join(map(str, self.parameters))}, "
             f"precondition={self.precondition}, effect={self.effect})"
         )
-
-
-class _Types:
-    """A class for representing and managing the types available in a PDDL Domain."""
-
-    def __init__(
-        self,
-        types: Optional[Dict[namelike, Optional[namelike]]] = None,
-        requirements: Optional[AbstractSet[Requirements]] = None,
-    ) -> None:
-        """Initialize the Types object."""
-        self._types = to_names_types(ensure(types, dict()))
-
-        self._all_types = self._get_all_types()
-        self._check_types_dictionary(self._types, ensure_set(requirements))
-
-    @property
-    def raw(self) -> Dict[name_type, Optional[name_type]]:
-        """Get the raw types dictionary."""
-        return self._types
-
-    @property
-    def all_types(self) -> Set[name_type]:
-        """Get all available types."""
-        return self._all_types
-
-    def _get_all_types(self) -> Set[name_type]:
-        """Get all types supported by the domain."""
-        if self._types is None:
-            return set()
-        result = set(self._types.keys()) | set(self._types.values())
-        result.discard(None)
-        return cast(Set[name_type], result)
-
-    @classmethod
-    def _check_types_dictionary(
-        cls,
-        type_dict: Dict[name_type, Optional[name_type]],
-        requirements: AbstractSet[Requirements],
-    ) -> None:
-        """
-        Check the consistency of the types dictionary.
-
-        1) Empty types dictionary is correct by definition:
-        >>> _Types._check_types_dictionary({}, set())
-
-        2) There are supertypes, but :typing requirement not specified
-        >>> a, b, c = to_names(["a", "b", "c"])
-        >>> _Types._check_types_dictionary({a: b, b: c}, set())
-        Traceback (most recent call last):
-        ...
-        pddl.exceptions.PDDLValidationError: typing requirement is not specified, but types are used: 'b', 'c'
-
-        3) The `object` type cannot be a subtype:
-        >>> a = name_type("a")
-        >>> _Types._check_types_dictionary({name_type("object"): a}, {Requirements.TYPING})
-        Traceback (most recent call last):
-        ...
-        pddl.exceptions.PDDLValidationError: object must not have supertypes, but got 'object' is a subtype of 'a'
-
-        4) If cycles in the type hierarchy graph are present, an error is raised:
-        >>> a, b, c = to_names(["a", "b", "c"])
-        >>> _Types._check_types_dictionary({a: b, b: c, c: a}, {Requirements.TYPING})
-        Traceback (most recent call last):
-        ...
-        pddl.exceptions.PDDLValidationError: cycle detected in the type hierarchy: a -> b -> c
-
-        :param type_dict: the types dictionary
-        """
-        if len(type_dict) == 0:
-            return
-
-        # check typing requirement
-        supertypes = {t for t in type_dict.values() if t is not None}
-        if len(supertypes) > 0 and Requirements.TYPING not in requirements:
-            raise PDDLValidationError(
-                "typing requirement is not specified, but types are used: '"
-                + "', '".join(map(str, sorted(supertypes)))
-                + "'"
-            )
-
-        # check `object` type
-        object_name = name_type(Symbols.OBJECT.value)
-        if object_name in type_dict and type_dict[object_name] is not None:
-            object_supertype = type_dict[object_name]
-            raise PDDLValidationError(
-                f"object must not have supertypes, but got 'object' is a subtype of '{object_supertype}'"
-            )
-
-        # check cycles
-        cycle = find_cycle(type_dict)  # type: ignore
-        if cycle is not None:
-            raise PDDLValidationError(
-                "cycle detected in the type hierarchy: " + " -> ".join(cycle)
-            )
