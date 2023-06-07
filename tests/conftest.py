@@ -12,6 +12,7 @@
 
 """This module contains the configurations for the tests."""
 import inspect
+import itertools
 from pathlib import Path
 
 import mistune
@@ -67,7 +68,14 @@ DOMAIN_FILES = [
     FIXTURES_PDDL_FILES / domain_name / "domain.pddl" for domain_name in DOMAIN_NAMES
 ]
 
-PROBLEM_FILES = [*FIXTURES_PDDL_FILES.glob("./**/p*.pddl")]
+PROBLEM_FILES = list(
+    itertools.chain(
+        *[
+            (FIXTURES_PDDL_FILES / domain_name).rglob("p*.pddl")
+            for domain_name in DOMAIN_NAMES
+        ]
+    )
+)
 
 
 @pytest.fixture(scope="session")

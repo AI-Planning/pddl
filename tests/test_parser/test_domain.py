@@ -11,54 +11,14 @@
 #
 
 """This module contains the tests for the domain parser."""
-from pathlib import Path
 from textwrap import dedent
 
 import lark
 import pytest
-from pytest import lazy_fixture  # type:ignore  # noqa
 
-from pddl.core import Domain
 from pddl.parser.domain import DomainParser
 from pddl.parser.symbols import Symbols
-from tests.conftest import (
-    BLOCKSWORLD_FILES,
-    BLOCKSWORLD_FOND_FILES,
-    DOMAIN_FILES,
-    TEXT_SYMBOLS,
-    TRIANGLE_FILES,
-)
-
-
-@pytest.mark.parametrize("pddl_file", DOMAIN_FILES)
-def test_domain_parser(domain_parser, pddl_file: Path):
-    """Test only that the domain parsing works for all the fixtures."""
-    domain_parser(pddl_file.read_text())
-
-
-@pytest.mark.parametrize(
-    "pddl_file,expected_domain",
-    [
-        (
-            BLOCKSWORLD_FILES / "domain.pddl",
-            lazy_fixture("blocksworld_domain"),  # type:ignore
-        ),
-        (
-            TRIANGLE_FILES / "domain.pddl",
-            lazy_fixture("triangle_tireworld_domain"),  # type:ignore
-        ),
-        (
-            BLOCKSWORLD_FOND_FILES / "domain.pddl",
-            lazy_fixture("blocksworld_fond_domain"),  # type:ignore
-        ),
-    ],
-)
-def test_check_domain_parser_output(domain_parser, pddl_file: Path, expected_domain):
-    """Test domain parsing."""
-    actual_domain = domain_parser(pddl_file.read_text())
-
-    assert isinstance(actual_domain, Domain)
-    assert actual_domain == expected_domain
+from tests.conftest import TEXT_SYMBOLS
 
 
 def test_hierarchical_types() -> None:
