@@ -16,10 +16,10 @@ from typing import Collection, Dict, Optional, Set, Tuple
 
 from pddl.custom_types import name, to_names  # noqa: F401
 from pddl.exceptions import PDDLValidationError
-from pddl.helpers.base import find_cycle
+from pddl.helpers.base import ensure_set, find_cycle
 from pddl.logic import Constant, Predicate
 from pddl.logic.terms import Term
-from pddl.parser.symbols import Symbols
+from pddl.parser.symbols import ALL_SYMBOLS, Symbols
 
 
 def _check_types_dictionary(type_dict: Dict[name, Optional[name]]) -> None:
@@ -110,3 +110,9 @@ def _check_types_in_has_terms_objects(
                 f"type {repr(type_tag)} of term {repr(term)} in atomic expression "
                 f"{repr(has_terms)} is not in available types {all_types}"
             )
+
+
+def _is_a_keyword(word: str, ignore: Optional[Set[str]] = None) -> bool:
+    """Check that the word is not a keyword."""
+    ignore_set = ensure_set(ignore)
+    return word not in ignore_set and word in ALL_SYMBOLS

@@ -20,11 +20,13 @@ from pytest import lazy_fixture  # type:ignore  # noqa
 
 from pddl.core import Domain, Problem
 from pddl.parser.domain import DomainParser
+from pddl.parser.symbols import Symbols
 from tests.conftest import (
     BLOCKSWORLD_FILES,
     BLOCKSWORLD_FOND_FILES,
     DOMAIN_FILES,
     PROBLEM_FILES,
+    TEXT_SYMBOLS,
     TRIANGLE_FILES,
 )
 
@@ -196,5 +198,45 @@ def test_constants_repetition_in_typed_lists_not_allowed() -> None:
         lark.exceptions.VisitError,
         match=".*error while parsing tokens \\['c1', '-', 't1', 'c1', '-', 't2'\\]: "
         "duplicate name 'c1' in typed list already present with types \\['t1'\\]",
+    ):
+        DomainParser()(domain_str)
+
+
+@pytest.mark.parametrize("keyword", TEXT_SYMBOLS - {Symbols.OBJECT.value})
+def test_keyword_usage_not_allowed_as_name(keyword) -> None:
+    """Check keywords usage as names is detected and a parsing error is raised."""
+    domain_str = dedent(
+        f"""
+    (define (domain test)
+        (:requirements :typing)
+        (:types {keyword})
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match=f".*error while parsing tokens \\['{keyword}'\\]: "
+        f"invalid name '{keyword}': it is a keyword",
+    ):
+        DomainParser()(domain_str)
+
+
+@pytest.mark.parametrize("keyword", TEXT_SYMBOLS - {Symbols.OBJECT.value})
+def test_keyword_usage_not_allowed_as_type(keyword) -> None:
+    """Check keywords usage as types is detected and a parsing error is raised."""
+    domain_str = dedent(
+        f"""
+    (define (domain test)
+        (:requirements :typing)
+        (:types t1 - {keyword})
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match=f".*error while parsing tokens \\['t1', '-', '{keyword}'\\]: "
+        f"invalid type '{keyword}': it is a keyword",
     ):
         DomainParser()(domain_str)

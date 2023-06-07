@@ -21,6 +21,7 @@ from pytest_lazyfixture import lazy_fixture
 import pddl
 from pddl.parser.domain import DomainParser
 from pddl.parser.problem import ProblemParser
+from pddl.parser.symbols import Symbols
 
 _current_filepath = inspect.getframeinfo(inspect.currentframe()).filename  # type: ignore
 TEST_DIRECTORY = Path(_current_filepath).absolute().parent
@@ -114,3 +115,21 @@ pddl_objects_problems = [
 ]
 
 #################################################
+
+
+# A set of symbols that can be matched as names but they are keywords
+# this is a subset of all symbols
+TEXT_SYMBOLS = {
+    Symbols.AND.value,
+    Symbols.DEFINE.value,
+    Symbols.DOMAIN.value,
+    Symbols.EITHER.value,
+    Symbols.EXISTS.value,
+    Symbols.FORALL.value,
+    Symbols.NOT.value,
+    Symbols.OBJECT.value,
+    Symbols.ONEOF.value,
+    Symbols.OR.value,
+    Symbols.PROBLEM.value,
+    Symbols.WHEN.value,
+}
