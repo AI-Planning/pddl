@@ -184,6 +184,22 @@ class Problem:
             xor(self._domain is not None, self._domain_name is not None),
             "Only one between 'domain' and 'domain_name' must be set.",
         )
+        if self._domain is not None:
+            self.check(self._domain)
+
+    def check(self, domain: Domain) -> None:
+        """Check the problem definition against a domain definition."""
+        validate(
+            self.domain_name == domain.name,
+            "Domain names don't match.",
+        )
+        validate(
+            self.requirements == domain.requirements,
+            "Requirements don't match.",
+        )
+        # TODO check objects
+        # TODO check init
+        # TODO check goal
 
     @property
     def name(self) -> name_type:

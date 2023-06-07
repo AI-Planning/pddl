@@ -13,7 +13,6 @@
 """This module contains tests for a PDDL problem."""
 import copy
 import pickle  # nosec
-from unittest.mock import MagicMock
 
 import pytest
 
@@ -74,10 +73,9 @@ def test_build_simple_problem():
     o1, o2, o3 = constants("o1 o2 o3")
     p = Predicate("p", x, y, z)
     q = Predicate("q", x, y, z)
-    domain = MagicMock()
     problem = Problem(
         "simple_problem",
-        domain,
+        domain_name="simple_domain",
         objects=[o1, o2, o3],
         init={p, Not(q)},
         goal=p & q,
