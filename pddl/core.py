@@ -232,12 +232,9 @@ class Problem:
     @domain.setter
     def domain(self, domain: Domain) -> None:
         """Set the domain."""
-        if self._domain_name is not None:
-            assert_(
-                self._domain_name == domain.name,
-                f"Domain names don't match. Expected {self._domain_name}, got {domain.name}.",
-            )
+        self._domain_name = None
         self._domain = domain
+        self._check_consistency()
 
     @property
     def domain_name(self) -> name_type:
