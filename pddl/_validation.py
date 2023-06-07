@@ -21,6 +21,15 @@ from pddl.custom_types import namelike, to_names, to_names_types  # noqa: F401
 from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import check, ensure, ensure_set, find_cycle
 from pddl.logic import Predicate
+from pddl.logic.base import (
+    BinaryOp,
+    FalseFormula,
+    QuantifiedCondition,
+    TrueFormula,
+    UnaryOp,
+)
+from pddl.logic.effects import AndEffect, Forall, When
+from pddl.logic.predicates import DerivedPredicate, EqualTo
 from pddl.logic.terms import Term
 from pddl.parser.symbols import ALL_SYMBOLS, Symbols
 from pddl.requirements import Requirements
@@ -204,7 +213,7 @@ class TypeChecker:
         """Check that the types are available in the domain."""
         if not self._types.all_types.issuperset(type_tags):
             raise PDDLValidationError(
-                f"types {repr(type_tags)} of {what} are not in available types {self._types.all_types}"
+                f"types {repr(set(sorted(type_tags)))} of {what} are not in available types {self._types.all_types}"
             )
 
     @functools.singledispatchmethod  # type: ignore
@@ -220,6 +229,64 @@ class TypeChecker:
 
     @check_type.register
     def _(self, term: Term) -> None:
-        """Check types annotations of PDDL data structures."""
+        """Check types annotations of a PDDL term."""
         self._check_typing_requirement(term.type_tags)
         self._check_types_are_available(term.type_tags, f"term {repr(term)}")
+
+    @check_type.register
+    def _(self, predicate: Predicate) -> None:
+        """Check types annotations of a PDDL predicate."""
+        self.check_type(predicate.terms)
+
+    @check_type.register
+    def _(self, equal_to: EqualTo) -> None:
+        """Check types annotations of a PDDL equal-to atomic formula."""
+        self.check_type(equal_to.left)
+        self.check_type(equal_to.right)
+
+    @check_type.register
+    def _(self, derived_predicate: DerivedPredicate) -> None:
+        """Check types annotations of a PDDL derived predicate."""
+        self.check_type(derived_predicate.predicate)
+        self.check_type(derived_predicate.condition)
+
+    @check_type.register
+    def _(self, formula: UnaryOp) -> None:
+        """Check types annotations of a PDDL unary operator."""
+        self.check_type(formula.argument)
+
+    @check_type.register
+    def _(self, formula: BinaryOp) -> None:
+        """Check types annotations of a PDDL binary operator."""
+        self.check_type(formula.operands)
+
+    @check_type.register
+    def _(self, formula: TrueFormula) -> None:
+        """Check types annotations of a PDDL true formula."""
+
+    @check_type.register
+    def _(self, formula: FalseFormula) -> None:
+        """Check types annotations of a PDDL false formula."""
+
+    @check_type.register
+    def _(self, formula: QuantifiedCondition) -> None:
+        """Check types annotations of a PDDL quantified condition."""
+        self.check_type(formula.variables)
+        self.check_type(formula.condition)
+
+    @check_type.register
+    def _(self, effect: AndEffect) -> None:
+        """Check types annotations of a PDDL and-effect."""
+        self.check_type(effect.operands)
+
+    @check_type.register
+    def _(self, effect: When) -> None:
+        """Check types annotations of a PDDL when-effect."""
+        self.check_type(effect.condition)
+        self.check_type(effect.effect)
+
+    @check_type.register
+    def _(self, effect: Forall) -> None:
+        """Check types annotations of a PDDL forall-effect."""
+        self.check_type(effect.variables)
+        self.check_type(effect.effect)
