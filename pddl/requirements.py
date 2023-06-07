@@ -52,7 +52,7 @@ class Requirements(Enum):
 
     def __repr__(self) -> str:
         """Get an unambiguous representation."""
-        return f"Requirements{self.name}"
+        return f"Requirements.{self.name}"
 
     def __lt__(self, other):
         """Compare with another object."""
