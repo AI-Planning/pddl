@@ -11,13 +11,16 @@
 #
 
 """This module defines validation functions for PDDL data structures."""
+
+import functools
+from collections.abc import Iterable
 from typing import AbstractSet, Collection, Dict, Optional, Set, Tuple, cast
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names, to_names_types  # noqa: F401
 from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import check, ensure, ensure_set, find_cycle
-from pddl.logic import Constant, Predicate
+from pddl.logic import Predicate
 from pddl.logic.terms import Term
 from pddl.parser.symbols import ALL_SYMBOLS, Symbols
 from pddl.requirements import Requirements
@@ -51,17 +54,6 @@ def _find_inconsistencies_in_typed_terms(
     return None
 
 
-def _check_constant_types(
-    constants: Optional[Collection[Constant]], all_types: Set[name_type]
-) -> None:
-    check_result = _find_inconsistencies_in_typed_terms(constants, all_types)
-    if check_result is not None:
-        constant, type_tag = check_result
-        raise PDDLValidationError(
-            f"type {repr(type_tag)} of constant {repr(constant)} is not in available types {all_types}"
-        )
-
-
 def _check_types_in_has_terms_objects(
     has_terms_objects: Optional[Collection[Predicate]],
     all_types: Set[name_type],
@@ -93,12 +85,15 @@ class Types:
         self,
         types: Optional[Dict[namelike, Optional[namelike]]] = None,
         requirements: Optional[AbstractSet[Requirements]] = None,
+        skip_checks: bool = False,
     ) -> None:
         """Initialize the Types object."""
         self._types = to_names_types(ensure(types, dict()))
 
         self._all_types = self._get_all_types()
-        self._check_types_dictionary(self._types, ensure_set(requirements))
+
+        if not skip_checks:
+            self._check_types_dictionary(self._types, ensure_set(requirements))
 
     @property
     def raw(self) -> Dict[name_type, Optional[name_type]]:
@@ -179,3 +174,52 @@ class Types:
             raise PDDLValidationError(
                 "cycle detected in the type hierarchy: " + " -> ".join(cycle)
             )
+
+
+class TypeChecker:
+    """Implementation of a type checker for domains and problems."""
+
+    def __init__(
+        self, types: Types, requirements: Optional[AbstractSet[Requirements]] = None
+    ) -> None:
+        """Initialize the type checker."""
+        self._types = types
+        self._requirements = ensure_set(requirements)
+
+    @property
+    def has_typing(self) -> bool:
+        """Check if the typing requirement is specified."""
+        return Requirements.TYPING in self._requirements
+
+    def _check_typing_requirement(self, type_tags: Collection[name_type]) -> None:
+        """Check that the typing requirement is specified."""
+        if not self.has_typing and len(type_tags) > 0:
+            raise PDDLValidationError(
+                f"typing requirement is not specified, but the following types were used: {type_tags}"
+            )
+
+    def _check_types_are_available(
+        self, type_tags: Collection[name_type], what: str
+    ) -> None:
+        """Check that the types are available in the domain."""
+        if not self._types.all_types.issuperset(type_tags):
+            raise PDDLValidationError(
+                f"types {repr(type_tags)} of {what} are not in available types {self._types.all_types}"
+            )
+
+    @functools.singledispatchmethod  # type: ignore
+    def check_type(self, obj: object):
+        """Check types annotations of PDDL data structures."""
+        raise NotImplementedError(f"cannot check PDDL types of {type(obj)}")
+
+    @check_type.register
+    def _(self, objects: Iterable) -> None:
+        """Check the types of collections of objects."""
+        for obj in objects:
+            self.check_type(obj)
+
+    @check_type.register
+    def _(self, term: Term) -> None:
+        """Check types annotations of PDDL data structures."""
+        self._check_typing_requirement(term.type_tags)
+        self._check_types_are_available(term.type_tags, f"term {repr(term)}")

@@ -19,8 +19,8 @@ from operator import xor
 from typing import AbstractSet, Collection, Dict, Optional, Sequence, cast
 
 from pddl._validation import (
+    TypeChecker,
     Types,
-    _check_constant_types,
     _check_types_in_has_terms_objects,
     validate,
 )
@@ -78,7 +78,8 @@ class Domain:
 
     def _check_consistency(self) -> None:
         """Check consistency of a domain instance object."""
-        _check_constant_types(self._constants, self._types.all_types)
+        checker = TypeChecker(self._types, self.requirements)
+        checker.check_type(self.constants)
         _check_types_in_has_terms_objects(self._predicates, self._types.all_types)
         _check_types_in_has_terms_objects(self._actions, self._types.all_types)  # type: ignore
         self._check_types_in_derived_predicates()
@@ -168,9 +169,9 @@ class Problem:
         self._name = name_type(name)
         self._domain: Optional[Domain] = domain
         self._domain_name = name_type(domain_name) if domain_name else None
-        self._requirements: AbstractSet[Requirements] = self._parse_requirements(
-            domain, requirements
-        )
+        self._requirements: Optional[
+            AbstractSet[Requirements]
+        ] = self._parse_requirements(domain, requirements)
         self._objects: AbstractSet[Constant] = ensure_set(objects)
         self._init: AbstractSet[Formula] = ensure_set(init)
         self._goal: Formula = ensure(goal, TrueFormula())
@@ -185,14 +186,14 @@ class Problem:
         self,
         domain: Optional[Domain],
         requirements: Optional[Collection["Requirements"]],
-    ) -> AbstractSet[Requirements]:
+    ) -> Optional[AbstractSet[Requirements]]:
         """
         Parse the requirements.
 
         If the requirements set is given, use it. Otherwise, take the requirements from the domain.
         """
         if requirements is not None or domain is None:
-            return ensure_set(requirements)
+            return set(requirements) if requirements is not None else None
         return domain.requirements
 
     def _check_consistency(self) -> None:
@@ -214,7 +215,9 @@ class Problem:
             self.requirements is None or self.requirements == domain.requirements,
             "Requirements don't match.",
         )
-        # TODO check objects
+        types = Types(domain.types, domain.requirements, skip_checks=True)  # type: ignore
+        type_checker = TypeChecker(types, domain.requirements)
+        type_checker.check_type(self.objects)
         # TODO check init
         # TODO check goal
 
@@ -248,7 +251,12 @@ class Problem:
     @property
     def requirements(self) -> AbstractSet["Requirements"]:
         """Get the requirements."""
-        return self._requirements
+        if self._domain is not None:
+            return self._domain.requirements
+
+        if self._requirements is None:
+            raise AttributeError("neither requirements nor domain are set.")
+        return cast(AbstractSet[Requirements], self._requirements)
 
     @property
     def objects(self) -> AbstractSet["Constant"]:
