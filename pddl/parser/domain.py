@@ -18,7 +18,7 @@ from typing import Set
 
 from lark import Lark, ParseError, Transformer
 
-from pddl.core import Action, Domain, Requirements
+from pddl.core import Action, Domain
 from pddl.custom_types import name
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_
@@ -38,6 +38,7 @@ from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
 from pddl.parser.symbols import Symbols
 from pddl.parser.types_index import TypesIndex
+from pddl.requirements import Requirements
 
 
 class DomainTransformer(Transformer):

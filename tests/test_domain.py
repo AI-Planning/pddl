@@ -17,13 +17,14 @@ import re
 
 import pytest
 
-from pddl.core import Action, Domain, Requirements
+from pddl.core import Action, Domain
 from pddl.exceptions import PDDLValidationError
 from pddl.logic import Constant, Variable
 from pddl.logic.base import Not, TrueFormula
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.parser.symbols import Symbols
+from pddl.requirements import Requirements
 from tests.conftest import pddl_objects_domains
 
 

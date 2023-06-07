@@ -15,8 +15,6 @@ Core module of the package.
 
 It contains the class definitions to build and modify PDDL domains or problems.
 """
-import functools
-from enum import Enum
 from typing import AbstractSet, Collection, Dict, Optional, Sequence, Set, cast
 
 from pddl._validation import _check_constant_types, _check_types_in_has_terms_objects
@@ -34,8 +32,8 @@ from pddl.helpers.base import (
 from pddl.logic.base import Formula, TrueFormula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant, Term, Variable
-from pddl.parser.symbols import RequirementSymbols as RS
 from pddl.parser.symbols import Symbols
+from pddl.requirements import Requirements
 
 
 class Domain:
@@ -332,50 +330,6 @@ class Action:
             f"{type(self).__name__}({self.name}, parameters={', '.join(map(str, self.parameters))}, "
             f"precondition={self.precondition}, effect={self.effect})"
         )
-
-
-@functools.total_ordering
-class Requirements(Enum):
-    """Enum class for the requirements."""
-
-    STRIPS = RS.STRIPS.strip()
-    TYPING = RS.TYPING.strip()
-    NEG_PRECONDITION = RS.NEG_PRECONDITION.strip()
-    DIS_PRECONDITION = RS.DIS_PRECONDITION.strip()
-    UNIVERSAL_PRECONDITION = RS.UNIVERSAL_PRECONDITION.strip()
-    EXISTENTIAL_PRECONDITION = RS.EXISTENTIAL_PRECONDITION.strip()
-    QUANTIFIED_PRECONDITION = RS.QUANTIFIED_PRECONDITION.strip()
-    EQUALITY = RS.EQUALITY.strip()
-    CONDITIONAL_EFFECTS = RS.CONDITIONAL_EFFECTS.strip()
-    ADL = RS.ADL.strip()
-    DERIVED_PREDICATES = RS.DERIVED_PREDICATES.strip()
-    NON_DETERMINISTIC = RS.NON_DETERMINISTIC.strip()
-
-    @classmethod
-    def strips_requirements(cls) -> Set["Requirements"]:
-        """Get the STRIPS requirements."""
-        return {
-            Requirements.TYPING,
-            Requirements.NEG_PRECONDITION,
-            Requirements.DIS_PRECONDITION,
-            Requirements.EQUALITY,
-            Requirements.CONDITIONAL_EFFECTS,
-        }
-
-    def __str__(self) -> str:
-        """Get the string representation."""
-        return f":{self.value}"
-
-    def __repr__(self) -> str:
-        """Get an unambiguous representation."""
-        return f"Requirements{self.name}"
-
-    def __lt__(self, other):
-        """Compare with another object."""
-        if isinstance(other, Requirements):
-            return self.value <= other.value
-        else:
-            return super().__lt__(other)
 
 
 class _Types:

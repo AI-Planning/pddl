@@ -79,10 +79,12 @@ You can use the `pddl` package in two ways: as a library, and as a CLI tool.
 
 This is an example of how you can build a PDDL domain or problem
 programmatically:
+
 ```python
 from pddl.logic import Predicate, constants, variables
-from pddl.core import Domain, Problem, Action, Requirements
+from pddl.core import Domain, Problem, Action
 from pddl.formatter import domain_to_string, problem_to_string
+from pddl.requirements import Requirements
 
 # set up variables and constants
 x, y, z = variables("x y z", types=["type_1"])
@@ -103,11 +105,11 @@ a1 = Action(
 # define the domain object.
 requirements = [Requirements.STRIPS, Requirements.TYPING]
 domain = Domain("my_domain",
-       requirements=requirements,
-       types={"type_1": None},
-       constants=[a, b, c],
-       predicates=[p1, p2],
-       actions=[a1])
+                requirements=requirements,
+                types={"type_1": None},
+                constants=[a, b, c],
+                predicates=[p1, p2],
+                actions=[a1])
 
 print(domain_to_string(domain))
 ```
