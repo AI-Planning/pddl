@@ -16,7 +16,7 @@ Core module of the package.
 It contains the class definitions to build and modify PDDL domains or problems.
 """
 from operator import xor
-from typing import AbstractSet, Collection, Dict, Optional, Sequence, cast
+from typing import AbstractSet, Collection, Dict, Optional, Sequence, Tuple, cast
 
 from pddl._validation import (
     TypeChecker,
@@ -29,6 +29,7 @@ from pddl.custom_types import namelike, to_names, to_names_types  # noqa: F401
 from pddl.helpers.base import (
     _typed_parameters,
     assert_,
+    check,
     ensure,
     ensure_sequence,
     ensure_set,
@@ -149,7 +150,7 @@ class Problem:
         self,
         name: namelike,
         domain: Optional[Domain] = None,
-        domain_name: Optional[str] = None,
+        domain_name: Optional[namelike] = None,
         requirements: Optional[Collection["Requirements"]] = None,
         objects: Optional[Collection["Constant"]] = None,
         init: Optional[Collection[Formula]] = None,
@@ -167,8 +168,11 @@ class Problem:
         :param goal: the goal condition.
         """
         self._name = name_type(name)
-        self._domain: Optional[Domain] = domain
-        self._domain_name = name_type(domain_name) if domain_name else None
+        self._domain: Optional[Domain]
+        self._domain_name: name_type
+        self._domain, self._domain_name = self._parse_domain_and_domain_name(
+            domain, domain_name
+        )
         self._requirements: Optional[
             AbstractSet[Requirements]
         ] = self._parse_requirements(domain, requirements)
@@ -182,18 +186,51 @@ class Problem:
 
         self._check_consistency()
 
+    def _parse_domain_and_domain_name(
+        self,
+        domain: Optional[Domain],
+        domain_name: Optional[namelike],
+    ) -> Tuple[Optional[Domain], name_type]:
+        """
+        Parse the domain and domain name.
+
+        If the domain is given, use it. Otherwise, take the domain from the domain name.
+        """
+        if domain is not None and domain_name is not None:
+            check(
+                domain.name == domain_name,
+                f"got both domain and domain_name, but domain_name differs: {domain.name} != {domain_name}",
+                exception_cls=ValueError,
+            )
+            return domain, name_type(domain_name)
+        if domain is not None:
+            return domain, domain.name
+        if domain_name is not None:
+            return None, name_type(domain_name)
+        raise ValueError("Either domain or domain_name must be given.")
+
     def _parse_requirements(
         self,
         domain: Optional[Domain],
-        requirements: Optional[Collection["Requirements"]],
+        requirements: Optional[Collection[Requirements]],
     ) -> Optional[AbstractSet[Requirements]]:
         """
         Parse the requirements.
 
         If the requirements set is given, use it. Otherwise, take the requirements from the domain.
         """
-        if requirements is not None or domain is None:
-            return set(requirements) if requirements is not None else None
+        if requirements is None:
+            return None if domain is None else domain.requirements
+
+        # requirements is not None
+        if domain is None:
+            return set(cast(Collection[Requirements], requirements))
+
+        check(
+            requirements == domain.requirements,
+            f"got both requirements and domain, but requirements differ: {requirements} != {domain.requirements}",
+            exception_cls=ValueError,
+        )
         return domain.requirements
 
     def _check_consistency(self) -> None:
@@ -212,7 +249,7 @@ class Problem:
             "Domain names don't match.",
         )
         validate(
-            self.requirements is None or self.requirements == domain.requirements,
+            self._requirements is None or self._requirements == domain.requirements,
             "Requirements don't match.",
         )
         types = Types(domain.types, domain.requirements, skip_checks=True)  # type: ignore
@@ -235,7 +272,7 @@ class Problem:
     @domain.setter
     def domain(self, domain: Domain) -> None:
         """Set the domain."""
-        self._domain_name = None
+        self._domain_name = domain.name
         self._domain = domain
         self._check_consistency()
 
@@ -254,9 +291,7 @@ class Problem:
         if self._domain is not None:
             return self._domain.requirements
 
-        if self._requirements is None:
-            raise AttributeError("neither requirements nor domain are set.")
-        return cast(AbstractSet[Requirements], self._requirements)
+        return self._requirements if self._requirements is not None else set()
 
     @property
     def objects(self) -> AbstractSet["Constant"]:
