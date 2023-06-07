@@ -12,7 +12,7 @@
 
 """This module contains tests for PDDL actions."""
 
-from pddl.core import Action
+from pddl.action import Action
 
 
 class TestActionSimpleInitialization:

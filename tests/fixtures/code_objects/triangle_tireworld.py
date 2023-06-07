@@ -13,7 +13,8 @@
 """This test module contains the fixtures for 'triangle-tireworld' domain and problem."""
 import pytest
 
-from pddl.core import Action, Domain, Problem
+from pddl.action import Action
+from pddl.core import Domain, Problem
 from pddl.logic.base import And, OneOf
 from pddl.logic.effects import AndEffect
 from pddl.logic.helpers import constants, variables

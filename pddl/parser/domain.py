@@ -18,7 +18,8 @@ from typing import Set
 
 from lark import Lark, ParseError, Transformer
 
-from pddl.core import Action, Domain
+from pddl.action import Action
+from pddl.core import Domain
 from pddl.custom_types import name
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_

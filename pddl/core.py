@@ -15,7 +15,7 @@ Core module of the package.
 
 It contains the class definitions to build and modify PDDL domains or problems.
 """
-from typing import AbstractSet, Collection, Dict, Optional, Sequence, Tuple, cast
+from typing import AbstractSet, Collection, Dict, Optional, Tuple, cast
 
 from pddl._validation import (
     TypeChecker,
@@ -23,19 +23,13 @@ from pddl._validation import (
     _check_types_in_has_terms_objects,
     validate,
 )
+from pddl.action import Action
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names, to_names_types  # noqa: F401
-from pddl.helpers.base import (
-    _typed_parameters,
-    assert_,
-    check,
-    ensure,
-    ensure_sequence,
-    ensure_set,
-)
+from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import Formula, TrueFormula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
-from pddl.logic.terms import Constant, Term, Variable
+from pddl.logic.terms import Constant
 from pddl.requirements import Requirements
 
 
@@ -315,85 +309,4 @@ class Problem:
             and self.objects == other.objects
             and self.init == other.init
             and self.goal == other.goal
-        )
-
-
-class Action:
-    """A class for the PDDL Action."""
-
-    def __init__(
-        self,
-        name: namelike,
-        parameters: Sequence[Variable],
-        precondition: Optional[Formula] = None,
-        effect: Optional[Formula] = None,
-    ):
-        """
-        Initialize the action.
-
-        :param name: the action name.
-        :param parameters: the action parameters.
-        :param precondition: the action precondition.
-        :param effect: the action effect.
-        """
-        self._name: str = name_type(name)
-        self._parameters: Sequence[Variable] = ensure_sequence(parameters)
-        self._precondition = precondition
-        self._effect = effect
-
-    @property
-    def name(self) -> str:
-        """Get the name."""
-        return self._name
-
-    @property
-    def parameters(self) -> Sequence[Variable]:
-        """Get the parameters."""
-        return self._parameters
-
-    @property
-    def terms(self) -> Sequence[Term]:
-        """Get the terms."""
-        return self.parameters
-
-    @property
-    def precondition(self) -> Optional[Formula]:
-        """Get the precondition."""
-        return self._precondition
-
-    @property
-    def effect(self) -> Optional[Formula]:
-        """Get the effect."""
-        return self._effect
-
-    def __str__(self):
-        """Get the string."""
-        operator_str = "(:action {0}\n".format(self.name)
-        operator_str += f"    :parameters ({_typed_parameters(self.parameters)})\n"
-        if self.precondition is not None:
-            operator_str += f"    :precondition {str(self.precondition)}\n"
-        if self.effect is not None:
-            operator_str += f"    :effect {str(self.effect)}\n"
-        operator_str += ")"
-        return operator_str
-
-    def __eq__(self, other):
-        """Check equality between two Actions."""
-        return (
-            isinstance(other, Action)
-            and self.name == other.name
-            and self.parameters == other.parameters
-            and self.precondition == other.precondition
-            and self.effect == other.effect
-        )
-
-    def __hash__(self):
-        """Get the hash."""
-        return hash((self.name, self.parameters, self.precondition, self.effect))
-
-    def __repr__(self) -> str:
-        """Get an unambiguous string representation."""
-        return (
-            f"{type(self).__name__}({self.name}, parameters={', '.join(map(str, self.parameters))}, "
-            f"precondition={self.precondition}, effect={self.effect})"
         )
