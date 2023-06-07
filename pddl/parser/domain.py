@@ -34,6 +34,7 @@ from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
 from pddl.parser.symbols import Symbols
+from pddl.parser.types_index import TypesIndex
 
 
 class DomainTransformer(Transformer):
@@ -87,11 +88,11 @@ class DomainTransformer(Transformer):
     def types(self, args):
         """Parse the 'types' rule."""
         has_typing_requirement = self._has_requirement(Requirements.TYPING)
-        type_definition = args[2]
-        have_type_hierarchy = any(type_definition.values())
+        types_definition = args[2]
+        have_type_hierarchy = any(types_definition.values())
         if have_type_hierarchy and not has_typing_requirement:
             raise PDDLMissingRequirementError(Requirements.TYPING)
-        return dict(types=args[2])
+        return dict(types=types_definition)
 
     def constants(self, args):
         """Process the 'constant_def' rule."""
@@ -294,39 +295,9 @@ class DomainTransformer(Transformer):
         return Predicate(name, *variables)
 
     def typed_list_name(self, args) -> Dict[str, Optional[str]]:
-        """
-        Process the 'typed_list_name' rule.
-
-        Return a dictionary with as keys the names and as value the type of the name.
-
-        Steps:
-        - if the '-' symbol is not present, then return the list of names
-        - if the '-' symbol is present, parse the names with their type tags
-
-        :param args: the argument of this grammar rule
-        :return: a typed list (name)
-        """
-        type_sep_index = safe_index(args, Symbols.TYPE_SEP.value)
-
-        if type_sep_index is None:
-            # simple list of names
-            return self._parse_simple_typed_list(args, check_for_duplicates=True)
-
-        # if we are here, the matched pattern is: [name_1, ..., name_n], "-", parent_name, other_typed_list_dict
-        # make sure there are only two tokens after "-"
-        assert_(len(args[type_sep_index:]) == 3, "unexpected parser state")
-
-        names: Tuple[str, ...] = tuple(args[:type_sep_index])
-        parent_name: str = str(args[type_sep_index + 1])
-        other_typed_list_dict: Mapping[str, Optional[str]] = args[type_sep_index + 2]
-        new_typed_list_dict: Mapping[str, Optional[str]] = {
-            obj: parent_name for obj in names
-        }
-
-        # check type conflicts
-        self._check_duplicates(other_typed_list_dict.keys(), new_typed_list_dict.keys())
-
-        return {**new_typed_list_dict, **other_typed_list_dict}
+        """Process the 'typed_list_name' rule."""
+        types_index = TypesIndex.parse_typed_list(args)
+        return types_index.get_typed_list_of_names()
 
     def typed_list_variable(self, args) -> Dict[str, Set[str]]:
         """
