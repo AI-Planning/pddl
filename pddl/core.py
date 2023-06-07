@@ -79,8 +79,8 @@ class Domain:
     def _check_consistency(self) -> None:
         """Check consistency of a domain instance object."""
         checker = TypeChecker(self._types, self.requirements)
-        checker.check_type(self.constants)
-        _check_types_in_has_terms_objects(self._predicates, self._types.all_types)
+        checker.check_type(self._constants)
+        checker.check_type(self._predicates)
         _check_types_in_has_terms_objects(self._actions, self._types.all_types)  # type: ignore
         self._check_types_in_derived_predicates()
 
@@ -250,8 +250,8 @@ class Problem:
         types = Types(domain.types, domain.requirements, skip_checks=True)  # type: ignore
         type_checker = TypeChecker(types, domain.requirements)
         type_checker.check_type(self.objects)
-        # TODO check init
-        # TODO check goal
+        type_checker.check_type(self.init)
+        type_checker.check_type(self.goal)
 
     @property
     def name(self) -> name_type:
