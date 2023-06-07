@@ -296,8 +296,13 @@ class DomainTransformer(Transformer):
 
     def typed_list_name(self, args) -> Dict[str, Optional[str]]:
         """Process the 'typed_list_name' rule."""
-        types_index = TypesIndex.parse_typed_list(args)
-        return types_index.get_typed_list_of_names()
+        try:
+            types_index = TypesIndex.parse_typed_list(args)
+            return types_index.get_typed_list_of_names()
+        except ValueError as e:
+            raise PDDLParsingError(
+                f"error while parsing tokens {list(map(str, args))}: {str(e)}"
+            ) from None
 
     def typed_list_variable(self, args) -> Dict[str, Set[str]]:
         """
