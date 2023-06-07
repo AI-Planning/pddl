@@ -63,6 +63,10 @@ class TypesIndex:
             result[item] = type_tag
         return result
 
+    def get_typed_list_of_variables(self) -> OrderedDictType[name, Set[name]]:
+        """Get the typed list of variables in form of dictionary."""
+        return self._item_to_types
+
     @classmethod
     def parse_typed_list(cls, tokens: List[Union[str, List[str]]]) -> "TypesIndex":
         """
