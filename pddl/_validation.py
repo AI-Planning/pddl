@@ -14,11 +14,11 @@
 
 import functools
 from collections.abc import Iterable
-from typing import AbstractSet, Collection, Dict, Optional, Set, Tuple, Type, cast
+from typing import AbstractSet, Collection, Dict, Optional, Set, Tuple, cast
 
 from pddl.action import Action
 from pddl.custom_types import name as name_type
-from pddl.custom_types import namelike, to_names, to_names_types  # noqa: F401
+from pddl.custom_types import namelike, to_names, to_types  # noqa: F401
 from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import check, ensure, ensure_set, find_cycle
 from pddl.logic import Predicate
@@ -32,7 +32,7 @@ from pddl.logic.base import (
 from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.predicates import DerivedPredicate, EqualTo
 from pddl.logic.terms import Term
-from pddl.parser.symbols import ALL_SYMBOLS, Symbols
+from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements
 
 
@@ -82,12 +82,6 @@ def _check_types_in_has_terms_objects(
             )
 
 
-def _is_a_keyword(word: str, ignore: Optional[Set[str]] = None) -> bool:
-    """Check that the word is not a keyword."""
-    ignore_set = ensure_set(ignore)
-    return word not in ignore_set and word in ALL_SYMBOLS
-
-
 class Types:
     """A class for representing and managing the types available in a PDDL Domain."""
 
@@ -98,7 +92,7 @@ class Types:
         skip_checks: bool = False,
     ) -> None:
         """Initialize the Types object."""
-        self._types = to_names_types(ensure(types, dict()))
+        self._types = to_types(ensure(types, dict()))
 
         self._all_types = self._get_all_types()
 
@@ -186,35 +180,6 @@ class Types:
             )
 
 
-def _check_names_not_a_keyword(names: Collection[name_type]) -> None:
-    """Check that items are not keywords."""
-    _check_not_a_keyword(names, "name", ignore=set(), exception_cls=PDDLValidationError)
-
-
-def _check_types_not_a_keyword(names: Collection[name_type]) -> None:
-    """
-    Check that types are not keywords.
-
-    We ignore 'object' as it is a proper type.
-    """
-    _check_not_a_keyword(
-        names, "type", ignore={Symbols.OBJECT.value}, exception_cls=PDDLValidationError
-    )
-
-
-def _check_not_a_keyword(
-    names: Collection[name_type],
-    item_type: str,
-    ignore: Set[str],
-    exception_cls: Type[Exception] = ValueError,
-) -> None:
-    """Check that the item name is not a keyword."""
-    for item_name in names:
-        # we ignore 'object' as it is a proper type
-        if _is_a_keyword(item_name, ignore=ignore):
-            raise exception_cls(f"invalid {item_type} '{item_name}': it is a keyword")
-
-
 class TypeChecker:
     """Implementation of a type checker for domains and problems."""
 
@@ -261,7 +226,6 @@ class TypeChecker:
     def _(self, term: Term) -> None:
         """Check types annotations of a PDDL term."""
         self._check_typing_requirement(term.type_tags)
-        _check_types_not_a_keyword(term.type_tags)
         self._check_types_are_available(term.type_tags, f"term {repr(term)}")
 
     @check_type.register
