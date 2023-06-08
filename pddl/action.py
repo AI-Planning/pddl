@@ -13,8 +13,7 @@
 """This module contains the definition of the PDDL action class."""
 from typing import Optional, Sequence
 
-from pddl.custom_types import name as name_type
-from pddl.custom_types import namelike
+from pddl.custom_types import namelike, parse_name
 from pddl.helpers.base import _typed_parameters, ensure_sequence
 from pddl.logic import Variable
 from pddl.logic.base import Formula
@@ -39,7 +38,7 @@ class Action:
         :param precondition: the action precondition.
         :param effect: the action effect.
         """
-        self._name: str = name_type(name)
+        self._name: str = parse_name(name)
         self._parameters: Sequence[Variable] = ensure_sequence(parameters)
         self._precondition = precondition
         self._effect = effect

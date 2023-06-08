@@ -14,8 +14,7 @@
 import functools
 from typing import Sequence
 
-from pddl.custom_types import name as name_type
-from pddl.custom_types import namelike
+from pddl.custom_types import namelike, parse_name
 from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, Formula
@@ -30,7 +29,7 @@ class Predicate(Atomic):
 
     def __init__(self, name: namelike, *terms: Term):
         """Initialize the predicate."""
-        self._name = name_type(name)
+        self._name = parse_name(name)
         self._terms = tuple(terms)
 
     @property

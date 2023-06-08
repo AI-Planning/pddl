@@ -25,7 +25,7 @@ from pddl._validation import (
 )
 from pddl.action import Action
 from pddl.custom_types import name as name_type
-from pddl.custom_types import namelike, to_names, to_names_types  # noqa: F401
+from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
 from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import Formula, TrueFormula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
@@ -60,7 +60,7 @@ class Domain:
         :param derived_predicates: the derived predicates.
         :param actions: the actions.
         """
-        self._name = name_type(name)
+        self._name = parse_name(name)
         self._requirements = ensure_set(requirements)
         self._types = Types(types, self._requirements)
         self._constants = ensure_set(constants)
@@ -161,7 +161,7 @@ class Problem:
         :param init: the initial condition.
         :param goal: the goal condition.
         """
-        self._name = name_type(name)
+        self._name = parse_name(name)
         self._domain: Optional[Domain]
         self._domain_name: name_type
         self._domain, self._domain_name = self._parse_domain_and_domain_name(
@@ -196,11 +196,11 @@ class Problem:
                 f"got both domain and domain_name, but domain_name differs: {domain.name} != {domain_name}",
                 exception_cls=ValueError,
             )
-            return domain, name_type(domain_name)
+            return domain, parse_name(domain_name)
         if domain is not None:
             return domain, domain.name
         if domain_name is not None:
-            return None, name_type(domain_name)
+            return None, parse_name(domain_name)
         raise ValueError("Either domain or domain_name must be given.")
 
     def _parse_requirements(

@@ -15,10 +15,9 @@ import itertools
 from collections import OrderedDict
 from typing import Dict, List, Optional
 from typing import OrderedDict as OrderedDictType
-from typing import Set, Union
+from typing import Set, Union, cast
 
-from pddl._validation import _check_names_not_a_keyword, _check_types_not_a_keyword
-from pddl.custom_types import name
+from pddl.custom_types import name, parse_name, parse_type
 from pddl.helpers.base import check, safe_index
 from pddl.parser.symbols import Symbols
 
@@ -47,8 +46,6 @@ class TypesIndex:
         :param item_name: the item name
         :param type_tags: the types for the item
         """
-        _check_names_not_a_keyword({item_name})
-        _check_types_not_a_keyword(type_tags)
         self._check_item_name_already_present(item_name)
         self._check_tags_already_present(item_name, type_tags)
         self._add_item(item_name, type_tags)
@@ -159,8 +156,8 @@ class TypesIndex:
                 isinstance(item_name, str), f"invalid item '{item_name}' in typed list"
             )
             # these lines implicitly perform name validation
-            item_name = name(item_name)
-            type_tags_names: Set[name] = set(map(name, type_tags))
+            item_name = parse_name(cast(str, item_name))
+            type_tags_names: Set[name] = set(map(parse_type, type_tags))
             result.add_item(item_name, type_tags_names)
 
     def _check_item_name_already_present(self, item_name: name) -> None:

@@ -15,7 +15,7 @@ import functools
 from typing import AbstractSet, Collection, Optional
 
 from pddl.custom_types import name as name_type
-from pddl.custom_types import namelike, to_names
+from pddl.custom_types import namelike, parse_name, to_type
 from pddl.helpers.base import assert_, ensure_set
 from pddl.helpers.cache_hash import cache_hash
 
@@ -34,8 +34,8 @@ class Term:
         :param name: the name for the term.
         :param type_tags: the type tags associated to this term.
         """
-        self._name = name_type(name)
-        self._type_tags = set(to_names(ensure_set(type_tags)))
+        self._name = parse_name(name)
+        self._type_tags = frozenset(to_type(ensure_set(type_tags)))
 
     @property
     def name(self) -> str:
