@@ -34,6 +34,7 @@ class Term:
         :param name: the name for the term.
         :param type_tags: the type tags associated to this term.
         """
+        assert_(type(self) is not Term, "Term is an abstract class")
         self._name = parse_name(name)
         self._type_tags = frozenset(to_type(ensure_set(check_no_duplicates(type_tags))))  # type: ignore
 

@@ -13,7 +13,7 @@
 """Test pddl.logic module."""
 import pytest
 
-from pddl.logic.terms import Term
+from pddl.logic.terms import Variable
 
 
 def test_no_duplicated_type_tags() -> None:
@@ -21,4 +21,4 @@ def test_no_duplicated_type_tags() -> None:
     with pytest.raises(
         ValueError, match=r"duplicate element in collection \['b', 'b'\]: 'b'"
     ):
-        Term("a", ["b", "b"])
+        Variable("a", ["b", "b"])
