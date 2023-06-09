@@ -22,10 +22,10 @@ def test_find_cycle_empty_graph() -> None:
 def test_find_cycle_negative_case() -> None:
     """Test 'find_cycle' function, negative case."""
     a, b, c, d = "a b c d".split()
-    assert find_cycle({a: b, b: c, d: c}) is None
+    assert find_cycle({a: {b}, b: {c}, d: {c}}) is None
 
 
 def test_find_cycle_positive_case() -> None:
     """Test 'find_cycle' function, positive case."""
     a, b, c, d = "a b c d".split()
-    assert find_cycle({a: b, b: c, d: c, c: a}) == ["a", "b", "c"]
+    assert find_cycle({a: {b}, b: {c}, d: {c}, c: {a}}) == ["a", "b", "c"]

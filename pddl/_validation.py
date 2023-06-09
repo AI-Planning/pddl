@@ -173,7 +173,13 @@ class Types:
             )
 
         # check cycles
-        cycle = find_cycle(type_dict)  # type: ignore
+        # need to convert type_dict to a dict of sets, because find_cycle() expects a dict of sets
+        cycle = find_cycle(
+            {
+                key: {value} if value is not None else set()
+                for key, value in type_dict.items()
+            }
+        )  # type: ignore
         if cycle is not None:
             raise PDDLValidationError(
                 "cycle detected in the type hierarchy: " + " -> ".join(cycle)
