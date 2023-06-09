@@ -172,8 +172,8 @@ def test_constants_repetition_in_typed_lists_not_allowed() -> None:
         DomainParser()(domain_str)
 
 
-def test_variables_repetition_in_simple_typed_lists_not_allowed() -> None:
-    """Check variables repetition in simple typed lists is detected and a parsing error is raised."""
+def test_variables_repetition_in_simple_typed_lists_allowed() -> None:
+    """Check variables repetition in simple typed lists is allowed."""
     domain_str = dedent(
         """
     (define (domain test)
@@ -183,12 +183,7 @@ def test_variables_repetition_in_simple_typed_lists_not_allowed() -> None:
     """
     )
 
-    with pytest.raises(
-        lark.exceptions.VisitError,
-        match=".*error while parsing tokens \\['x', 'y', 'z', 'x'\\]: "
-        "duplicate name 'x' in typed list already present",
-    ):
-        DomainParser()(domain_str)
+    DomainParser()(domain_str)
 
 
 def test_variables_repetition_in_typed_lists_not_allowed() -> None:
@@ -198,14 +193,47 @@ def test_variables_repetition_in_typed_lists_not_allowed() -> None:
     (define (domain test)
         (:requirements :typing)
         (:types t1 t2)
-        (:predicates (p ?x - t1 ?x -t2))
+        (:predicates (p ?x - (either t1 t2) ?x - t3))
     )
     """
     )
 
     with pytest.raises(
         lark.exceptions.VisitError,
-        match=r".*error while parsing tokens \['x', '-', \['t1'\], 'x', '-', \['t2'\]\]: duplicate name 'x' "
-        r"in typed list already present with types \['t1'\]",
+        match=r".*error while parsing tokens \['x', '-', \['t1', 't2'\], 'x', '-', \['t3'\]\]: "
+        r"invalid types for item \'x\': previous known tags were \['t1', 't2'\], got \['t3'\]",
     ):
         DomainParser()(domain_str)
+
+
+def test_variables_typed_with_not_available_types() -> None:
+    """Check variables with non-available types raises a parsing error."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing)
+        (:types t1)
+        (:predicates (p ?x - t2))
+    )
+    """
+    )
+
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match=r"types \['t2'\] of term Variable\(x\) are not in available types \{'t1'\}",
+    ):
+        DomainParser()(domain_str)
+
+
+def test_variables_repetition_allowed_if_same_type() -> None:
+    """Check variables repetition in typed lists is detected and a parsing error is raised."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing)
+        (:types t1)
+        (:predicates (p ?x - t1 ?x - t1))
+    )
+    """
+    )
+    DomainParser()(domain_str)
