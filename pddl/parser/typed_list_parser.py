@@ -22,7 +22,7 @@ from pddl.helpers.base import check, safe_index
 from pddl.parser.symbols import Symbols
 
 
-class TypesIndex:
+class TypedListParser:
     """
     An index for PDDL types and PDDL names/variables.
 
@@ -65,7 +65,7 @@ class TypesIndex:
         return self._item_to_types
 
     @classmethod
-    def parse_typed_list(cls, tokens: List[Union[str, List[str]]]) -> "TypesIndex":
+    def parse_typed_list(cls, tokens: List[Union[str, List[str]]]) -> "TypedListParser":
         """
         Parse typed list.
 
@@ -76,15 +76,15 @@ class TypesIndex:
         - if the list is not typed, it is simply a list of names
         - if the list is typed, the format is: [name_1, ..., name_n], "-", [type_1, ..., type_m], ...
 
-        >>> index = TypesIndex.parse_typed_list(["a", "b", "c"])
+        >>> index = TypedListParser.parse_typed_list(["a", "b", "c"])
         >>> index.get_typed_list_of_names()
         {'a': None, 'b': None, 'c': None}
 
-        >>> index = TypesIndex.parse_typed_list(["a", "b", "c", "-", ["t1"]])
+        >>> index = TypedListParser.parse_typed_list(["a", "b", "c", "-", ["t1"]])
         >>> index.get_typed_list_of_names()
         {'a': 't1', 'b': 't1', 'c': 't1'}
 
-        >>> index = TypesIndex.parse_typed_list(["a", "b", "c", "-", ["t1", "t2"]])
+        >>> index = TypedListParser.parse_typed_list(["a", "b", "c", "-", ["t1", "t2"]])
         >>> index.get_typed_list_of_names()
         Traceback (most recent call last):
         ...
@@ -93,7 +93,7 @@ class TypesIndex:
         :param tokens: the list of tokens
         :return: the TypesIndex object
         """
-        result = TypesIndex()
+        result = TypedListParser()
 
         type_sep_index = safe_index(tokens, Symbols.TYPE_SEP.value)
 
@@ -139,7 +139,7 @@ class TypesIndex:
     @classmethod
     def _add_typed_lists(
         cls,
-        result: "TypesIndex",
+        result: "TypedListParser",
         start_index: int,
         end_index: int,
         tokens: List[Union[str, List[str]]],
