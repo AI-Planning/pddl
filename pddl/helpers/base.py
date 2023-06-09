@@ -152,12 +152,8 @@ class RegexConstrainedString(str):
         )
 
 
-def find_cycle(graph: Dict[str, Optional[str]]) -> Optional[Sequence[str]]:
-    """
-    Check whether a graph (represented as a dictionary-based adjacency list) has a cycle.
-
-    This implementation assumes the constraint that each node has at most one successor.
-    """
+def find_cycle(graph: Dict[str, Optional[AbstractSet[str]]]) -> Optional[Sequence[str]]:
+    """Check whether a graph (represented as a dictionary-based adjacency list) has a cycle."""
     visited: Set = set()
     stack: List = []
 
@@ -171,8 +167,9 @@ def find_cycle(graph: Dict[str, Optional[str]]) -> Optional[Sequence[str]]:
                     return path
 
                 visited.add(current)
-                neighbor = graph.get(current)
-                if neighbor is not None:
-                    stack.append((neighbor, path + [current]))
+                neighbors = graph.get(current)
+                if neighbors is not None:
+                    for neighbor in neighbors:
+                        stack.append((neighbor, path + [current]))
 
     return None
