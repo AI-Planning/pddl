@@ -62,7 +62,16 @@ def ensure_set(arg: Optional[Collection], immutable: bool = True) -> AbstractSet
     :return: the same set, or an empty set if the arg was None.
     """
     op = frozenset if immutable else set
-    return op(arg) if arg is not None else op()
+    if arg is None or isinstance(arg, AbstractSet):
+        return op(arg) if arg is not None else op()
+
+    # parse sequence and raise error in case a duplicate is found
+    result = set()
+    for element in arg:
+        if element in result:
+            raise ValueError(f"duplicate element {element} in {arg}")
+        result.add(element)
+    return op(result)
 
 
 def ensure_sequence(arg: Optional[Sequence], immutable: bool = True) -> Sequence:
