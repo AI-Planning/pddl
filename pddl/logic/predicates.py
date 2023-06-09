@@ -23,6 +23,19 @@ from pddl.logic.terms import Term
 from pddl.parser.symbols import Symbols
 
 
+class _TermsChecker:
+    """Check that a sequence of terms is legal wrt PDDL syntax."""
+
+    def __init__(self, terms: Sequence[Term]) -> None:
+        """Initialize the checker."""
+        self._terms = terms
+
+
+def _check_terms(terms: Sequence[Term]):
+    """Check that sequence terms are valid."""
+    assert_(all(isinstance(term, Term) for term in terms), "Terms must be Terms.")
+
+
 @cache_hash
 @functools.total_ordering
 class Predicate(Atomic):
