@@ -38,7 +38,7 @@ from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
 from pddl.parser.symbols import Symbols
-from pddl.parser.types_index import TypesIndex
+from pddl.parser.typed_list_parser import TypedListParser
 from pddl.requirements import Requirements
 
 
@@ -304,7 +304,7 @@ class DomainTransformer(Transformer):
     def typed_list_name(self, args) -> Dict[name, Optional[name]]:
         """Process the 'typed_list_name' rule."""
         try:
-            types_index = TypesIndex.parse_typed_list(args)
+            types_index = TypedListParser.parse_typed_list(args)
             return types_index.get_typed_list_of_names()
         except ValueError as e:
             raise self._raise_typed_list_parsing_error(args, e) from e
@@ -319,7 +319,7 @@ class DomainTransformer(Transformer):
         :return: a typed list (variable), i.e. a mapping from variables to the supported types
         """
         try:
-            types_index = TypesIndex.parse_typed_list(args)
+            types_index = TypedListParser.parse_typed_list(args)
             return types_index.get_typed_list_of_variables()
         except ValueError as e:
             raise self._raise_typed_list_parsing_error(args, e) from e
