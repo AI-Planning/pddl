@@ -121,6 +121,7 @@ class EqualTo(Atomic):
         """
         self._left = left
         self._right = right
+        _check_terms_consistency([self._left, self._right])
 
     @property
     def left(self) -> Term:
