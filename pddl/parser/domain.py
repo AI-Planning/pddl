@@ -12,9 +12,7 @@
 
 """Implementation of the PDDL domain parser."""
 import sys
-from typing import Dict, Optional
-from typing import OrderedDict as OrderedDictType
-from typing import Set
+from typing import Dict, Optional, Set, Tuple
 
 from lark import Lark, ParseError, Transformer
 
@@ -133,7 +131,7 @@ class DomainTransformer(Transformer):
     def action_parameters(self, args):
         """Process the 'action_parameters' rule."""
         self._current_parameters_by_name = {
-            var_name: Variable(var_name, tags) for var_name, tags in args[1].items()
+            var_name: Variable(var_name, tags) for var_name, tags in args[1]
         }
         return list(self._current_parameters_by_name.values())
 
@@ -197,7 +195,7 @@ class DomainTransformer(Transformer):
             & self._extended_requirements
         ):
             raise PDDLMissingRequirementError(req)
-        variables = [Variable(var_name, tags) for var_name, tags in args[3].items()]
+        variables = [Variable(var_name, tags) for var_name, tags in args[3]]
         condition = args[5]
         return cond_class(cond=condition, variables=variables)
 
@@ -236,7 +234,7 @@ class DomainTransformer(Transformer):
         if len(args) == 1:
             return args[0]
         if args[1] == Symbols.FORALL.value:
-            variables = [Variable(var_name, tags) for var_name, tags in args[3].items()]
+            variables = [Variable(var_name, tags) for var_name, tags in args[3]]
             return Forall(effect=args[-2], variables=variables)
         if args[1] == Symbols.WHEN.value:
             return When(args[2], args[3])
@@ -296,9 +294,7 @@ class DomainTransformer(Transformer):
         """Process the 'atomic_formula_skeleton' rule."""
         predicate_name = args[1]
         variable_data: Dict[str, Set[str]] = args[2]
-        variables = [
-            Variable(var_name, tags) for var_name, tags in variable_data.items()
-        ]
+        variables = [Variable(var_name, tags) for var_name, tags in variable_data]
         return Predicate(predicate_name, *variables)
 
     def typed_list_name(self, args) -> Dict[name, Optional[name]]:
@@ -309,7 +305,7 @@ class DomainTransformer(Transformer):
         except ValueError as e:
             raise self._raise_typed_list_parsing_error(args, e) from e
 
-    def typed_list_variable(self, args) -> OrderedDictType[name, Set[name]]:
+    def typed_list_variable(self, args) -> Tuple[Tuple[name, Set[name]], ...]:
         """
         Process the 'typed_list_variable' rule.
 
@@ -319,7 +315,7 @@ class DomainTransformer(Transformer):
         :return: a typed list (variable), i.e. a mapping from variables to the supported types
         """
         try:
-            types_index = TypedListParser.parse_typed_list(args)
+            types_index = TypedListParser.parse_typed_list(args, allow_duplicates=True)
             return types_index.get_typed_list_of_variables()
         except ValueError as e:
             raise self._raise_typed_list_parsing_error(args, e) from e
