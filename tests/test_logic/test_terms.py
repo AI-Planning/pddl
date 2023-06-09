@@ -10,7 +10,7 @@
 # https://opensource.org/licenses/MIT.
 #
 
-"""Test pddl.logic module."""
+"""Test pddl.logic.terms module."""
 import pytest
 
 from pddl.logic.terms import Variable

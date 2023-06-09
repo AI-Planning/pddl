@@ -12,14 +12,33 @@
 
 """This class implements PDDL predicates."""
 import functools
-from typing import Sequence
+from typing import Dict, Sequence, Set
 
-from pddl.custom_types import namelike, parse_name
-from pddl.helpers.base import assert_
+from pddl.custom_types import name, namelike, parse_name
+from pddl.helpers.base import assert_, check
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, Formula
-from pddl.logic.terms import Term
+from pddl.logic.terms import Term, _print_tag_set
 from pddl.parser.symbols import Symbols
+
+
+def _check_terms_consistency(terms: Sequence[Term]):
+    """
+    Check that the term sequence have consistent type tags.
+
+    In particular, terms with the same name must have the same type tags.
+    """
+    seen: Dict[name, Set[name]] = {}
+    for term in terms:
+        if term.name not in seen:
+            seen[term.name] = set(term.type_tags)
+        else:
+            check(
+                seen[term.name] == set(term.type_tags),
+                f"Term {term} has inconsistent type tags: "
+                f"previous type tags {_print_tag_set(seen[term.name])}, new type tags {_print_tag_set(term.type_tags)}",
+                exception_cls=ValueError,
+            )
 
 
 @cache_hash
@@ -27,10 +46,11 @@ from pddl.parser.symbols import Symbols
 class Predicate(Atomic):
     """A class for a Predicate in PDDL."""
 
-    def __init__(self, name: namelike, *terms: Term):
+    def __init__(self, predicate_name: namelike, *terms: Term):
         """Initialize the predicate."""
-        self._name = parse_name(name)
+        self._name = parse_name(predicate_name)
         self._terms = tuple(terms)
+        _check_terms_consistency(self._terms)
 
     @property
     def name(self) -> str:

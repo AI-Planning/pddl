@@ -16,6 +16,7 @@ from typing import Dict, List, Optional, Set, Tuple, Union, cast
 
 from pddl.custom_types import name, parse_name, parse_type
 from pddl.helpers.base import check, safe_index
+from pddl.logic.terms import _print_tag_set
 from pddl.parser.symbols import Symbols
 
 
@@ -203,7 +204,7 @@ class TypedListParser:
             if previous_type_tags != type_tags:
                 raise ValueError(
                     f"invalid types for item '{item_name}': previous known tags were "
-                    f"{self._print_tag_set(previous_type_tags)}, got {self._print_tag_set(type_tags)}"
+                    f"{_print_tag_set(previous_type_tags)}, got {_print_tag_set(type_tags)}"
                 )
 
     def _add_item(self, item_name: name, type_tags: Set[name]) -> None:
@@ -219,11 +220,5 @@ class TypedListParser:
         """Raise an error if the item has multiple types."""
         raise ValueError(
             f"typed list names should not have more than one type, got '{item_name}' with "
-            f"types {self._print_tag_set(type_tags)}"
+            f"types {_print_tag_set(type_tags)}"
         )
-
-    def _print_tag_set(self, type_tags: Set[name]) -> str:
-        """Print a tag set."""
-        if len(type_tags) == 0:
-            return "[]"
-        return repr(sorted(map(str, type_tags)))
