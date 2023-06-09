@@ -226,13 +226,18 @@ def test_variables_typed_with_not_available_types() -> None:
 
 
 def test_variables_repetition_allowed_if_same_type() -> None:
-    """Check variables repetition in typed lists is detected and a parsing error is raised."""
+    """Check variables repetition in typed lists is allowed."""
     domain_str = dedent(
         """
     (define (domain test)
-        (:requirements :typing)
-        (:types t1)
-        (:predicates (p ?x - t1 ?x - t1))
+        (:requirements :typing :existential-preconditions :universal-preconditions)
+        (:types t1 t2)
+        (:predicates (p ?x - (either t1 t2) ?x - (either t1 t2)))
+        (:action a
+            :parameters (?x - t1 ?x - t1)
+            :precondition (and (exists (?x - t1) (p ?x ?x)) (forall (?x - t1) (p ?x ?x)))
+            :effect (p ?x ?x)
+        )
     )
     """
     )
