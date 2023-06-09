@@ -72,7 +72,7 @@ def ensure_set(arg: Optional[Collection], immutable: bool = True) -> AbstractSet
     return op(arg) if arg is not None else op()
 
 
-def check_no_duplicates(arg: Optional[Sequence[str]]) -> Optional[Collection]:
+def check_no_duplicates(arg: Optional[Collection]) -> Optional[Collection]:
     """Check that the argument is a set."""
     if arg is None:
         return None
