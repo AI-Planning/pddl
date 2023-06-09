@@ -16,7 +16,7 @@ from typing import AbstractSet, Collection, Optional
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_type
-from pddl.helpers.base import assert_, ensure_set
+from pddl.helpers.base import assert_, check_no_duplicates, ensure_set
 from pddl.helpers.cache_hash import cache_hash
 
 
@@ -35,7 +35,7 @@ class Term:
         :param type_tags: the type tags associated to this term.
         """
         self._name = parse_name(name)
-        self._type_tags = frozenset(to_type(ensure_set(type_tags)))
+        self._type_tags = frozenset(to_type(ensure_set(check_no_duplicates(type_tags))))  # type: ignore
 
     @property
     def name(self) -> str:

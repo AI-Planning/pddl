@@ -72,6 +72,22 @@ def ensure_set(arg: Optional[Collection], immutable: bool = True) -> AbstractSet
     return op(arg) if arg is not None else op()
 
 
+def check_no_duplicates(arg: Optional[Sequence[str]]) -> Optional[Collection]:
+    """Check that the argument is a set."""
+    if arg is None:
+        return None
+    if isinstance(arg, AbstractSet):
+        return arg
+    seen = set()
+    for x in arg:
+        if x in seen:
+            raise ValueError(
+                f"duplicate element in collection {list(map(str, arg))}: '{str(x)}'"
+            )
+        seen.add(x)
+    return arg
+
+
 def ensure_sequence(arg: Optional[Sequence], immutable: bool = True) -> Sequence:
     """
     Ensure the argument is a sequence.
