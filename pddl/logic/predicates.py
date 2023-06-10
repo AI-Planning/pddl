@@ -12,33 +12,15 @@
 
 """This class implements PDDL predicates."""
 import functools
-from typing import Dict, Sequence, Set
+from typing import Sequence
 
-from pddl.custom_types import name, namelike, parse_name
-from pddl.helpers.base import assert_, check
+from pddl.custom_types import name as name_type
+from pddl.custom_types import namelike, parse_name
+from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, Formula
-from pddl.logic.terms import Term, _print_tag_set
+from pddl.logic.terms import Term, _check_terms_consistency
 from pddl.parser.symbols import Symbols
-
-
-def _check_terms_consistency(terms: Sequence[Term]):
-    """
-    Check that the term sequence have consistent type tags.
-
-    In particular, terms with the same name must have the same type tags.
-    """
-    seen: Dict[name, Set[name]] = {}
-    for term in terms:
-        if term.name not in seen:
-            seen[term.name] = set(term.type_tags)
-        else:
-            check(
-                seen[term.name] == set(term.type_tags),
-                f"Term {term} has inconsistent type tags: "
-                f"previous type tags {_print_tag_set(seen[term.name])}, new type tags {_print_tag_set(term.type_tags)}",
-                exception_cls=ValueError,
-            )
 
 
 @cache_hash
@@ -53,7 +35,7 @@ class Predicate(Atomic):
         _check_terms_consistency(self._terms)
 
     @property
-    def name(self) -> str:
+    def name(self) -> name_type:
         """Get the name."""
         return self._name
 
@@ -156,7 +138,7 @@ class EqualTo(Atomic):
 
 @cache_hash
 @functools.total_ordering
-class DerivedPredicate(Atomic):
+class DerivedPredicate:
     """A class for a Derived Predicates in PDDL."""
 
     def __init__(self, predicate: Predicate, condition: Formula) -> None:

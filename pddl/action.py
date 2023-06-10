@@ -11,12 +11,14 @@
 #
 
 """This module contains the definition of the PDDL action class."""
-from typing import Optional, Sequence
+from typing import Dict, Optional, Sequence
 
+from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name
 from pddl.helpers.base import _typed_parameters, ensure_sequence
 from pddl.logic import Variable
 from pddl.logic.base import Formula
+from pddl.logic.predicates import _check_terms_consistency
 from pddl.logic.terms import Term
 
 
@@ -38,13 +40,15 @@ class Action:
         :param precondition: the action precondition.
         :param effect: the action effect.
         """
-        self._name: str = parse_name(name)
+        self._name: name = parse_name(name)
         self._parameters: Sequence[Variable] = ensure_sequence(parameters)
         self._precondition = precondition
         self._effect = effect
 
+        self._check_consistency()
+
     @property
-    def name(self) -> str:
+    def name(self) -> name_type:
         """Get the name."""
         return self._name
 
@@ -99,3 +103,15 @@ class Action:
             f"{type(self).__name__}({self.name}, parameters={', '.join(map(str, self.parameters))}, "
             f"precondition={self.precondition}, effect={self.effect})"
         )
+
+    def _check_consistency(self) -> None:
+        """
+        Check the consistency of the action definition.
+
+        Note that a PDDL action does not have all the domain information to be validated. In particular, it does not
+        have types information. Therefore, this method only checks the consistency of the action definition.
+        """
+        _check_terms_consistency(self._parameters)
+        types_dict: Dict[name_type, None] = {
+            t: None for p in self._parameters for t in p.type_tags
+        }

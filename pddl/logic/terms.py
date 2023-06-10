@@ -12,19 +12,12 @@
 
 """This modules implements PDDL terms."""
 import functools
-from typing import AbstractSet, Collection, Optional
+from typing import AbstractSet, Collection, Dict, Optional, Sequence, Set
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_type
-from pddl.helpers.base import assert_, check_no_duplicates, ensure_set
+from pddl.helpers.base import assert_, check, check_no_duplicates, ensure_set
 from pddl.helpers.cache_hash import cache_hash
-
-
-def _print_tag_set(type_tags: AbstractSet[name_type]) -> str:
-    """Print a tag set."""
-    if len(type_tags) == 0:
-        return "[]"
-    return repr(sorted(map(str, type_tags)))
 
 
 @cache_hash
@@ -144,3 +137,29 @@ class Variable(Term):
     def __hash__(self) -> int:
         """Get the hash."""
         return hash((Variable, self._name))
+
+
+def _print_tag_set(type_tags: AbstractSet[name_type]) -> str:
+    """Print a tag set."""
+    if len(type_tags) == 0:
+        return "[]"
+    return repr(sorted(map(str, type_tags)))
+
+
+def _check_terms_consistency(terms: Collection[Term]):
+    """
+    Check that the term sequence have consistent type tags.
+
+    In particular, terms with the same name must have the same type tags.
+    """
+    seen: Dict[name_type, Set[name_type]] = {}
+    for term in terms:
+        if term.name not in seen:
+            seen[term.name] = set(term.type_tags)
+        else:
+            check(
+                seen[term.name] == set(term.type_tags),
+                f"Term {term} has inconsistent type tags: "
+                f"previous type tags {_print_tag_set(seen[term.name])}, new type tags {_print_tag_set(term.type_tags)}",
+                exception_cls=ValueError,
+            )

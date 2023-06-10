@@ -164,7 +164,7 @@ def test_derived_predicate_type_not_available() -> None:
 
     with pytest.raises(
         PDDLValidationError,
-        match=rf"type '(t1|t2)' of term {re.escape(repr(x))} in atomic expression {re.escape(repr(p))} is not in "
+        match=rf"type \['t1', 't2'\] of term {re.escape(repr(x))} in atomic expression {re.escape(repr(p))} is not in "
         f"available types {{'{my_type}'}}",
     ):
         Domain("test", requirements={Requirements.TYPING}, derived_predicates={dp}, types=type_set)  # type: ignore
