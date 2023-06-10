@@ -74,7 +74,6 @@ class Term:
             return super().__lt__(other)
 
 
-# TODO check correctness
 class Constant(Term):
     """A constant term."""
 

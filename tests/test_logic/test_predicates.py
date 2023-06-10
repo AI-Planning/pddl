@@ -15,7 +15,20 @@ import pytest
 
 from pddl.logic import Predicate
 from pddl.logic.predicates import EqualTo
-from pddl.logic.terms import Variable
+from pddl.logic.terms import Constant, Variable
+
+
+def test_ground_predicate_positive() -> None:
+    """Test the is_ground property, positive case."""
+    c1 = Constant("c1")
+    assert Predicate("p", c1).is_ground
+
+
+def test_ground_predicate_negative() -> None:
+    """Test the is_ground property, negative case."""
+    c1 = Constant("c1")
+    v1 = Variable("v1")
+    assert not Predicate("p", c1, v1).is_ground
 
 
 def test_inconsistent_predicate_terms() -> None:

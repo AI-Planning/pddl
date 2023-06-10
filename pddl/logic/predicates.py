@@ -12,33 +12,60 @@
 
 """This class implements PDDL predicates."""
 import functools
-from typing import Dict, Sequence, Set
+from typing import Collection, Dict, Sequence, Set, Tuple
 
-from pddl.custom_types import name, namelike, parse_name
+from pddl.custom_types import name as name_type
+from pddl.custom_types import namelike, parse_name
 from pddl.helpers.base import assert_, check
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, Formula
-from pddl.logic.terms import Term, _print_tag_set
+from pddl.logic.terms import Constant, Term, _print_tag_set
 from pddl.parser.symbols import Symbols
 
 
-def _check_terms_consistency(terms: Sequence[Term]):
+class _TermsList:
     """
-    Check that the term sequence have consistent type tags.
+    A class wrapper for validating sequences of terms.
 
-    In particular, terms with the same name must have the same type tags.
+    Note that this is only for internal validation of terms, and not specific to any PDDL domain type hierarchy.
     """
-    seen: Dict[name, Set[name]] = {}
-    for term in terms:
-        if term.name not in seen:
-            seen[term.name] = set(term.type_tags)
-        else:
-            check(
-                seen[term.name] == set(term.type_tags),
-                f"Term {term} has inconsistent type tags: "
-                f"previous type tags {_print_tag_set(seen[term.name])}, new type tags {_print_tag_set(term.type_tags)}",
-                exception_cls=ValueError,
-            )
+
+    def __init__(self, terms_list: Collection[Term]) -> None:
+        """Initialize the terms list."""
+        self._terms = tuple(terms_list)
+
+        self._is_ground: bool = all(isinstance(v, Constant) for v in self._terms)
+
+        self._check_terms_consistency()
+
+    @property
+    def terms(self) -> Tuple[Term, ...]:
+        """Get the terms sequence."""
+        return self._terms
+
+    @property
+    def is_ground(self) -> bool:
+        """Check whether the predicate is ground."""
+        return self._is_ground
+
+    def _check_terms_consistency(self):
+        """
+        Check that the term sequence have consistent type tags.
+
+        In particular, terms with the same name must have the same type tags.
+        """
+        seen: Dict[name_type, Set[name_type]] = {}
+        for term in self._terms:
+            if term.name not in seen:
+                seen[term.name] = set(term.type_tags)
+            else:
+                check(
+                    seen[term.name] == set(term.type_tags),
+                    f"Term {term} has inconsistent type tags: "
+                    f"previous type tags {_print_tag_set(seen[term.name])}, "
+                    f"new type tags {_print_tag_set(term.type_tags)}",
+                    exception_cls=ValueError,
+                )
 
 
 @cache_hash
@@ -49,23 +76,27 @@ class Predicate(Atomic):
     def __init__(self, predicate_name: namelike, *terms: Term):
         """Initialize the predicate."""
         self._name = parse_name(predicate_name)
-        self._terms = tuple(terms)
-        _check_terms_consistency(self._terms)
+        self._terms_list = _TermsList(terms)
 
     @property
-    def name(self) -> str:
+    def name(self) -> name_type:
         """Get the name."""
         return self._name
 
     @property
     def terms(self) -> Sequence[Term]:
         """Get the terms."""
-        return self._terms
+        return self._terms_list.terms
 
     @property
     def arity(self) -> int:
         """Get the arity of the predicate."""
         return len(self.terms)
+
+    @property
+    def is_ground(self) -> bool:
+        """Check whether the predicate is ground."""
+        return self._terms_list.is_ground
 
     # TODO check whether it's a good idea...
     # TODO allow also for keyword-based replacement
@@ -121,7 +152,8 @@ class EqualTo(Atomic):
         """
         self._left = left
         self._right = right
-        _check_terms_consistency([self._left, self._right])
+
+        self._terms_list = _TermsList([self._left, self._right])
 
     @property
     def left(self) -> Term:
