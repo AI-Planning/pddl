@@ -107,7 +107,7 @@ class Constant(Term):
 
     def __hash__(self):
         """Get the hash."""
-        return hash((Constant, self._name))
+        return hash((Constant, self._name, self._type_tags))
 
 
 class Variable(Term):
@@ -142,4 +142,4 @@ class Variable(Term):
 
     def __hash__(self) -> int:
         """Get the hash."""
-        return hash((Variable, self._name))
+        return hash((Variable, self._name, self._type_tags))

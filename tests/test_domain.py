@@ -118,9 +118,23 @@ def test_constants_type_not_available() -> None:
 
     with pytest.raises(
         PDDLValidationError,
-        match=rf"types \['t1'\] of term {re.escape(repr(a))} are not in available types {{'{my_type}'}}",
+        match=rf"types \['t1'\] of terms are not in available types {{'{my_type}'}}",
     ):
         Domain("test", requirements={Requirements.TYPING}, constants={a}, types=type_set)  # type: ignore
+
+
+def test_constants_duplicates_with_different_types() -> None:
+    """Test that when two constants have same name but different types we raise error."""
+    a1 = Constant("a", type_tag="t1")
+    a2 = Constant("a", type_tag="t2")
+
+    type_set = {"t1": None, "t2": None}
+
+    with pytest.raises(
+        PDDLValidationError,
+        match=r"Term a occurred twice with different type tags: previous type tags \['t1'\], new type tags \['t2'\]",
+    ):
+        Domain("test", requirements={Requirements.TYPING}, constants=[a1, a2], types=type_set)  # type: ignore
 
 
 def test_predicate_variable_type_not_available() -> None:

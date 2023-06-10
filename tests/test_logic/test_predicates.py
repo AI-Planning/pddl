@@ -13,6 +13,7 @@
 """Test pddl.logic.predicates module."""
 import pytest
 
+from pddl.exceptions import PDDLValidationError
 from pddl.logic import Predicate
 from pddl.logic.predicates import EqualTo
 from pddl.logic.terms import Constant, Variable
@@ -34,9 +35,9 @@ def test_ground_predicate_negative() -> None:
 def test_inconsistent_predicate_terms() -> None:
     """Test that terms of a predicate must have consistent typing."""
     with pytest.raises(
-        ValueError,
-        match=r"Term \?a has inconsistent type tags: previous type tags \['t1', 't2'\], new type tags "
-        r"\['t3', 't4'\]",
+        PDDLValidationError,
+        match=r"Term \?a occurred twice with different type tags: previous type tags \['t1', 't2'\], "
+        r"new type tags \['t3', 't4'\]",
     ):
         a1, a2 = Variable("a", ["t1", "t2"]), Variable("a", ["t3", "t4"])
         Predicate("p", a1, a2)
@@ -45,9 +46,9 @@ def test_inconsistent_predicate_terms() -> None:
 def test_inconsistent_equal_to_terms() -> None:
     """Test that terms of a EqualTo atomic must have consistent typing."""
     with pytest.raises(
-        ValueError,
-        match=r"Term \?a has inconsistent type tags: previous type tags \['t1', 't2'\], new type tags "
-        r"\['t3', 't4'\]",
+        PDDLValidationError,
+        match=r"Term \?a occurred twice with different type tags: previous type tags \['t1', 't2'\], "
+        r"new type tags \['t3', 't4'\]",
     ):
         a1, a2 = Variable("a", ["t1", "t2"]), Variable("a", ["t3", "t4"])
         EqualTo(a1, a2)

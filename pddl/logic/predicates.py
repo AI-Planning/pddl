@@ -12,10 +12,11 @@
 
 """This class implements PDDL predicates."""
 import functools
-from typing import Collection, Dict, Sequence, Set, Tuple
+from typing import Collection, Dict, Generator, Sequence, Set, Tuple
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name
+from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import assert_, check
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, Formula
@@ -32,11 +33,9 @@ class _TermsList:
 
     def __init__(self, terms_list: Collection[Term]) -> None:
         """Initialize the terms list."""
-        self._terms = tuple(terms_list)
+        self._terms = tuple(self.check_no_duplicate_iterator(terms_list))
 
         self._is_ground: bool = all(isinstance(v, Constant) for v in self._terms)
-
-        self._check_terms_consistency()
 
     @property
     def terms(self) -> Tuple[Term, ...]:
@@ -48,24 +47,28 @@ class _TermsList:
         """Check whether the predicate is ground."""
         return self._is_ground
 
-    def _check_terms_consistency(self):
+    @staticmethod
+    def check_no_duplicate_iterator(
+        terms: Collection[Term],
+    ) -> Generator[Term, None, None]:
         """
-        Check that the term sequence have consistent type tags.
+        Iterate over terms and check that there are no duplicates.
 
         In particular, terms with the same name must have the same type tags.
         """
         seen: Dict[name_type, Set[name_type]] = {}
-        for term in self._terms:
+        for term in terms:
             if term.name not in seen:
                 seen[term.name] = set(term.type_tags)
             else:
                 check(
                     seen[term.name] == set(term.type_tags),
-                    f"Term {term} has inconsistent type tags: "
+                    f"Term {term} occurred twice with different type tags: "
                     f"previous type tags {_print_tag_set(seen[term.name])}, "
                     f"new type tags {_print_tag_set(term.type_tags)}",
-                    exception_cls=ValueError,
+                    exception_cls=PDDLValidationError,
                 )
+            yield term
 
 
 @cache_hash
