@@ -17,15 +17,11 @@ It contains the class definitions to build and modify PDDL domains or problems.
 """
 from typing import AbstractSet, Collection, Dict, Optional, Tuple, cast
 
-from pddl._validation import (
-    TypeChecker,
-    Types,
-    _check_types_in_has_terms_objects,
-    validate,
-)
+from pddl._validation import TypeChecker, _check_types_in_has_terms_objects, validate
 from pddl.action import Action
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
+from pddl.definitions.base import TypesDef
 from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
@@ -62,7 +58,7 @@ class Domain:
         """
         self._name = parse_name(name)
         self._requirements = ensure_set(requirements)
-        self._types = Types(types, self._requirements)
+        self._types = TypesDef(types, self._requirements)
         self._constants = ensure_set(constants)
         self._predicates = ensure_set(predicates)
         self._derived_predicates = ensure_set(derived_predicates)
@@ -242,7 +238,7 @@ class Problem:
             self._requirements is None or self._requirements == domain.requirements,
             "Requirements don't match.",
         )
-        types = Types(domain.types, domain.requirements, skip_checks=True)  # type: ignore
+        types = TypesDef(domain.types, domain.requirements, skip_checks=True)  # type: ignore
         type_checker = TypeChecker(types, domain.requirements)
         type_checker.check_type(self.objects)
         type_checker.check_type(self.init)
