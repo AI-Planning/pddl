@@ -56,6 +56,33 @@ def test_hierarchical_types() -> None:
     }
 
 
+def test_hierarchical_types_2() -> None:
+    """Test correct parsing of hierarchical types, Storage domain."""
+    domain_str = dedent(
+        """
+    (define (domain logistics)
+        (:requirements :strips :typing)
+        (:types hoist surface place area - object
+            container depot - place
+            storearea transitarea - area
+            crate - surface)
+    )
+    """
+    )
+    domain = DomainParser()(domain_str)
+    assert domain.types == {
+        "hoist": "object",
+        "surface": "object",
+        "place": "object",
+        "area": "object",
+        "container": "place",
+        "depot": "place",
+        "storearea": "area",
+        "transitarea": "area",
+        "crate": "surface",
+    }
+
+
 def test_types_repetition_in_simple_typed_lists_not_allowed() -> None:
     """Check types repetition in simple typed lists is detected and a parsing error is raised."""
     domain_str = dedent(
@@ -69,7 +96,7 @@ def test_types_repetition_in_simple_typed_lists_not_allowed() -> None:
 
     with pytest.raises(
         lark.exceptions.VisitError,
-        match=".*error while parsing tokens \\['a', 'b', 'c', 'a'\\]: "
+        match=r".*error while parsing tokens \['a', 'b', 'c', 'a'\]: "
         "duplicate name 'a' in typed list already present",
     ):
         DomainParser()(domain_str)
@@ -88,8 +115,8 @@ def test_types_repetition_in_typed_lists_not_allowed() -> None:
 
     with pytest.raises(
         lark.exceptions.VisitError,
-        match=".*error while parsing tokens \\['a', '-', 't1', 'b', 'c', '-', 't2', 'a', '-', 't3'\\]: "
-        "duplicate name 'a' in typed list already present with types \\['t1'\\]",
+        match=r".*error while parsing tokens \['a', '-', 't1', 'b', 'c', '-', 't2', 'a', '-', 't3'\]: "
+        r"duplicate name 'a' in typed list already inherits from types \['t1'\]",
     ):
         DomainParser()(domain_str)
 
@@ -167,7 +194,7 @@ def test_constants_repetition_in_typed_lists_not_allowed() -> None:
     with pytest.raises(
         lark.exceptions.VisitError,
         match=".*error while parsing tokens \\['c1', '-', 't1', 'c1', '-', 't2'\\]: "
-        "duplicate name 'c1' in typed list already present with types \\['t1'\\]",
+        "duplicate name 'c1' in typed list already inherits from types \\['t1'\\]",
     ):
         DomainParser()(domain_str)
 

@@ -76,7 +76,7 @@ def test_problem_objects_repetition_in_typed_lists_not_allowed() -> None:
     with pytest.raises(
         lark.exceptions.VisitError,
         match=r".*error while parsing tokens \['a', '-', 't1', 'b', '-', 't2', 'c', '-', 't3', 'a', '-', 't4'\]: "
-        r"duplicate name 'a' in typed list already present with types \['t1'\]",
+        r"duplicate name 'a' in typed list already inherits from types \['t1'\]",
     ):
         ProblemParser()(problem_str)
 
