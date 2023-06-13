@@ -120,7 +120,7 @@ that gives:
 (define (domain my_domain)
     (:requirements :strips :typing)
     (:types type_1)
-    (:constants a b c)
+    (:constants a b c - type_1)
     (:predicates (p1 ?x - type_1 ?y - type_1 ?z - type_1)  (p2 ?x - type_1 ?y - type_1))
     (:action action-1
         :parameters (?x - type_1 ?y - type_1 ?z - type_1)
@@ -148,7 +148,7 @@ Output:
 (define (problem problem-1)
     (:domain my_domain)
     (:requirements :strips :typing)
-    (:objects a - type_1 b - type_1 c - type_1)
+    (:objects a b c - type_1)
     (:init (not (p2 b c)) (p1 a b c))
     (:goal (p2 b c))
 )
