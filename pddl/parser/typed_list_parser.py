@@ -175,10 +175,12 @@ class TypedListParser:
         """
         if item_name in self._item_to_types:
             types_list = sorted(map(str, self._item_to_types[item_name]))
-            types_list_str = f" with types {types_list}" if len(types_list) > 0 else ""
+            if len(types_list) > 0:
+                raise ValueError(
+                    f"duplicate name '{item_name}' in typed list already inherits from types {types_list}"
+                )
             raise ValueError(
                 f"duplicate name '{item_name}' in typed list already present"
-                + types_list_str
             )
 
     def _check_tags_already_present(
