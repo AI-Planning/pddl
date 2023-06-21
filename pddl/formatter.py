@@ -16,7 +16,6 @@ from typing import Callable, Collection, Dict, List, Optional
 
 from pddl.core import Domain, Problem
 from pddl.custom_types import name
-from pddl.logic.base import TRUE
 from pddl.logic.terms import Constant
 
 
@@ -153,11 +152,7 @@ def problem_to_string(problem: Problem) -> str:
     body += _sort_and_print_collection(
         "(:init ", problem.init, ")\n", is_mandatory=True
     )
-    body += (
-        f"{'(:goal ' + str(problem.goal) + ')'}\n"
-        if problem.goal != TRUE
-        else "(:goal (and))\n"
-    )
+    body += f"{'(:goal ' + str(problem.goal) + ')'}\n"
     result = result + "\n" + indent(body, indentation) + "\n)"
     result = _remove_empty_lines(result)
     return result

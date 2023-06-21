@@ -22,13 +22,7 @@ from pddl.custom_types import namelike, to_names, to_types  # noqa: F401
 from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import check, ensure, ensure_set, find_cycle
 from pddl.logic import Predicate
-from pddl.logic.base import (
-    BinaryOp,
-    FalseFormula,
-    QuantifiedCondition,
-    TrueFormula,
-    UnaryOp,
-)
+from pddl.logic.base import BinaryOp, QuantifiedCondition, UnaryOp
 from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.predicates import DerivedPredicate, EqualTo
 from pddl.logic.terms import Term
@@ -260,14 +254,6 @@ class TypeChecker:
     def _(self, formula: BinaryOp) -> None:
         """Check types annotations of a PDDL binary operator."""
         self.check_type(formula.operands)
-
-    @check_type.register
-    def _(self, formula: TrueFormula) -> None:
-        """Check types annotations of a PDDL true formula."""
-
-    @check_type.register
-    def _(self, formula: FalseFormula) -> None:
-        """Check types annotations of a PDDL false formula."""
 
     @check_type.register
     def _(self, formula: QuantifiedCondition) -> None:

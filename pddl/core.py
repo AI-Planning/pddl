@@ -27,7 +27,7 @@ from pddl.action import Action
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
 from pddl.helpers.base import assert_, check, ensure, ensure_set
-from pddl.logic.base import Formula, TrueFormula, is_literal
+from pddl.logic.base import And, Formula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant
 from pddl.requirements import Requirements
@@ -172,7 +172,7 @@ class Problem:
         ] = self._parse_requirements(domain, requirements)
         self._objects: AbstractSet[Constant] = ensure_set(objects)
         self._init: AbstractSet[Formula] = ensure_set(init)
-        self._goal: Formula = ensure(goal, TrueFormula())
+        self._goal: Formula = ensure(goal, And())
         validate(
             all(map(is_literal, self.init)),
             "Not all formulas of initial condition are literals!",

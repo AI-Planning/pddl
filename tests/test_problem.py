@@ -17,7 +17,7 @@ import pickle  # nosec
 import pytest
 
 from pddl.core import Domain, Problem
-from pddl.logic.base import Not, TrueFormula
+from pddl.logic.base import And, Not
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
 from tests.conftest import pddl_objects_problems
@@ -64,7 +64,7 @@ class TestProblemEmpty:
 
     def test_goal(self):
         """Test the goal getter."""
-        assert self.problem.goal == TrueFormula()
+        assert self.problem.goal == And()
 
 
 def test_build_simple_problem():
