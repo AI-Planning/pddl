@@ -96,6 +96,6 @@ def test_typed_objects_formatting_in_problem() -> None:
         (:requirements :typing)
         (:objects a b c - type_1 d e f - type_2 g h i - type_3 j k l)
         (:init )
-        (:goal (and))
+        (:goal (and ))
     )"""
     )

@@ -21,16 +21,7 @@ from pddl.core import Domain
 from pddl.custom_types import name
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_
-from pddl.logic.base import (
-    And,
-    ExistsCondition,
-    FalseFormula,
-    ForallCondition,
-    Imply,
-    Not,
-    OneOf,
-    Or,
-)
+from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
 from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
@@ -138,7 +129,7 @@ class DomainTransformer(Transformer):
     def emptyor_pregd(self, args):
         """Process the 'emptyor_pregd' rule."""
         if len(args) == 2:
-            return FalseFormula()
+            return Or()
         else:
             assert_(len(args) == 1)
             return args[0]
@@ -217,7 +208,7 @@ class DomainTransformer(Transformer):
     def emptyor_effect(self, args):
         """Process the 'emptyor_effect' rule."""
         if len(args) == 2:
-            return FalseFormula()
+            return Or()
         else:
             return args[0]
 
