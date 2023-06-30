@@ -118,7 +118,7 @@ def test_constants_type_not_available() -> None:
 
     with pytest.raises(
         PDDLValidationError,
-        match=rf"types \['t1'\] of terms are not in available types {{'{my_type}'}}",
+        match=r"types \['t1'\] of terms \['a'\] are not in available types \['my_type'\]",
     ):
         Domain("test", requirements={Requirements.TYPING}, constants={a}, types=type_set)  # type: ignore
 
@@ -147,7 +147,7 @@ def test_predicate_variable_type_not_available() -> None:
 
     with pytest.raises(
         PDDLValidationError,
-        match=rf"types \['t1', 't2'\] of term {re.escape(repr(x))} are not in available types {{'{my_type}'}}",
+        match=r"types \['t1', 't2'\] of terms \['\?a'\] are not in available types \['my_type'\]",
     ):
         Domain("test", requirements={Requirements.TYPING}, predicates={p}, types=type_set)  # type: ignore
 

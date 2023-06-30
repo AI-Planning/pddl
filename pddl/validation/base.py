@@ -11,7 +11,7 @@
 #
 
 """Base module for validators."""
-from typing import AbstractSet, Collection
+from typing import AbstractSet, Callable, Collection
 
 from pddl.custom_types import name as name_type
 from pddl.definitions.base import TypesDef
@@ -44,10 +44,10 @@ class BaseValidator:
             )
 
     def _check_types_are_available(
-        self, type_tags: Collection[name_type], what: str
+        self, type_tags: Collection[name_type], what: Callable[[], str]
     ) -> None:
         """Check that the types are available in the domain."""
         if not self._types.all_types.issuperset(type_tags):
             raise PDDLValidationError(
-                f"types {sorted(type_tags)} of {what} are not in available types {self._types.all_types}"
+                f"types {sorted(type_tags)} of {what()} are not in available types {sorted(self._types.all_types)}"
             )

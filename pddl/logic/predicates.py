@@ -12,34 +12,30 @@
 
 """This class implements PDDL predicates."""
 import functools
-from typing import Collection, Dict, Generator, Sequence, Set, Tuple
+from typing import Sequence
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name
-from pddl.exceptions import PDDLValidationError
-from pddl.helpers.base import assert_, check
+from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, Formula
-from pddl.logic.terms import Constant, Term, _print_tag_set
+from pddl.logic.terms import Constant, Term
 from pddl.parser.symbols import Symbols
+from pddl.validation.terms import TermsValidator
 
 
-class _TermsList:
-    """
-    A class wrapper for validating sequences of terms.
+class _BaseAtomic(Atomic):
+    """Base class to share common code among atomic formulas classes."""
 
-    Note that this is only for internal validation of terms, and not specific to any PDDL domain type hierarchy.
-    """
-
-    def __init__(self, terms_list: Collection[Term]) -> None:
-        """Initialize the terms list."""
-        self._terms = tuple(self.check_no_duplicate_iterator(terms_list))
-
+    def __init__(self, *terms: Term) -> None:
+        """Initialize the atomic formula."""
+        TermsValidator.check_terms_consistency(terms)
+        self._terms = tuple(terms)
         self._is_ground: bool = all(isinstance(v, Constant) for v in self._terms)
 
     @property
-    def terms(self) -> Tuple[Term, ...]:
-        """Get the terms sequence."""
+    def terms(self) -> Sequence[Term]:
+        """Get the terms."""
         return self._terms
 
     @property
@@ -47,39 +43,16 @@ class _TermsList:
         """Check whether the predicate is ground."""
         return self._is_ground
 
-    @staticmethod
-    def check_no_duplicate_iterator(
-        terms: Collection[Term],
-    ) -> Generator[Term, None, None]:
-        """
-        Iterate over terms and check that there are no duplicates.
-
-        In particular, terms with the same name must have the same type tags.
-        """
-        seen: Dict[name_type, Set[name_type]] = {}
-        for term in terms:
-            if term.name not in seen:
-                seen[term.name] = set(term.type_tags)
-            else:
-                check(
-                    seen[term.name] == set(term.type_tags),
-                    f"Term {term} occurred twice with different type tags: "
-                    f"previous type tags {_print_tag_set(seen[term.name])}, "
-                    f"new type tags {_print_tag_set(term.type_tags)}",
-                    exception_cls=PDDLValidationError,
-                )
-            yield term
-
 
 @cache_hash
 @functools.total_ordering
-class Predicate(Atomic):
+class Predicate(_BaseAtomic):
     """A class for a Predicate in PDDL."""
 
     def __init__(self, predicate_name: namelike, *terms: Term):
         """Initialize the predicate."""
         self._name = parse_name(predicate_name)
-        self._terms_list = _TermsList(terms)
+        super().__init__(*terms)
 
     @property
     def name(self) -> name_type:
@@ -87,19 +60,9 @@ class Predicate(Atomic):
         return self._name
 
     @property
-    def terms(self) -> Sequence[Term]:
-        """Get the terms."""
-        return self._terms_list.terms
-
-    @property
     def arity(self) -> int:
         """Get the arity of the predicate."""
         return len(self.terms)
-
-    @property
-    def is_ground(self) -> bool:
-        """Check whether the predicate is ground."""
-        return self._terms_list.is_ground
 
     # TODO check whether it's a good idea...
     # TODO allow also for keyword-based replacement
@@ -143,7 +106,7 @@ class Predicate(Atomic):
         return super().__lt__(other)
 
 
-class EqualTo(Atomic):
+class EqualTo(_BaseAtomic):
     """Equality predicate."""
 
     def __init__(self, left: Term, right: Term):
@@ -153,10 +116,9 @@ class EqualTo(Atomic):
         :param left: the left term.
         :param right: the right term.
         """
+        super().__init__(left, right)
         self._left = left
         self._right = right
-
-        self._terms_list = _TermsList([self._left, self._right])
 
     @property
     def left(self) -> Term:

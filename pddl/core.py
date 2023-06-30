@@ -23,6 +23,7 @@ from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
 from pddl.definitions.base import TypesDef
 from pddl.definitions.constants_def import ConstantsDef
+from pddl.definitions.predicates_def import PredicatesDef
 from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate
@@ -61,7 +62,9 @@ class Domain:
         self._requirements = ensure_set(requirements)
         self._types = TypesDef(types, self._requirements)
         self._constants_def = ConstantsDef(self._requirements, self._types, constants)
-        self._predicates = ensure_set(predicates)
+        self._predicates_def = PredicatesDef(
+            self._requirements, self._types, predicates
+        )
         self._derived_predicates = ensure_set(derived_predicates)
         self._actions = ensure_set(actions)
 
@@ -70,7 +73,6 @@ class Domain:
     def _check_consistency(self) -> None:
         """Check consistency of a domain instance object."""
         checker = TypeChecker(self._types, self.requirements)
-        checker.check_type(self._predicates)
         checker.check_type(self._actions)
         _check_types_in_has_terms_objects(self._actions, self._types.all_types)  # type: ignore
         self._check_types_in_derived_predicates()
@@ -102,7 +104,7 @@ class Domain:
     @property
     def predicates(self) -> AbstractSet[Predicate]:
         """Get the predicates."""
-        return self._predicates
+        return self._predicates_def.predicates
 
     @property
     def derived_predicates(self) -> AbstractSet[DerivedPredicate]:
