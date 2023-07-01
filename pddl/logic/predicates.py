@@ -16,11 +16,13 @@ from typing import Sequence
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name
+from pddl.definitions.base import TypesDef
 from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, Formula
 from pddl.logic.terms import Constant, Term
 from pddl.parser.symbols import Symbols
+from pddl.requirements import Requirements
 from pddl.validation.terms import TermsValidator
 
 
@@ -29,7 +31,7 @@ class _BaseAtomic(Atomic):
 
     def __init__(self, *terms: Term) -> None:
         """Initialize the atomic formula."""
-        TermsValidator.check_terms_consistency(terms)
+        self._check_terms_light(terms)
         self._terms = tuple(terms)
         self._is_ground: bool = all(isinstance(v, Constant) for v in self._terms)
 
@@ -42,6 +44,14 @@ class _BaseAtomic(Atomic):
     def is_ground(self) -> bool:
         """Check whether the predicate is ground."""
         return self._is_ground
+
+    def _check_terms_light(self, terms: Sequence[Term]) -> None:
+        """
+        Check the terms of the predicate, but only type tags consistency.
+
+        This method only performs checks that do not require external information (e.g. types provided by the domain).
+        """
+        TermsValidator({Requirements.TYPING}, TypesDef()).check_terms_consistency(terms)
 
 
 @cache_hash

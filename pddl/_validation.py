@@ -14,7 +14,7 @@
 
 import functools
 from collections.abc import Iterable
-from typing import AbstractSet, Collection, Optional, Set, Tuple
+from typing import AbstractSet, Collection, Optional, Tuple
 
 from pddl.action import Action
 from pddl.custom_types import name as name_type
@@ -40,7 +40,7 @@ def validate(condition: bool, message: str = "") -> None:
 
 
 def _find_inconsistencies_in_typed_terms(
-    terms: Optional[Collection[Term]], all_types: Set[name_type]
+    terms: Optional[Collection[Term]], all_types: AbstractSet[name_type]
 ) -> Optional[Tuple[Term, name_type]]:
     """
     Check that the terms in input all have legal types according to the list of available types.
@@ -60,7 +60,7 @@ def _find_inconsistencies_in_typed_terms(
 
 def _check_types_in_has_terms_objects(
     has_terms_objects: Optional[Collection[Predicate]],
-    all_types: Set[name_type],
+    all_types: AbstractSet[name_type],
 ) -> None:
     """Check that the terms in the set of predicates all have legal types."""
     if has_terms_objects is None:
@@ -72,7 +72,7 @@ def _check_types_in_has_terms_objects(
             term, type_tag = check_result
             raise PDDLValidationError(
                 f"type {repr(type_tag)} of term {repr(term)} in atomic expression "
-                f"{repr(has_terms)} is not in available types {all_types}"
+                f"{repr(has_terms)} is not in available types {sorted(all_types)}"
             )
 
 
@@ -104,7 +104,7 @@ class TypeChecker:
         """Check that the types are available in the domain."""
         if not self._types.all_types.issuperset(type_tags):
             raise PDDLValidationError(
-                f"types {sorted(type_tags)} of {what} are not in available types {self._types.all_types}"
+                f"types {sorted(type_tags)} of {what} are not in available types {sorted(self._types.all_types)}"
             )
 
     @functools.singledispatchmethod  # type: ignore

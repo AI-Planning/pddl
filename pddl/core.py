@@ -15,7 +15,7 @@ Core module of the package.
 
 It contains the class definitions to build and modify PDDL domains or problems.
 """
-from typing import AbstractSet, Collection, Dict, Optional, Tuple, cast
+from typing import AbstractSet, Collection, Dict, Mapping, Optional, Tuple, cast
 
 from pddl._validation import TypeChecker, _check_types_in_has_terms_objects, validate
 from pddl.action import Action
@@ -117,7 +117,7 @@ class Domain:
         return self._actions
 
     @property
-    def types(self) -> Dict[name_type, Optional[name_type]]:
+    def types(self) -> Mapping[name_type, Optional[name_type]]:
         """Get the type definitions, if defined. Else, raise error."""
         return self._types.raw
 

@@ -17,6 +17,7 @@ from pddl.custom_types import name as name_type
 from pddl.definitions.base import TypesDef, _Definition
 from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import ensure_set
+from pddl.logic import Variable
 from pddl.logic.predicates import Predicate
 from pddl.requirements import Requirements
 from pddl.validation.terms import TermsValidator
@@ -54,5 +55,7 @@ class PredicatesDef(_Definition):
                 )
             seen_predicates_by_name[p.name] = p
 
-            # check that the terms of the predicate are consistent
-            TermsValidator(self._requirements, self._types).check_terms(p.terms)
+            # check that the terms are consistent wrt types, and that are all variables
+            TermsValidator(
+                self._requirements, self._types, must_be_instances_of=Variable
+            ).check_terms(p.terms)

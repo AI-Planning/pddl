@@ -11,7 +11,7 @@
 #
 
 """Base module for the PDDL definitions."""
-from typing import AbstractSet, Dict, Optional, Set, cast
+from typing import AbstractSet, Dict, FrozenSet, Mapping, Optional, Set, cast
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names, to_types  # noqa: F401
@@ -45,13 +45,16 @@ class TypesDef:
         self._all_types = self._get_all_types()
         self._types_closure = self._compute_types_closure()
 
+        # only for printing purposes
+        self._sorted_all_types = sorted(self._all_types)
+
     @property
-    def raw(self) -> Dict[name_type, Optional[name_type]]:
+    def raw(self) -> Mapping[name_type, Optional[name_type]]:
         """Get the raw types dictionary."""
         return self._types
 
     @property
-    def all_types(self) -> Set[name_type]:
+    def all_types(self) -> FrozenSet[name_type]:
         """Get all available types."""
         return self._all_types
 
@@ -60,28 +63,32 @@ class TypesDef:
         # check whether type_a and type_b are legal types
         error_msg = "type {0} is not in available types {1}"
         if type_a not in self._all_types:
-            raise PDDLValidationError(error_msg.format(repr(type_a), self._all_types))
+            raise PDDLValidationError(
+                error_msg.format(repr(type_a), self._sorted_all_types)
+            )
         if type_b not in self._all_types:
-            raise PDDLValidationError(error_msg.format(repr(type_b), self._all_types))
+            raise PDDLValidationError(
+                error_msg.format(repr(type_b), self._sorted_all_types)
+            )
 
         return type_a in self._types_closure.get(type_b, set())
 
-    def _get_all_types(self) -> Set[name_type]:
+    def _get_all_types(self) -> FrozenSet[name_type]:
         """Get all types supported by the domain."""
         if self._types is None:
-            return set()
+            return frozenset()
         result = set(self._types.keys()) | set(self._types.values())
         result.discard(None)
-        return cast(Set[name_type], result)
+        return cast(FrozenSet[name_type], frozenset(result))
 
-    def _compute_types_closure(self) -> Dict[name_type, Set[name_type]]:
+    def _compute_types_closure(self) -> Mapping[name_type, Set[name_type]]:
         """Compute the closure of the types dictionary."""
         return transitive_closure(self._types)
 
     @classmethod
     def _check_types_dictionary(
         cls,
-        type_dict: Dict[name_type, Optional[name_type]],
+        type_dict: Mapping[name_type, Optional[name_type]],
         requirements: AbstractSet[Requirements],
     ) -> None:
         """
