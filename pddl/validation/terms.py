@@ -12,7 +12,16 @@
 
 """Module for validator of terms."""
 from functools import partial
-from typing import AbstractSet, Collection, Dict, Generator, Optional, Set, Type, Union
+from typing import (
+    AbstractSet,
+    Collection,
+    Dict,
+    Generator,
+    Mapping,
+    Optional,
+    Type,
+    Union,
+)
 
 from pddl.custom_types import name as name_type
 from pddl.definitions.base import TypesDef
@@ -35,12 +44,14 @@ class TermsValidator(BaseValidator):
         requirements: AbstractSet[Requirements],
         types: TypesDef,
         must_be_instances_of: Optional[Union[Type[Constant], Type[Variable]]] = None,
+        no_duplicates: bool = False,
     ):
         """Initialize the validator."""
         super().__init__(requirements, types)
 
         # if none, then we don't care if constant or variable
         self._allowed_superclass = must_be_instances_of
+        self._no_duplicates = no_duplicates
 
     def check_terms_consistency(self, terms: Collection[Term]):
         """
@@ -58,28 +69,41 @@ class TermsValidator(BaseValidator):
         Iterate over terms and check that terms with the same name must have the same type tags.
 
         In particular:
+        - if no_duplicates=Term there cannot be terms with the same name (variable or constant);
         - terms with the same name must be of the same term type (variable or constant);
         - terms with the same name must have the same type tags.
         """
-        seen: Dict[name_type, Set[name_type]] = {}
+        seen: Dict[name_type, Term] = {}
         for term in terms:
+            self._check_already_seen_term(term, seen)
             self._check_same_term_has_same_type_tags(term, seen)
             self._check_term_type(term, term_type=self._allowed_superclass)
             yield term
+            seen[term.name] = term
+
+    def _check_already_seen_term(self, term: Term, seen: Mapping[name_type, Term]):
+        """Check whether a term has been already seen earlier in the terms list."""
+        if self._no_duplicates and term.name in seen:
+            same_name_but_different_type = type(term) is not type(  # noqa: E721
+                seen[term.name]
+            )
+            check(
+                same_name_but_different_type,
+                f"Term '{term}' occurred twice in the same list of terms",
+                exception_cls=PDDLValidationError,
+            )
 
     @classmethod
     def _check_same_term_has_same_type_tags(
-        cls, term: Term, seen: Dict[name_type, Set[name_type]]
+        cls, term: Term, seen: Dict[name_type, Term]
     ) -> None:
         """
         Check if the term has already been seen and, if so, that it has the same type tags.
 
         This is an auxiliary method to simplify the implementation of '_check_terms_consistency_iterator'.
         """
-        if term.name not in seen:
-            seen[term.name] = set(term.type_tags)
-        else:
-            expected_type_tags = seen[term.name]
+        if term.name in seen:
+            expected_type_tags = seen[term.name].type_tags
             actual_type_tags = set(term.type_tags)
             check(
                 expected_type_tags == actual_type_tags,

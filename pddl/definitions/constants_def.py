@@ -30,7 +30,9 @@ class ConstantsDef(_Definition):
         constants: Optional[Collection[Constant]],
     ) -> None:
         """Initialize the PDDL constants section validator."""
-        TermsValidator(requirements, types).check_terms(constants if constants else [])
+        TermsValidator(requirements, types, no_duplicates=True).check_terms(
+            constants if constants else []
+        )
 
         super().__init__(requirements, types)
         self._constants = ensure_set(constants)
