@@ -10,4 +10,4 @@
 # https://opensource.org/licenses/MIT.
 #
 
-"""This package includes validation functions of PDDL domains/problems."""
+"""This package includes builder classes for PDDL domains and problems."""

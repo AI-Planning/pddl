@@ -21,9 +21,9 @@ from pddl._validation import TypeChecker, _check_types_in_has_terms_objects, val
 from pddl.action import Action
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
-from pddl.definitions.base import TypesDef
 from pddl.definitions.constants_def import ConstantsDef
 from pddl.definitions.predicates_def import PredicatesDef
+from pddl.definitions.types_def import TypesDef
 from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
 from pddl.logic.predicates import DerivedPredicate, Predicate

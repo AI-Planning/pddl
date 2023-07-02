@@ -19,7 +19,7 @@ from typing import AbstractSet, Collection, Optional, Tuple
 from pddl.action import Action
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names, to_types  # noqa: F401
-from pddl.definitions.base import TypesDef
+from pddl.definitions.types_def import TypesDef
 from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import check, ensure_set
 from pddl.logic import Predicate
