@@ -13,7 +13,7 @@
 """This module contains the definition of the PDDL requirements."""
 import functools
 from enum import Enum
-from typing import Set
+from typing import AbstractSet, Set
 
 from pddl.parser.symbols import RequirementSymbols as RS
 
@@ -46,6 +46,19 @@ class Requirements(Enum):
             Requirements.CONDITIONAL_EFFECTS,
         }
 
+    @classmethod
+    def adl_requirements(cls) -> Set["Requirements"]:
+        """Get the ADL requirements."""
+        return {
+            Requirements.STRIPS,
+            Requirements.TYPING,
+            Requirements.NEG_PRECONDITION,
+            Requirements.DIS_PRECONDITION,
+            Requirements.EQUALITY,
+            Requirements.QUANTIFIED_PRECONDITION,
+            Requirements.CONDITIONAL_EFFECTS,
+        }
+
     def __str__(self) -> str:
         """Get the string representation."""
         return f":{self.value}"
@@ -60,3 +73,15 @@ class Requirements(Enum):
             return self.value <= other.value
         else:
             return super().__lt__(other)
+
+
+def _extend_domain_requirements(
+    requirements: AbstractSet[Requirements],
+) -> Set[Requirements]:
+    """Extend the requirements with the domain requirements."""
+    extended_requirements = set(requirements)
+    if Requirements.STRIPS in requirements:
+        extended_requirements.update(Requirements.strips_requirements())
+    if Requirements.ADL in requirements:
+        extended_requirements.update(Requirements.adl_requirements())
+    return extended_requirements
