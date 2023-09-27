@@ -121,6 +121,30 @@ def test_types_repetition_in_typed_lists_not_allowed() -> None:
         DomainParser()(domain_str)
 
 
+def test_typing_requirement_under_other_domain_requirements() -> None:
+    """Check :typing requirement does not throw error if other domain requirements that includes it are detected."""
+    domain_str = dedent(
+        """
+(define (domain tictactoe)
+  (:requirements :adl)
+  (:types a b c)
+  (:predicates
+    (predicate1 ?x - a)
+    (predicate2 ?x - b)
+    (predicate3 ?x - c)
+    )
+  )
+    """
+    )
+
+    domain = DomainParser()(domain_str)
+    assert domain.types == {
+        "a": None,
+        "b": None,
+        "c": None,
+    }
+
+
 @pytest.mark.parametrize("keyword", TEXT_SYMBOLS - {Symbols.OBJECT.value})
 def test_keyword_usage_not_allowed_as_name(keyword) -> None:
     """Check keywords usage as names is detected and a parsing error is raised."""
