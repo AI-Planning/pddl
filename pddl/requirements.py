@@ -77,7 +77,9 @@ def _extend_domain_requirements(
     """Extend the requirements with the domain requirements."""
     extended_requirements = set(requirements)
     if Requirements.QUANTIFIED_PRECONDITION in requirements:
-        extended_requirements.update(Requirements.quantified_precondition_requirements())
+        extended_requirements.update(
+            Requirements.quantified_precondition_requirements()
+        )
     if Requirements.ADL in requirements:
         extended_requirements.update(Requirements.adl_requirements())
     return extended_requirements
