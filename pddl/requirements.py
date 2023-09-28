@@ -36,14 +36,11 @@ class Requirements(Enum):
     NON_DETERMINISTIC = RS.NON_DETERMINISTIC.strip()
 
     @classmethod
-    def strips_requirements(cls) -> Set["Requirements"]:
-        """Get the STRIPS requirements."""
+    def quantified_precondition_requirements(cls) -> Set["Requirements"]:
+        """Get the quantified precondition requirements."""
         return {
-            Requirements.TYPING,
-            Requirements.NEG_PRECONDITION,
-            Requirements.DIS_PRECONDITION,
-            Requirements.EQUALITY,
-            Requirements.CONDITIONAL_EFFECTS,
+            Requirements.UNIVERSAL_PRECONDITION,
+            Requirements.EXISTENTIAL_PRECONDITION,
         }
 
     @classmethod
@@ -55,9 +52,8 @@ class Requirements(Enum):
             Requirements.NEG_PRECONDITION,
             Requirements.DIS_PRECONDITION,
             Requirements.EQUALITY,
-            Requirements.QUANTIFIED_PRECONDITION,
             Requirements.CONDITIONAL_EFFECTS,
-        }
+        }.union(cls.quantified_precondition_requirements())
 
     def __str__(self) -> str:
         """Get the string representation."""
@@ -80,8 +76,8 @@ def _extend_domain_requirements(
 ) -> Set[Requirements]:
     """Extend the requirements with the domain requirements."""
     extended_requirements = set(requirements)
-    if Requirements.STRIPS in requirements:
-        extended_requirements.update(Requirements.strips_requirements())
+    if Requirements.QUANTIFIED_PRECONDITION in requirements:
+        extended_requirements.update(Requirements.quantified_precondition_requirements())
     if Requirements.ADL in requirements:
         extended_requirements.update(Requirements.adl_requirements())
     return extended_requirements

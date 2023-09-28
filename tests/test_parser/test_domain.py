@@ -125,7 +125,7 @@ def test_typing_requirement_under_other_domain_requirements() -> None:
     """Check :typing requirement does not throw error if other domain requirements that includes it are detected."""
     domain_str = dedent(
         """
-(define (domain tictactoe)
+(define (domain test)
   (:requirements :adl)
   (:types a b c)
   (:predicates
