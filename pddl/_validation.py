@@ -27,7 +27,7 @@ from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.predicates import DerivedPredicate, EqualTo
 from pddl.logic.terms import Term
 from pddl.parser.symbols import Symbols
-from pddl.requirements import Requirements
+from pddl.requirements import Requirements, _extend_domain_requirements
 
 
 def validate(condition: bool, message: str = "") -> None:
@@ -193,7 +193,8 @@ class TypeChecker:
     @property
     def has_typing(self) -> bool:
         """Check if the typing requirement is specified."""
-        return Requirements.TYPING in self._requirements
+        self._extended_requirements = _extend_domain_requirements(self._requirements)
+        return Requirements.TYPING in self._extended_requirements
 
     def _check_typing_requirement(self, type_tags: Collection[name_type]) -> None:
         """Check that the typing requirement is specified."""

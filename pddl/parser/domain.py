@@ -28,7 +28,7 @@ from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
 from pddl.parser.symbols import Symbols
 from pddl.parser.typed_list_parser import TypedListParser
-from pddl.requirements import Requirements
+from pddl.requirements import Requirements, _extend_domain_requirements
 
 
 class DomainTransformer(Transformer):
@@ -72,10 +72,7 @@ class DomainTransformer(Transformer):
     def requirements(self, args):
         """Process the 'requirements' rule."""
         self._requirements = {Requirements(r[1:]) for r in args[2:-1]}
-
-        self._extended_requirements = set(self._requirements)
-        if Requirements.STRIPS in self._requirements:
-            self._extended_requirements.update(Requirements.strips_requirements())
+        self._extended_requirements = _extend_domain_requirements(self._requirements)
 
         return dict(requirements=self._requirements)
 
