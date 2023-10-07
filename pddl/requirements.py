@@ -34,6 +34,8 @@ class Requirements(Enum):
     ADL = RS.ADL.strip()
     DERIVED_PREDICATES = RS.DERIVED_PREDICATES.strip()
     NON_DETERMINISTIC = RS.NON_DETERMINISTIC.strip()
+    FLUENTS = RS.FLUENTS.strip()
+    NUMERIC_FLUENTS = RS.NUMERIC_FLUENTS.strip()
 
     @classmethod
     def quantified_precondition_requirements(cls) -> Set["Requirements"]:

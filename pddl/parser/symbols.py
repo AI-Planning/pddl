@@ -61,6 +61,9 @@ class Symbols(Enum):
 
 
 ALL_SYMBOLS: Set[str] = {v.value for v in Symbols}
+BINARY_COMP_SYMBOLS: Set[str] = {
+    v.value for v in Symbols if v.value in {">=", ">", "<=", "<", "="}
+}
 
 
 class RequirementSymbols(Enum):
@@ -79,6 +82,7 @@ class RequirementSymbols(Enum):
     DERIVED_PREDICATES = ":derived-predicates"
     NON_DETERMINISTIC = ":non-deterministic"
     FLUENTS = ":fluents"
+    NUMERIC_FLUENTS = ":numeric-fluents"
 
     def strip(self) -> str:
         """Strip the leading colon."""
