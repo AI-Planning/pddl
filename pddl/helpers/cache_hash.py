@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -54,7 +53,10 @@ def _getstate(fn):
     @wraps(fn)
     def __getstate__(self):
         d = fn(self)
-        d.pop("__hash")
+        if d is None:
+            return None
+        # assuming d is a dictionary
+        d.pop("__hash", None)
         return d
 
     return __getstate__

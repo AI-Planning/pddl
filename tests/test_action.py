@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -12,7 +11,7 @@
 #
 """This module contains tests for a PDDL action."""
 
-from pddl.core import Action
+from pddl.action import Action
 from pddl.logic import Predicate, Variable, variables
 from pddl.logic.base import ExistsCondition, ForallCondition, Imply, OneOf
 

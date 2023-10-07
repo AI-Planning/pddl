@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -14,12 +13,14 @@
 """This test module contains the fixtures for 'blocksworld-ipc08' domain and problem."""
 import pytest
 
-from pddl.core import Action, Domain, Problem, Requirements
+from pddl.action import Action
+from pddl.core import Domain, Problem
 from pddl.logic import Constant
 from pddl.logic.base import And, OneOf
 from pddl.logic.effects import AndEffect, When
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import EqualTo, Predicate
+from pddl.requirements import Requirements
 
 
 @pytest.fixture(scope="session")
@@ -109,7 +110,7 @@ def blocksworld_fond_01():
         clear(Table),
     }
 
-    goal = And()
+    goal = on(B, A)
 
     problem_name = "sussman-anomaly"
 

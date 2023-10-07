@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -12,29 +11,25 @@
 #
 
 """Implementation of the PDDL domain parser."""
-from typing import Dict, Set
+import sys
+from typing import Dict, Optional, Set, Tuple
 
 from lark import Lark, ParseError, Transformer
 
-from pddl.core import Action, Domain, Requirements
-from pddl.exceptions import PDDLMissingRequirementError
-from pddl.helpers.base import assert_, safe_get, safe_index
-from pddl.logic.base import (
-    And,
-    ExistsCondition,
-    FalseFormula,
-    ForallCondition,
-    Imply,
-    Not,
-    OneOf,
-    Or,
-)
+from pddl.action import Action
+from pddl.core import Domain
+from pddl.custom_types import name
+from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
+from pddl.helpers.base import assert_
+from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
 from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.functions import Function
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
 from pddl.parser.symbols import Symbols
+from pddl.parser.typed_list_parser import TypedListParser
+from pddl.requirements import Requirements, _extend_domain_requirements
 
 
 class DomainTransformer(Transformer):
@@ -56,6 +51,7 @@ class DomainTransformer(Transformer):
 
     def domain(self, args):
         """Process the 'domain' rule."""
+        args = [arg for arg in args if arg is not None]
         kwargs = {}
         actions = []
         derived_predicates = []
@@ -65,7 +61,7 @@ class DomainTransformer(Transformer):
             elif isinstance(arg, DerivedPredicate):
                 derived_predicates.append(arg)
             else:
-                assert isinstance(arg, dict)
+                assert_(isinstance(arg, dict))
                 kwargs.update(arg)
         kwargs.update(actions=actions, derived_predicates=derived_predicates)
         return Domain(**kwargs)
@@ -77,18 +73,18 @@ class DomainTransformer(Transformer):
     def requirements(self, args):
         """Process the 'requirements' rule."""
         self._requirements = {Requirements(r[1:]) for r in args[2:-1]}
-
-        self._extended_requirements = set(self._requirements)
-        if Requirements.STRIPS in self._requirements:
-            self._extended_requirements.update(Requirements.strips_requirements())
+        self._extended_requirements = _extend_domain_requirements(self._requirements)
 
         return dict(requirements=self._requirements)
 
     def types(self, args):
         """Parse the 'types' rule."""
-        if not bool({Requirements.TYPING} & self._extended_requirements):
+        has_typing_requirement = self._has_requirement(Requirements.TYPING)
+        types_definition = args[2]
+        have_type_hierarchy = any(types_definition.values())
+        if have_type_hierarchy and not has_typing_requirement:
             raise PDDLMissingRequirementError(Requirements.TYPING)
-        return dict(types=list(args[2].keys()))
+        return dict(types=types_definition)
 
     def constants(self, args):
         """Process the 'constant_def' rule."""
@@ -111,7 +107,7 @@ class DomainTransformer(Transformer):
 
     def action_def(self, args):
         """Process the 'action_def' rule."""
-        name = args[2]
+        action_name = args[2]
         variables = args[4]
 
         # process action body
@@ -119,7 +115,7 @@ class DomainTransformer(Transformer):
         action_body = {
             _children[i][1:]: _children[i + 1] for i in range(0, len(_children), 2)
         }
-        return Action(name, variables, **action_body)
+        return Action(action_name, variables, **action_body)
 
     def derived_predicates(self, args):
         """Process the 'derived_predicates' rule."""
@@ -130,14 +126,14 @@ class DomainTransformer(Transformer):
     def action_parameters(self, args):
         """Process the 'action_parameters' rule."""
         self._current_parameters_by_name = {
-            name: Variable(name, tags) for name, tags in args[1].items()
+            var_name: Variable(var_name, tags) for var_name, tags in args[1]
         }
         return list(self._current_parameters_by_name.values())
 
     def emptyor_pregd(self, args):
         """Process the 'emptyor_pregd' rule."""
         if len(args) == 2:
-            return FalseFormula()
+            return Or()
         else:
             assert_(len(args) == 1)
             return args[0]
@@ -194,7 +190,7 @@ class DomainTransformer(Transformer):
             & self._extended_requirements
         ):
             raise PDDLMissingRequirementError(req)
-        variables = [Variable(name, tags) for name, tags in args[3].items()]
+        variables = [Variable(var_name, tags) for var_name, tags in args[3]]
         condition = args[5]
         return cond_class(cond=condition, variables=variables)
 
@@ -216,7 +212,7 @@ class DomainTransformer(Transformer):
     def emptyor_effect(self, args):
         """Process the 'emptyor_effect' rule."""
         if len(args) == 2:
-            return FalseFormula()
+            return Or()
         else:
             return args[0]
 
@@ -233,7 +229,8 @@ class DomainTransformer(Transformer):
         if len(args) == 1:
             return args[0]
         if args[1] == Symbols.FORALL.value:
-            return Forall(effect=args[-2], variables=args[3])
+            variables = [Variable(var_name, tags) for var_name, tags in args[3]]
+            return Forall(effect=args[-2], variables=variables)
         if args[1] == Symbols.WHEN.value:
             return When(args[2], args[3])
         if args[1] == Symbols.ONEOF.value:
@@ -254,7 +251,7 @@ class DomainTransformer(Transformer):
         if len(args) >= 3 and args[1] == Symbols.AND.value:
             p_effects = args[2:-1]
             return And(*p_effects)
-        assert len(args) == 1
+        assert_(len(args) == 1)
         return args[0]
 
     def atomic_formula_term(self, args):
@@ -276,9 +273,9 @@ class DomainTransformer(Transformer):
             right = constant_or_variable(args[3])
             return EqualTo(left, right)
         else:
-            name = args[1]
+            predicate_name = args[1]
             terms = list(map(constant_or_variable, args[2:-1]))
-            return Predicate(name, *terms)
+            return Predicate(predicate_name, *terms)
 
     def constant(self, args):
         """Process the 'constant' rule."""
@@ -289,65 +286,69 @@ class DomainTransformer(Transformer):
         return constant
 
     def _formula_skeleton(self, args):
-        name = args[1]
+        predicate_name = args[1]
         variable_data: Dict[str, Set[str]] = args[2]
-        variables = [Variable(name, tags) for name, tags in variable_data.items()]
+        variables = [Variable(var_name, tags) for var_name, tags in variable_data]
         return name, variables
 
     def atomic_predicate_skeleton(self, args):
         """Process the 'atomic_formula_skeleton' rule."""
         name, variables = self._formula_skeleton(args)
-        return Predicate(name, *variables)
+        return Predicate(predicate_name, *variables)
 
     def atomic_function_skeleton(self, args):
         """Process the 'atomic_function_skeleton' rule."""
         name, variables = self._formula_skeleton(args)
         return Function(name, *variables)
 
-    def typed_list_name(self, args):
-        """
-        Process the 'typed_list_name' rule.
+    def typed_list_name(self, args) -> Dict[name, Optional[name]]:
+        """Process the 'typed_list_name' rule."""
+        try:
+            types_index = TypedListParser.parse_typed_list(args)
+            return types_index.get_typed_list_of_names()
+        except ValueError as e:
+            raise self._raise_typed_list_parsing_error(args, e) from e
 
-        Return a dictionary with as keys the names and as value a set of types for each name.
-
-        :param args: the argument of this grammar rule
-        :return: a typed list (name)
-        """
-        return self._typed_list_x(args)
-
-    def typed_list_variable(self, args):
+    def typed_list_variable(self, args) -> Tuple[Tuple[name, Set[name]], ...]:
         """
         Process the 'typed_list_variable' rule.
 
         Return a dictionary with as keys the terms and as value a set of types for each name.
 
         :param args: the argument of this grammar rule
-        :return: a typed list (variable)
+        :return: a typed list (variable), i.e. a mapping from variables to the supported types
         """
-        return self._typed_list_x(args)
+        try:
+            types_index = TypedListParser.parse_typed_list(args, allow_duplicates=True)
+            return types_index.get_typed_list_of_variables()
+        except ValueError as e:
+            raise self._raise_typed_list_parsing_error(args, e) from e
 
-    def _typed_list_x(self, args):
-        """Process generic 'typed_list_x' rules."""
-        type_sep_index = safe_index(args, Symbols.TYPE_SEP.value)
-        if type_sep_index is not None:
-            objs = args[:type_sep_index]
-            type_obj = args[type_sep_index + 1]
-            typed_list_dict = dict()
-            other_typed_list_dict = safe_get(args, type_sep_index + 2, default=dict())
-            for obj in objs:
-                typed_list_dict.setdefault(obj, set()).add(str(type_obj))
-            return {**typed_list_dict, **other_typed_list_dict}
-        elif len(args) > 0:
-            return {obj: set() for obj in args}
-        else:
-            return {}
+    def _raise_typed_list_parsing_error(self, args, exception) -> PDDLParsingError:
+        string_list = [
+            str(arg) if isinstance(arg, str) else list(map(str, arg)) for arg in args
+        ]
+        return PDDLParsingError(
+            f"error while parsing tokens {string_list}: {str(exception)}"
+        )
 
     def type_def(self, args):
         """Parse the 'type_def' rule."""
+        assert_(len(args) != 0, "unexpected parser state: empty type_def")
+
         if len(args) == 1:
-            return args[0]
-        else:
-            return args[1:-1]
+            # single-typed type-def, return
+            return args
+
+        # if we are here, type_def is of the form (either t1 ... tn)
+        # ignore first and last tokens since they are brackets.
+        either_keyword, types = args[1], args[2:-1]
+        assert_(str(either_keyword) == Symbols.EITHER.value)
+        return types
+
+    def _has_requirement(self, requirement: Requirements) -> bool:
+        """Check whether a requirement is satisfied by the current state of the domain parsing."""
+        return requirement in self._extended_requirements
 
 
 _domain_parser_lark = DOMAIN_GRAMMAR_FILE.read_text()
@@ -365,6 +366,8 @@ class DomainParser:
 
     def __call__(self, text):
         """Call."""
+        sys.tracebacklimit = 0  # noqa
         tree = self._parser.parse(text)
+        sys.tracebacklimit = None  # noqa
         formula = self._transformer.transform(tree)
         return formula

@@ -79,14 +79,17 @@ You can use the `pddl` package in two ways: as a library, and as a CLI tool.
 
 This is an example of how you can build a PDDL domain or problem
 programmatically:
+
 ```python
 from pddl.logic import Predicate, constants, variables
-from pddl.core import Domain, Problem, Action, Requirements
+from pddl.core import Domain, Problem
+from pddl.action import Action
 from pddl.formatter import domain_to_string, problem_to_string
+from pddl.requirements import Requirements
 
 # set up variables and constants
 x, y, z = variables("x y z", types=["type_1"])
-a, b, c = constants("a b c", types=["type_1"])
+a, b, c = constants("a b c", type_="type_1")
 
 # define predicates
 p1 = Predicate("p1", x, y, z)
@@ -103,11 +106,11 @@ a1 = Action(
 # define the domain object.
 requirements = [Requirements.STRIPS, Requirements.TYPING]
 domain = Domain("my_domain",
-       requirements=requirements,
-       types=["type_1"],
-       constants=[a, b, c],
-       predicates=[p1, p2],
-       actions=[a1])
+                requirements=requirements,
+                types={"type_1": None},
+                constants=[a, b, c],
+                predicates=[p1, p2],
+                actions=[a1])
 
 print(domain_to_string(domain))
 ```
@@ -117,7 +120,7 @@ that gives:
 (define (domain my_domain)
     (:requirements :strips :typing)
     (:types type_1)
-    (:constants a b c)
+    (:constants a b c - type_1)
     (:predicates (p1 ?x - type_1 ?y - type_1 ?z - type_1)  (p2 ?x - type_1 ?y - type_1))
     (:action action-1
         :parameters (?x - type_1 ?y - type_1 ?z - type_1)
@@ -145,7 +148,7 @@ Output:
 (define (problem problem-1)
     (:domain my_domain)
     (:requirements :strips :typing)
-    (:objects a - type_1 b - type_1 c - type_1)
+    (:objects a b c - type_1)
     (:init (not (p2 b c)) (p1 a b c))
     (:goal (p2 b c))
 )
@@ -197,7 +200,7 @@ If you want to contribute, here's how to set up your development environment.
 
 - Install [Pipenv](https://pipenv-fork.readthedocs.io/en/latest/)
 - Clone the repository: `git clone https://github.com/AI-Planning/pddl.git && cd pddl`
-- Install development dependencies: `pipenv shell --python 3.7 && pipenv install --dev`
+- Install development dependencies: `pipenv shell --python 3.8 && pipenv install --dev`
 
 ## Tests
 
@@ -218,6 +221,7 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 - [Marco Favorito](https://marcofavorito.me)
 - [Francesco Fuggitti](https://francescofuggitti.github.io)
+- [Christian Muise](http://www.haz.ca/)
 
 ## License
 

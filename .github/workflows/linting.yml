@@ -13,13 +13,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     timeout-minutes: 30
 
     steps:
-    - uses: actions/checkout@master
-    - uses: actions/setup-python@master
+    - uses: actions/checkout@main
+    - uses: actions/setup-python@main
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -31,9 +31,11 @@ jobs:
         tox -e flake8
     - name: Unused code check
       run: tox -e vulture
-#    - name: Docstring check
-#      run: tox -e darglint
     - name: Static type check
       run: tox -e mypy
     - name: Check copyright
       run: tox -e check-copyright
+    - name: Misc checks
+      run: |
+        tox -e bandit
+        tox -e safety

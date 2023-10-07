@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -12,11 +11,13 @@
 #
 
 """Implementation of the PDDL problem parser."""
+import sys
 from typing import Dict
 
 from lark import Lark, ParseError, Transformer
 
-from pddl.core import Problem, Requirements
+from pddl.core import Problem
+from pddl.helpers.base import assert_
 from pddl.logic.base import And, Not
 from pddl.logic.functions import Function
 from pddl.logic.predicates import EqualTo, Predicate
@@ -24,6 +25,7 @@ from pddl.logic.terms import Constant
 from pddl.parser import PARSERS_DIRECTORY, PROBLEM_GRAMMAR_FILE
 from pddl.parser.domain import DomainTransformer
 from pddl.parser.symbols import Symbols
+from pddl.requirements import Requirements
 
 
 class ProblemTransformer(Transformer):
@@ -42,6 +44,11 @@ class ProblemTransformer(Transformer):
 
     def problem(self, args):
         """Process the 'problem' rule."""
+        args = [arg for arg in args if arg is not None]
+        assert_(
+            (args[0].value + args[1].value + args[-1].value == "(define)"),
+            "Problem should start with '(define' and close with ')'",
+        )
         return Problem(**dict(args[2:-1]))
 
     def problem_def(self, args):
@@ -52,7 +59,7 @@ class ProblemTransformer(Transformer):
         """Process the 'problem_domain' rule."""
         return "domain_name", args[2]
 
-    def requirements(self, args):
+    def problem_requirements(self, args):
         """Process the 'requirements' rule."""
         return "requirements", {Requirements(r[1:]) for r in args[2:-1]}
 
@@ -60,8 +67,7 @@ class ProblemTransformer(Transformer):
         """Process the 'problem_domain' rule."""
         object_names = args[2]
         self._objects_by_name = {
-            name: Constant(name, type_tags=types)
-            for name, types in object_names.items()
+            name: Constant(name, type_tag=type_) for name, type_ in object_names.items()
         }
         return "objects", list(self._objects_by_name.values())
 
@@ -74,11 +80,11 @@ class ProblemTransformer(Transformer):
         :param args: the argument of this grammar rule
         :return: a typed list (name)
         """
-        return self._domain_transformer._typed_list_x(args)
+        return self._domain_transformer.typed_list_name(args)
 
     def domain__type_def(self, names):
         """Process a domain type def."""
-        assert len(names) == 1
+        assert_(len(names) == 1)
         return str(names[0])
 
     def init(self, args):
@@ -157,6 +163,8 @@ class ProblemParser:
 
     def __call__(self, text):
         """Call."""
+        sys.tracebacklimit = 0  # noqa
         tree = self._parser.parse(text)
+        sys.tracebacklimit = None  # noqa
         formula = self._transformer.transform(tree)
         return formula

@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -12,12 +11,31 @@
 #
 
 """This module contains tests for a PDDL problem."""
-from unittest.mock import MagicMock
+import copy
+import pickle  # nosec
+
+import pytest
 
 from pddl.core import Domain, Problem
-from pddl.logic.base import Not, TrueFormula
+from pddl.logic.base import And, Not
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
+from tests.conftest import pddl_objects_problems
+
+
+@pytest.mark.parametrize("problem_obj", pddl_objects_problems)
+def test_pickle_problem(problem_obj: Problem) -> None:
+    """Test that problem objects can be pickled correctly."""
+    problem_obj_bytes = pickle.dumps(problem_obj)  # nosec
+    actual_problem_obj = pickle.loads(problem_obj_bytes)  # nosec
+    assert problem_obj == actual_problem_obj
+
+
+@pytest.mark.parametrize("problem_obj", pddl_objects_problems)
+def test_deepcopy_problem(problem_obj: Problem) -> None:
+    """Test that problem objects can be deepcopied correctly."""
+    new_problem_obj = copy.deepcopy(problem_obj)
+    assert problem_obj == new_problem_obj
 
 
 class TestProblemEmpty:
@@ -46,7 +64,7 @@ class TestProblemEmpty:
 
     def test_goal(self):
         """Test the goal getter."""
-        assert self.problem.goal == TrueFormula()
+        assert self.problem.goal == And()
 
 
 def test_build_simple_problem():
@@ -55,10 +73,9 @@ def test_build_simple_problem():
     o1, o2, o3 = constants("o1 o2 o3")
     p = Predicate("p", x, y, z)
     q = Predicate("q", x, y, z)
-    domain = MagicMock()
     problem = Problem(
         "simple_problem",
-        domain,
+        domain_name="simple_domain",
         objects=[o1, o2, o3],
         init={p, Not(q)},
         goal=p & q,

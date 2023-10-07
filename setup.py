@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -31,8 +30,8 @@ with open(os.path.join(here, 'pddl', '__version__.py'), 'r') as f:
 
 
 install_requires = [
-    "lark-parser>=0.9.0,<1",
-    "click>=8,<9"
+    "lark>=1.1.5,<1.2.0",
+    "click>=8.1.3,<9.0.0"
 ]
 
 setup(
@@ -50,13 +49,12 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
     ],
-    python_requires='>=3.7',
+    python_requires='>=3.8',
     install_requires=install_requires,
     license=about["__license__"],
     include_package_data=True,

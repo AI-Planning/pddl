@@ -13,19 +13,20 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     timeout-minutes: 30
 
     steps:
-    - uses: actions/checkout@master
-    - uses: actions/setup-python@master
+    - uses: actions/checkout@main
+    - uses: actions/setup-python@main
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run:  pip install tox
+      run:  pip install "tox>=4.5.1,<4.6.0"
     - name: Unit tests and coverage
       run: |
+        pyver=`echo ${{ matrix.python-version }} | tr -d "."`
         tox -e py${{ matrix.python-version }}
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1

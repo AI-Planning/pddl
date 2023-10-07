@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -15,7 +14,10 @@
 
 import pytest
 
-from pddl.custom_types import name
+from pddl.custom_types import name, parse_name, parse_type
+from pddl.exceptions import PDDLValidationError
+from pddl.parser.symbols import Symbols
+from tests.conftest import TEXT_SYMBOLS
 
 
 def test_name_string():
@@ -42,3 +44,26 @@ def test_name_starts_with_digits():
     """Test that providing a string to name constructor starting with digits raises error."""
     with pytest.raises(ValueError):
         name("123")
+
+
+@pytest.mark.parametrize("keyword", TEXT_SYMBOLS)
+def test_name_is_a_keyword(keyword):
+    """Test that parse_name with keywords as input raises error."""
+    with pytest.raises(
+        PDDLValidationError, match=f"invalid name '{keyword}': it is a keyword"
+    ):
+        parse_name(keyword)
+
+
+@pytest.mark.parametrize("keyword", TEXT_SYMBOLS - {Symbols.OBJECT.value})
+def test_type_is_a_keyword(keyword):
+    """Test that parse_type with keywords as input raises error."""
+    with pytest.raises(
+        PDDLValidationError, match=f"invalid type '{keyword}': it is a keyword"
+    ):
+        parse_type(keyword)
+
+
+def test_object_is_a_valid_type_name():
+    """Test that parse_type with input 'object' does not raise error."""
+    parse_type(Symbols.OBJECT.value)

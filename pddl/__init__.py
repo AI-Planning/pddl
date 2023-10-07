@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -26,6 +25,7 @@ from .__version__ import (
 from .helpers.base import _get_current_path
 
 _ROOT_PATH = _get_current_path()
+
 
 # Simple helpers
 def parse_domain(fn):

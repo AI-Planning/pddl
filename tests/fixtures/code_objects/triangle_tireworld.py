@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -14,11 +13,13 @@
 """This test module contains the fixtures for 'triangle-tireworld' domain and problem."""
 import pytest
 
-from pddl.core import Action, Domain, Problem, Requirements
+from pddl.action import Action
+from pddl.core import Domain, Problem
 from pddl.logic.base import And, OneOf
 from pddl.logic.effects import AndEffect
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
+from pddl.requirements import Requirements
 
 
 @pytest.fixture(scope="session")
@@ -73,7 +74,7 @@ def triangle_tireworld_domain():
         Requirements.NON_DETERMINISTIC,
         Requirements.TYPING,
     }
-    types = {location}
+    types = dict.fromkeys([location])
     actions = {
         move_car,
         changetire,
@@ -94,7 +95,7 @@ def triangle_tireworld_problem_01():
     """Triangle-tireworld problem 01."""
     # objects
     objects = [l1, l2, l3, l4, l5, l6, l7, l8, l9] = constants(
-        "l1 l2 l3 l4 l5 l6 l7 l8 l9", types=["location"]
+        "l1 l2 l3 l4 l5 l6 l7 l8 l9", type_="location"
     )
 
     # predicates

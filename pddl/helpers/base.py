@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -15,7 +14,18 @@
 
 import re
 from pathlib import Path
-from typing import AbstractSet, Any, Callable, Collection, Optional, Sequence, Type
+from typing import (
+    AbstractSet,
+    Any,
+    Callable,
+    Collection,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Type,
+)
 
 
 def _get_current_path() -> Path:
@@ -26,10 +36,23 @@ def _get_current_path() -> Path:
     return Path(os.path.dirname(inspect.getfile(inspect.currentframe()))).parent  # type: ignore
 
 
-def assert_(condition: bool, message: str = ""):
-    """User-defined assert."""
+def assert_(condition: bool, message: str = "") -> None:
+    """
+    User-defined assert.
+
+    This function is useful to avoid the use of the built-in assert statement, which is removed
+        when the code is compiled in optimized mode. For more information, see
+        https://bandit.readthedocs.io/en/1.7.5/plugins/b101_assert_used.html
+    """
+    check(condition, message=message, exception_cls=AssertionError)
+
+
+def check(
+    condition: bool, message: str = "", exception_cls: Type[Exception] = AssertionError
+) -> None:
+    """Check a condition, and if false, raise exception."""
     if not condition:
-        raise AssertionError(message)
+        raise exception_cls(message)
 
 
 def ensure(arg: Optional[Any], default: Any):
@@ -47,6 +70,22 @@ def ensure_set(arg: Optional[Collection], immutable: bool = True) -> AbstractSet
     """
     op = frozenset if immutable else set
     return op(arg) if arg is not None else op()
+
+
+def check_no_duplicates(arg: Optional[Collection]) -> Optional[Collection]:
+    """Check that the argument is a set."""
+    if arg is None:
+        return None
+    if isinstance(arg, AbstractSet):
+        return arg
+    seen = set()
+    for x in arg:
+        if x in seen:
+            raise ValueError(
+                f"duplicate element in collection {list(map(str, arg))}: '{str(x)}'"
+            )
+        seen.add(x)
+    return arg
 
 
 def ensure_sequence(arg: Optional[Sequence], immutable: bool = True) -> Sequence:
@@ -95,7 +134,7 @@ def _typed_parameters(parameters) -> str:
             result += f"?{p.name} - {' '.join(map(str, p.type_tags))}"
         else:
             result += str(p)
-    return result
+    return result.strip()
 
 
 class RegexConstrainedString(str):
@@ -129,3 +168,26 @@ class RegexConstrainedString(str):
                 data=self, regex=self.REGEX
             )
         )
+
+
+def find_cycle(graph: Dict[str, Optional[AbstractSet[str]]]) -> Optional[Sequence[str]]:
+    """Check whether a graph (represented as a dictionary-based adjacency list) has a cycle."""
+    visited: Set = set()
+    stack: List = []
+
+    for node in graph:
+        if node not in visited:
+            stack.append((node, []))
+
+            while stack:
+                current, path = stack.pop()
+                if current in path:
+                    return path
+
+                visited.add(current)
+                neighbors = graph.get(current)
+                if neighbors is not None:
+                    for neighbor in neighbors:
+                        stack.append((neighbor, path + [current]))
+
+    return None

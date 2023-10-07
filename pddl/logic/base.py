@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -133,58 +132,6 @@ class Atomic(Formula):
     """Atomic formula."""
 
 
-class TrueFormula(Formula):
-    """A tautology."""
-
-    def __str__(self) -> str:
-        """Get the string representation."""
-        return "(true)"
-
-    def __repr__(self) -> str:
-        """Get an unambiguous string representation."""
-        return "TrueFormula()"
-
-    def __eq__(self, other):
-        """Compare with another object."""
-        return isinstance(other, TrueFormula)
-
-    def __hash__(self):
-        """Hash the object."""
-        return hash(TrueFormula)
-
-    def __neg__(self) -> Formula:
-        """Negate."""
-        return FALSE
-
-
-class FalseFormula(Formula):
-    """A contradiction."""
-
-    def __str__(self) -> str:
-        """Get the string representation."""
-        return "(false)"
-
-    def __repr__(self) -> str:
-        """Get an unambiguous string representation."""
-        return "FalseFormula()"
-
-    def __eq__(self, other):
-        """Compare with another object."""
-        return isinstance(other, FalseFormula)
-
-    def __hash__(self):
-        """Hash the object."""
-        return hash(FalseFormula)
-
-    def __neg__(self) -> Formula:
-        """Negate."""
-        return TRUE
-
-
-TRUE = TrueFormula()
-FALSE = FalseFormula()
-
-
 class MonotoneOp(type):
     """Metaclass to simplify monotone operator instantiations."""
 
@@ -202,14 +149,14 @@ class MonotoneOp(type):
 class And(BinaryOp, metaclass=MonotoneOp):
     """And operator."""
 
-    _absorbing = FALSE
+    _absorbing = False
     SYMBOL = "and"
 
 
 class Or(BinaryOp, metaclass=MonotoneOp):
     """Or operator."""
 
-    _absorbing = TRUE
+    _absorbing = True
     SYMBOL = "or"
 
 
@@ -306,10 +253,10 @@ def ensure_formula(f: Optional[Formula], is_none_true: bool) -> Formula:
     Ensure the argument is a formula.
 
     :param f: the formula, or None.
-    :param is_none_true: if true, None reduces to TrueFormula; FalseFormula otherwise.
+    :param is_none_true: if true, None reduces to And(); FalseFormula otherwise.
     :return: the same set, or an empty set if the arg was None.
     """
-    return f if f is not None else TrueFormula() if is_none_true else FalseFormula()
+    return f if f is not None else And() if is_none_true else Or()
 
 
 def is_literal(formula: Formula) -> bool:
@@ -333,11 +280,9 @@ def is_literal(formula: Formula) -> bool:
 def _simplify_monotone_op_operands(cls, *operands):
     operands = list(dict.fromkeys(operands))
     if len(operands) == 0:
-        return [~cls._absorbing]
+        return []
     elif len(operands) == 1:
         return [operands[0]]
-    elif cls._absorbing in operands:
-        return cls._absorbing
 
     # shift-up subformulas with same operator. DFS on expression tree.
     new_operands = []

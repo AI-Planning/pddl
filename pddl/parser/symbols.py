@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -22,34 +21,36 @@ OpRequirement = str
 class Symbols(Enum):
     """A set of symbols that can be used in PDDL."""
 
-    DEFINE = "define"
-    DOMAIN = "domain"
-    PROBLEM = "problem"
-    AND = "and"
-    OR = "or"
-    NOT = "not"
-    IMPLY = "imply"
-    ONEOF = "oneof"
-    FORALL = "forall"
-    EXISTS = "exists"
-    WHEN = "when"
-    DERIVED = ":derived"
-    DOMAIN_P = ":domain"
-    OBJECTS = ":objects"
-    INIT = ":init"
-    GOAL = ":goal"
-    REQUIREMENTS = ":requirements"
-    CONSTANTS = ":constants"
-    TYPES = ":types"
-    PREDICATES = ":predicates"
-    ACTION = ":action"
-    PARAMETERS = ":parameters"
-    PRECONDITION = ":precondition"
-    EFFECT = ":effect"
     ROUND_BRACKET_LEFT = "("
     ROUND_BRACKET_RIGHT = ")"
     TYPE_SEP = "-"
     EQUAL = "="
+    ACTION = ":action"
+    AND = "and"
+    CONSTANTS = ":constants"
+    DEFINE = "define"
+    DERIVED = ":derived"
+    DOMAIN = "domain"
+    DOMAIN_P = ":domain"
+    EFFECT = ":effect"
+    EITHER = "either"
+    EXISTS = "exists"
+    FORALL = "forall"
+    GOAL = ":goal"
+    IMPLY = "imply"
+    INIT = ":init"
+    NOT = "not"
+    OBJECT = "object"
+    OBJECTS = ":objects"
+    ONEOF = "oneof"
+    OR = "or"
+    PARAMETERS = ":parameters"
+    PRECONDITION = ":precondition"
+    PREDICATES = ":predicates"
+    PROBLEM = "problem"
+    REQUIREMENTS = ":requirements"
+    TYPES = ":types"
+    WHEN = "when"
     GREATER_EQUAL = ">="
     GREATER = ">"
     LESSER_EQUAL = "<="
@@ -59,7 +60,7 @@ class Symbols(Enum):
     DECREASE = "decrease"
 
 
-ALL_SYMBOLS = {v.value for v in Symbols}  # type: Set[str]
+ALL_SYMBOLS: Set[str] = {v.value for v in Symbols}
 
 
 class RequirementSymbols(Enum):
@@ -84,4 +85,4 @@ class RequirementSymbols(Enum):
         return self.value[1:]
 
 
-ALL_REQUIREMENTS = {v.value for v in RequirementSymbols}  # type: Set[str]
+ALL_REQUIREMENTS: Set[str] = {v.value for v in RequirementSymbols}

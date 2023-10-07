@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -23,7 +22,7 @@ import pytest
 MISTUNE_BLOCK_CODE_ID = "block_code"
 
 
-def compile_and_exec(code: str, locals_dict: Dict = None) -> Dict:
+def compile_and_exec(code: str, locals_dict: Optional[Dict] = None) -> Dict:
     """
     Compile and exec the code.
 

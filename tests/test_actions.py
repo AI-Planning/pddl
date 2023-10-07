@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -13,7 +12,7 @@
 
 """This module contains tests for PDDL actions."""
 
-from pddl.core import Action
+from pddl.action import Action
 
 
 class TestActionSimpleInitialization:

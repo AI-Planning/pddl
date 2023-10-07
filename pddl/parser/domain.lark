@@ -58,7 +58,7 @@ constant: NAME
 function: NAME
 
 typed_list_variable:   variable*
-                   |   variable+ TYPE_SEP type_def (typed_list_variable)
+                   |   (variable+ TYPE_SEP type_def)+ variable*
 ?variable: "?" NAME
 
 atomic_numeric_formula:  LPAR EQUAL_OP numeric_variable numeric_value RPAR
@@ -72,7 +72,7 @@ numeric_variable: LPAR function term* RPAR
 numeric_value: NUMBER | numeric_variable
 
 typed_list_name:   NAME*
-               |   NAME+ TYPE_SEP type_def (typed_list_name)
+               |   (NAME+ TYPE_SEP primitive_type)+ NAME*
 type_def:          LPAR EITHER primitive_type+ RPAR
         |          primitive_type
 ?primitive_type:   NAME

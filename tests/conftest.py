@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -13,14 +12,17 @@
 
 """This module contains the configurations for the tests."""
 import inspect
+import itertools
 from pathlib import Path
 
 import mistune
 import pytest
+from pytest_lazyfixture import lazy_fixture
 
 import pddl
 from pddl.parser.domain import DomainParser
 from pddl.parser.problem import ProblemParser
+from pddl.parser.symbols import Symbols
 
 _current_filepath = inspect.getframeinfo(inspect.currentframe()).filename  # type: ignore
 TEST_DIRECTORY = Path(_current_filepath).absolute().parent
@@ -51,9 +53,11 @@ DOMAIN_NAMES = [
     # "faults-ipc08",
     # "first-responders-ipc08",
     "islands",
+    "maintenance-sequential-satisficing-ipc2014",
     "miner",
     "rovers_fond",
     "spiky-tireworld",
+    "storage",
     "tireworld",
     "tireworld-truck",
     "triangle-tireworld",
@@ -65,7 +69,14 @@ DOMAIN_FILES = [
     FIXTURES_PDDL_FILES / domain_name / "domain.pddl" for domain_name in DOMAIN_NAMES
 ]
 
-PROBLEM_FILES = [*FIXTURES_PDDL_FILES.glob("./**/p*.pddl")]
+PROBLEM_FILES = list(
+    itertools.chain(
+        *[
+            (FIXTURES_PDDL_FILES / domain_name).rglob("p*.pddl")
+            for domain_name in DOMAIN_NAMES
+        ]
+    )
+)
 
 
 @pytest.fixture(scope="session")
@@ -101,4 +112,33 @@ from tests.fixtures.code_objects.triangle_tireworld import (  # noqa: E402, F401
     triangle_tireworld_problem_01,
 )
 
+pddl_objects_domains = [
+    lazy_fixture("blocksworld_domain"),  # type:ignore
+    lazy_fixture("triangle_tireworld_domain"),  # type:ignore
+    lazy_fixture("blocksworld_fond_domain"),  # type:ignore
+]
+pddl_objects_problems = [
+    lazy_fixture("blocksworld_fond_01"),  # type:ignore
+    lazy_fixture("blocksworld_problem_01"),  # type:ignore
+    lazy_fixture("triangle_tireworld_problem_01"),  # type:ignore
+]
+
 #################################################
+
+
+# A set of symbols that can be matched as names but they are keywords
+# this is a subset of all symbols
+TEXT_SYMBOLS = {
+    Symbols.AND.value,
+    Symbols.DEFINE.value,
+    Symbols.DOMAIN.value,
+    Symbols.EITHER.value,
+    Symbols.EXISTS.value,
+    Symbols.FORALL.value,
+    Symbols.NOT.value,
+    Symbols.OBJECT.value,
+    Symbols.ONEOF.value,
+    Symbols.OR.value,
+    Symbols.PROBLEM.value,
+    Symbols.WHEN.value,
+}

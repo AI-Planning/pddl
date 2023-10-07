@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -13,15 +12,33 @@
 
 """This class implements PDDL predicates."""
 import functools
-from typing import Sequence
+from typing import Dict, Sequence, Set
 
-from pddl.custom_types import name as name_type
-from pddl.custom_types import namelike
-from pddl.helpers.base import assert_
+from pddl.custom_types import name, namelike, parse_name
+from pddl.helpers.base import assert_, check
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, Formula
-from pddl.logic.terms import Term
+from pddl.logic.terms import Term, _print_tag_set
 from pddl.parser.symbols import Symbols
+
+
+def _check_terms_consistency(terms: Sequence[Term]):
+    """
+    Check that the term sequence have consistent type tags.
+
+    In particular, terms with the same name must have the same type tags.
+    """
+    seen: Dict[name, Set[name]] = {}
+    for term in terms:
+        if term.name not in seen:
+            seen[term.name] = set(term.type_tags)
+        else:
+            check(
+                seen[term.name] == set(term.type_tags),
+                f"Term {term} has inconsistent type tags: "
+                f"previous type tags {_print_tag_set(seen[term.name])}, new type tags {_print_tag_set(term.type_tags)}",
+                exception_cls=ValueError,
+            )
 
 
 @cache_hash
@@ -29,10 +46,11 @@ from pddl.parser.symbols import Symbols
 class Predicate(Atomic):
     """A class for a Predicate in PDDL."""
 
-    def __init__(self, name: namelike, *terms: Term):
+    def __init__(self, predicate_name: namelike, *terms: Term):
         """Initialize the predicate."""
-        self._name = name_type(name)
+        self._name = parse_name(predicate_name)
         self._terms = tuple(terms)
+        _check_terms_consistency(self._terms)
 
     @property
     def name(self) -> str:
@@ -103,6 +121,7 @@ class EqualTo(Atomic):
         """
         self._left = left
         self._right = right
+        _check_terms_consistency([self._left, self._right])
 
     @property
     def left(self) -> Term:
@@ -128,11 +147,11 @@ class EqualTo(Atomic):
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"({Symbols.EQUAL} {self.left} {self.right})"
+        return f"({Symbols.EQUAL.value} {self.left} {self.right})"
 
     def __repr__(self) -> str:
         """Get the string representation."""
-        return f"{type(self).__name__}({self.left}, {self.right})"
+        return f"{type(self).__name__}({repr(self.left)}, {repr(self.right)})"
 
 
 @cache_hash
@@ -170,7 +189,15 @@ class DerivedPredicate(Atomic):
 
     def __repr__(self) -> str:
         """Get the string representation."""
-        return f"{type(self).__name__}({self.predicate}, {self.condition})"
+        return f"{type(self).__name__}({repr(self.predicate)}, {repr(self.condition)})"
+
+    def __eq__(self, other):
+        """Override equal operator."""
+        return (
+            isinstance(other, DerivedPredicate)
+            and self.predicate == other.predicate
+            and self.condition == other.condition
+        )
 
     def __lt__(self, other):
         """Compare with another object."""

@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 #
-# Copyright 2021-2022 WhiteMech
+# Copyright 2021-2023 WhiteMech
 #
 # ------------------------------
 #
@@ -14,11 +13,13 @@
 """This test module contains the fixtures for 'blocksworld-ipc08' domain and problem."""
 import pytest
 
-from pddl.core import Action, Domain, Problem, Requirements
+from pddl.action import Action
+from pddl.core import Domain, Problem
 from pddl.logic.base import And, OneOf
 from pddl.logic.effects import AndEffect
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import EqualTo, Predicate
+from pddl.requirements import Requirements
 
 
 @pytest.fixture(scope="session")
@@ -139,7 +140,7 @@ def blocksworld_domain():
         Requirements.TYPING,
         Requirements.NEG_PRECONDITION,
     }
-    types = {block}
+    types = dict.fromkeys([block])
     actions = {
         pick_up,
         pick_up_from_table,
@@ -164,7 +165,7 @@ def blocksworld_domain():
 def blocksworld_problem_01():
     """Blocksworld ipc08 problem 01."""
     # objects
-    objects = [b1, b2, b3, b4, b5] = constants("b1 b2 b3 b4 b5", types=["block"])
+    objects = [b1, b2, b3, b4, b5] = constants("b1 b2 b3 b4 b5", type_="block")
 
     # predicates
     emptyhand = Predicate("emptyhand")
