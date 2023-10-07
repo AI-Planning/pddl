@@ -23,11 +23,17 @@ from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
 from pddl.logic.effects import AndEffect, Forall, When
-from pddl.logic.functions import Function
+from pddl.logic.functions import (
+    Function,
+    GreaterEqualThan,
+    GreaterThan,
+    LesserEqualThan,
+    LesserThan,
+)
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
-from pddl.parser.symbols import Symbols
+from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols
 from pddl.parser.typed_list_parser import TypedListParser
 from pddl.requirements import Requirements, _extend_domain_requirements
 
@@ -41,6 +47,7 @@ class DomainTransformer(Transformer):
 
         self._constants_by_name: Dict[str, Constant] = {}
         self._predicates_by_name: Dict[str, Predicate] = {}
+        self._functions_by_name: Dict[str, Function] = {}
         self._current_parameters_by_name: Dict[str, Variable] = {}
         self._requirements: Set[str] = set()
         self._extended_requirements: Set[str] = set()
@@ -100,7 +107,7 @@ class DomainTransformer(Transformer):
         return dict(predicates=predicates)
 
     def functions(self, args):
-        """Process the 'predicates' rule."""
+        """Process the 'functions' rule."""
         functions = args[2:-1]
         self._functions_by_name = {f.name: f for f in functions}
         return dict(functions=functions)
@@ -194,6 +201,25 @@ class DomainTransformer(Transformer):
         condition = args[5]
         return cond_class(cond=condition, variables=variables)
 
+    def gd_comparison(self, args):
+        """Process the 'gd' comparison rule."""
+        if not bool({Requirements.NUMERIC_FLUENTS, Requirements.FLUENTS}):
+            raise PDDLMissingRequirementError(Requirements.NUMERIC_FLUENTS)
+        left = args[2]
+        right = args[3]
+        if args[1] == Symbols.GREATER_EQUAL.value:
+            return GreaterEqualThan(left, right)
+        elif args[1] == Symbols.GREATER.value:
+            return GreaterThan(left, right)
+        elif args[1] == Symbols.LESSER_EQUAL.value:
+            return LesserEqualThan(left, right)
+        elif args[1] == Symbols.LESSER.value:
+            return LesserThan(left, right)
+        elif args[1] == Symbols.EQUAL.value:
+            return EqualTo(left, right)
+        else:
+            raise PDDLParsingError(f"Unknown comparison operator: {args[1]}")
+
     def gd(self, args):
         """Process the 'gd' rule."""
         if len(args) == 1:
@@ -208,6 +234,8 @@ class DomainTransformer(Transformer):
             return self.gd_imply(args)
         elif args[1] in [Symbols.FORALL.value, Symbols.EXISTS.value]:
             return self.gd_quantifiers(args)
+        elif args[1] in BINARY_COMP_SYMBOLS:
+            return self.gd_comparison(args)
 
     def emptyor_effect(self, args):
         """Process the 'emptyor_effect' rule."""
@@ -286,20 +314,22 @@ class DomainTransformer(Transformer):
         return constant
 
     def _formula_skeleton(self, args):
-        predicate_name = args[1]
+        """Process the '_formula_skeleton' rule."""
         variable_data: Dict[str, Set[str]] = args[2]
         variables = [Variable(var_name, tags) for var_name, tags in variable_data]
-        return name, variables
+        return variables
 
-    def atomic_predicate_skeleton(self, args):
+    def atomic_formula_skeleton(self, args):
         """Process the 'atomic_formula_skeleton' rule."""
-        name, variables = self._formula_skeleton(args)
+        predicate_name = args[1]
+        variables = self._formula_skeleton(args)
         return Predicate(predicate_name, *variables)
 
     def atomic_function_skeleton(self, args):
         """Process the 'atomic_function_skeleton' rule."""
-        name, variables = self._formula_skeleton(args)
-        return Function(name, *variables)
+        function_name = args[1]
+        variables = self._formula_skeleton(args)
+        return Function(function_name, *variables)
 
     def typed_list_name(self, args) -> Dict[name, Optional[name]]:
         """Process the 'typed_list_name' rule."""

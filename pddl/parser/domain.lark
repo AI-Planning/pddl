@@ -7,29 +7,28 @@ requirements:              LPAR REQUIREMENTS require_key+ RPAR
 
 types:                 LPAR TYPES typed_list_name RPAR
 constants:             LPAR CONSTANTS typed_list_name RPAR
-predicates:            LPAR PREDICATES atomic_predicate_skeleton+ RPAR
+predicates:            LPAR PREDICATES atomic_formula_skeleton+ RPAR
 functions:             LPAR FUNCTIONS atomic_function_skeleton+ RPAR
-atomic_predicate_skeleton:   LPAR NAME typed_list_variable RPAR
-atomic_function_skeleton:    LPAR NAME typed_list_variable RPAR
+atomic_formula_skeleton:   LPAR NAME typed_list_variable RPAR
+atomic_function_skeleton:  LPAR NAME typed_list_variable RPAR
 
 ?structure_def:    action_def | derived_predicates
 action_def:        LPAR ACTION NAME PARAMETERS action_parameters action_body_def RPAR
 action_parameters: LPAR typed_list_variable RPAR
 ?action_body_def:  [PRECONDITION emptyor_pregd] [EFFECT emptyor_effect]
-derived_predicates: LPAR DERIVED atomic_predicate_skeleton gd RPAR
+derived_predicates: LPAR DERIVED atomic_formula_skeleton gd RPAR
 
 // preconditions
 emptyor_pregd:     LPAR RPAR
              |     gd
 gd:                atomic_formula_term
-  |                atomic_numeric_formula
   |                LPAR OR gd* RPAR
   |                LPAR NOT gd RPAR
   |                LPAR AND gd* RPAR
   |                LPAR IMPLY gd gd RPAR
   |                LPAR EXISTS LPAR typed_list_variable RPAR gd RPAR
   |                LPAR FORALL LPAR typed_list_variable RPAR gd RPAR
-
+  |                LPAR binary_comp f_exp f_exp RPAR
 
 // effects
 emptyor_effect:    LPAR RPAR
@@ -46,8 +45,7 @@ p_effect:          LPAR NOT atomic_formula_term RPAR
         |          num_effect
 cond_effect:       LPAR AND p_effect* RPAR
            |       p_effect
-num_effect:        LPAR INCREASE numeric_variable numeric_value RPAR
-          |        LPAR DECREASE numeric_variable numeric_value RPAR
+num_effect:        LPAR assign_op f_head f_exp RPAR
 
 atomic_formula_term:   LPAR predicate term* RPAR
                    |   LPAR EQUAL_OP term term RPAR
@@ -55,21 +53,24 @@ atomic_formula_term:   LPAR predicate term* RPAR
      |  variable
 ?predicate: NAME
 constant: NAME
-function: NAME
+
+binary_comp: GREATER_OP
+           | LESSER_OP
+           | EQUAL_OP
+           | GREATER_EQUAL_OP
+           | LESSER_EQUAL_OP
+
+assign_op: INCREASE
+         | DECREASE
+
+f_exp: NUMBER
+     | f_head
+?f_head: NAME
+       | LPAR NAME term* RPAR
 
 typed_list_variable:   variable*
                    |   (variable+ TYPE_SEP type_def)+ variable*
 ?variable: "?" NAME
-
-atomic_numeric_formula:  LPAR EQUAL_OP numeric_variable numeric_value RPAR
-                      |  LPAR GREATER_OP numeric_variable numeric_value RPAR
-                      |  LPAR GREATER_EQUAL_OP numeric_variable numeric_value RPAR
-                      |  LPAR LESSER_OP numeric_variable numeric_value RPAR
-                      |  LPAR LESSER_EQUAL_OP numeric_variable numeric_value RPAR
-
-numeric_variable: LPAR function term* RPAR
-
-numeric_value: NUMBER | numeric_variable
 
 typed_list_name:   NAME*
                |   (NAME+ TYPE_SEP primitive_type)+ NAME*
