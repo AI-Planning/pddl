@@ -24,6 +24,7 @@ from pddl.helpers.base import check, ensure, ensure_set, find_cycle
 from pddl.logic import Predicate
 from pddl.logic.base import BinaryOp, QuantifiedCondition, UnaryOp
 from pddl.logic.effects import AndEffect, Forall, When
+from pddl.logic.functions import Function, FunctionOperator
 from pddl.logic.predicates import DerivedPredicate, EqualTo
 from pddl.logic.terms import Term
 from pddl.parser.symbols import Symbols
@@ -233,6 +234,16 @@ class TypeChecker:
     def _(self, predicate: Predicate) -> None:
         """Check types annotations of a PDDL predicate."""
         self.check_type(predicate.terms)
+
+    @check_type.register
+    def _(self, function: Function) -> None:
+        """Check types annotations of a PDDL function."""
+        self.check_type(function.terms)
+
+    @check_type.register
+    def _(self, function_operator: FunctionOperator) -> None:
+        """Check types annotations of a PDDL function operator."""
+        self.check_type(function_operator.function)
 
     @check_type.register
     def _(self, equal_to: EqualTo) -> None:

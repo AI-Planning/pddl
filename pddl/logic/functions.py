@@ -15,8 +15,7 @@
 import functools
 from typing import Sequence
 
-from pddl.custom_types import name as name_type
-from pddl.custom_types import namelike
+from pddl.custom_types import namelike, parse_name
 from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, Number
@@ -31,7 +30,7 @@ class Function(Atomic):
 
     def __init__(self, name: namelike, *terms: Term):
         """Initialize the function."""
-        self._name = name_type(name)
+        self._name = parse_name(name)
         self._terms = tuple(terms)
 
     @property
@@ -49,15 +48,15 @@ class Function(Atomic):
         """Get the arity of the function."""
         return len(self.terms)
 
-    # TODO check whether it's a good idea...
-    # TODO allow also for keyword-based replacement
-    # TODO allow skip replacement with None arguments.
+    # TODO: check whether it's a good idea...
+    # TODO: allow also for keyword-based replacement
+    # TODO: allow skip replacement with None arguments.
     def __call__(self, *terms: Term):
         """Replace terms."""
-        assert_(len(terms) == self.arity, "Number of terms not correct.")
+        assert_(len(terms) == self.arity, "Wrong number of terms.")
         assert_(
             all(t1.type_tags == t2.type_tags for t1, t2 in zip(self.terms, terms)),
-            "Types of replacements is not correct.",
+            "Wrong types of replacements.",
         )
         return Function(self.name, *terms)
 
