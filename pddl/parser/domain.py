@@ -31,6 +31,7 @@ from pddl.logic.functions import (
     LesserThan,
     Increase,
     Decrease,
+    EqualTo as FunctionEqualTo,
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
@@ -218,7 +219,7 @@ class DomainTransformer(Transformer):
         elif args[1] == Symbols.LESSER.value:
             return LesserThan(left, right)
         elif args[1] == Symbols.EQUAL.value:
-            return EqualTo(left, right)
+            return FunctionEqualTo(left, right)
         else:
             raise PDDLParsingError(f"Unknown comparison operator: {args[1]}")
 
