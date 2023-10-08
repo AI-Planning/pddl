@@ -77,7 +77,6 @@ def test_typed_constants_formatting_in_domain() -> None:
         (:requirements :typing)
         (:types type_2 type_3 - type_1 type_1)
         (:constants a b c - type_1 d e f - type_2 g h i - type_3 j k l)
-        (:predicates )
     )"""
     )
 
