@@ -169,7 +169,7 @@ def test_numerical_hello_world_problem_formatter():
         (
             "(define (problem hello-3-times)",
             "    (:domain hello-world-functions)",
-            "    (:objects Alice - neighbor Bob - neighbor Charlie - neighbor)",
+            "    (:objects Alice Bob Charlie - neighbor)",
             "    (:init (= (hello_counter Alice) 0) (= (hello_counter Bob) 0) (= (hello_counter Charlie) 0))",
             "    (:goal (forall (?neighbor - neighbor) (>= (hello_counter ?neighbor) 1)))",
             ")",
