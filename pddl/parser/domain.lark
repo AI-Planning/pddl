@@ -54,18 +54,18 @@ atomic_formula_term:   LPAR predicate term* RPAR
 ?predicate: NAME
 constant: NAME
 
-binary_comp: GREATER_OP
-           | LESSER_OP
-           | EQUAL_OP
-           | GREATER_EQUAL_OP
-           | LESSER_EQUAL_OP
+?binary_comp: GREATER_OP
+            | LESSER_OP
+            | EQUAL_OP
+            | GREATER_EQUAL_OP
+            | LESSER_EQUAL_OP
 
-assign_op: INCREASE
-         | DECREASE
+?assign_op: INCREASE
+          | DECREASE
 
-f_exp: NUMBER
+?f_exp: NUMBER
      | f_head
-?f_head: NAME
+f_head: NAME
        | LPAR NAME term* RPAR
 
 typed_list_variable:   variable*

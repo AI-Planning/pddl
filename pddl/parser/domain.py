@@ -29,6 +29,8 @@ from pddl.logic.functions import (
     GreaterThan,
     LesserEqualThan,
     LesserThan,
+    Increase,
+    Decrease,
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
@@ -282,6 +284,16 @@ class DomainTransformer(Transformer):
         assert_(len(args) == 1)
         return args[0]
 
+    def num_effect(self, args):
+        """Process the 'num_effect' rule."""
+        function = args[2]
+        value = args[3]
+        if args[1] == Symbols.INCREASE.value:
+            return Increase(function, value)
+        if args[1] == Symbols.DECREASE.value:
+            return Decrease(function, value)
+        raise PDDLParsingError("Assign operator not recognized")
+
     def atomic_formula_term(self, args):
         """Process the 'atomic_formula_term' rule."""
 
@@ -329,6 +341,14 @@ class DomainTransformer(Transformer):
         """Process the 'atomic_function_skeleton' rule."""
         function_name = args[1]
         variables = self._formula_skeleton(args)
+        return Function(function_name, *variables)
+
+    def f_head(self, args):
+        """Process the 'f_head' rule."""
+        if len(args) == 1:
+            return args[0]
+        function_name = args[1]
+        variables = [Variable(x, {}) for x in args[2:-1]]
         return Function(function_name, *variables)
 
     def typed_list_name(self, args) -> Dict[name, Optional[name]]:
