@@ -15,16 +15,24 @@ import sys
 from typing import Dict
 
 from lark import Lark, ParseError, Transformer
+from pddl.exceptions import PDDLParsingError, PDDLMissingRequirementError
 
 from pddl.core import Problem
 from pddl.helpers.base import assert_
 from pddl.logic.base import And, Not
-from pddl.logic.functions import Function
+from pddl.logic.functions import (
+    Function,
+    GreaterEqualThan,
+    GreaterThan,
+    LesserEqualThan,
+    LesserThan,
+    EqualTo as FunctionEqualTo,
+)
 from pddl.logic.predicates import EqualTo, Predicate
-from pddl.logic.terms import Constant
+from pddl.logic.terms import Constant, Variable
 from pddl.parser import PARSERS_DIRECTORY, PROBLEM_GRAMMAR_FILE
 from pddl.parser.domain import DomainTransformer
-from pddl.parser.symbols import Symbols
+from pddl.parser.symbols import Symbols, BINARY_COMP_SYMBOLS
 from pddl.requirements import Requirements
 
 
@@ -89,7 +97,25 @@ class ProblemTransformer(Transformer):
 
     def init(self, args):
         """Process the 'init' rule."""
-        return "init", args[2:-1]
+        flat_args = [
+            item
+            for sublist in args[2:-1]
+            for item in (sublist if isinstance(sublist, list) else [sublist])
+        ]
+        return "init", flat_args
+
+    def init_el(self, args):
+        """Process the 'init_el' rule."""
+        if len(args) == 1:
+            return args[0]
+        elif args[1] == Symbols.EQUAL.value:
+            if isinstance(args[2], list) and len(args[2]) == 1:
+                return FunctionEqualTo(*args[2], args[3])
+            elif not isinstance(args[2], list):
+                return FunctionEqualTo(args[2], args[3])
+            else:
+                funcs = [FunctionEqualTo(x, args[3]) for x in args[2]]
+                return funcs
 
     def literal_name(self, args):
         """Process the 'literal_name' rule."""
@@ -100,9 +126,32 @@ class ProblemTransformer(Transformer):
         else:
             raise ParseError
 
+    def basic_function_term(self, args):
+        """Process the 'basic_function_term' rule."""
+        if len(args) == 1:
+            return args[0]
+        return args[1:-1]
+
     def goal(self, args):
         """Process the 'goal' rule."""
         return "goal", args[2]
+
+    def gd_binary_comparison(self, args):
+        """Process the 'gd' comparison rule."""
+        left = args[2]
+        right = args[3]
+        if args[1] == Symbols.GREATER_EQUAL.value:
+            return GreaterEqualThan(left, right)
+        elif args[1] == Symbols.GREATER.value:
+            return GreaterThan(left, right)
+        elif args[1] == Symbols.LESSER_EQUAL.value:
+            return LesserEqualThan(left, right)
+        elif args[1] == Symbols.LESSER.value:
+            return LesserThan(left, right)
+        elif args[1] == Symbols.EQUAL.value:
+            return FunctionEqualTo(left, right)
+        else:
+            raise PDDLParsingError(f"Unknown comparison operator: {args[1]}")
 
     def gd_name(self, args):
         """Process the 'gd_name' rule."""
@@ -112,6 +161,8 @@ class ProblemTransformer(Transformer):
             return Not(args[2])
         elif args[1] == Symbols.AND.value:
             return And(*args[2:-1])
+        elif args[1] in BINARY_COMP_SYMBOLS:
+            return self.gd_binary_comparison(args)
         else:
             raise ParseError
 
@@ -131,21 +182,13 @@ class ProblemTransformer(Transformer):
             ]
             return Predicate(name, *terms)
 
-    def atomic_function_init(self, args):
-        """Process the 'atomic_function_init' rule."""
-        if args[1] == Symbols.EQUAL.value:
-            obj1 = self._objects_by_name.get(args[1])
-            obj2 = self._objects_by_name.get(args[2])
-            return EqualTo(obj1, obj2)
-        else:
-            name = args[1]
-            terms = [
-                Constant(str(_term_name))
-                if self._objects_by_name.get(str(_term_name)) is None
-                else self._objects_by_name.get(str(_term_name))
-                for _term_name in args[2:-1]
-            ]
-            return Function(name, *terms)
+    def f_head(self, args):
+        """Process the 'f_head' rule."""
+        if len(args) == 1:
+            return args[0]
+        function_name = args[1]
+        variables = [Variable(x, {}) for x in args[2:-1]]
+        return Function(function_name, *variables)
 
 
 _problem_parser_lark = PROBLEM_GRAMMAR_FILE.read_text()
