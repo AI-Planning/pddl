@@ -37,9 +37,7 @@ BLOCKSWORLD_FILES = FIXTURES_PDDL_FILES / "blocksworld-ipc08"
 TRIANGLE_FILES = FIXTURES_PDDL_FILES / "triangle-tireworld"
 BLOCKSWORLD_FOND_FILES = FIXTURES_PDDL_FILES / "blocksworld_fond"
 
-DOMAIN_FILES = [
-    *FIXTURES_PDDL_FILES.glob("./**/domain.pddl")
-]
+DOMAIN_FILES = [*FIXTURES_PDDL_FILES.glob("./**/domain.pddl")]
 
 DOMAIN_NAMES = [
     "acrobatics",

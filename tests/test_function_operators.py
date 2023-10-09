@@ -10,10 +10,9 @@
 # https://opensource.org/licenses/MIT.
 #
 """This module contains tests for PDDL function operators."""
-from pddl.parser.symbols import Symbols
-
 from pddl.logic import variables
 from pddl.logic.functions import Function, FunctionOperator
+from pddl.parser.symbols import Symbols
 
 
 class TestFunctionOperators:
@@ -23,12 +22,8 @@ class TestFunctionOperators:
         """Set up the tests."""
         x, y = variables("x y", types=["type1"])
         z = variables("z", types=["type2"])
-        self.function = Function("function_1")
-        self.function_op = FunctionOperator(
-            self.function,
-            3,
-            Symbols.EQUAL
-        )
+        self.function = Function("function_1", x, y, z)
+        self.function_op = FunctionOperator(self.function, 3, Symbols.EQUAL)
 
     def test_function(self):
         """Test the function getter."""
@@ -44,17 +39,19 @@ class TestFunctionOperators:
 
     def test_equal(self):
         """Test the equal operator."""
-        other = FunctionOperator(
-            self.function,
-            3,
-            Symbols.EQUAL.value
-        )
+        other = FunctionOperator(self.function, 3, Symbols.EQUAL.value)
         assert self.function_op == other
 
     def test_str(self):
         """Test the str operator."""
-        assert str(self.function_op) == f"({self.function_op.symbol.value} {self.function} {self.function_op.value})"
+        assert (
+            str(self.function_op)
+            == f"({self.function_op.symbol.value} {self.function} {self.function_op.value})"
+        )
 
     def test_repr(self):
         """Test the repr operator."""
-        assert repr(self.function_op) == f"FunctionOperator({self.function}, {self.function_op.value})"
+        assert (
+            repr(self.function_op)
+            == f"FunctionOperator({self.function}, {self.function_op.value})"
+        )
