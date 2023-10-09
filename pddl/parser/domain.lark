@@ -11,6 +11,7 @@ predicates:            LPAR PREDICATES atomic_formula_skeleton+ RPAR
 functions:             LPAR FUNCTIONS atomic_function_skeleton+ RPAR
 atomic_formula_skeleton:   LPAR NAME typed_list_variable RPAR
 atomic_function_skeleton:  LPAR NAME typed_list_variable RPAR
+                        |  LPAR TOTAL_COST RPAR
 
 ?structure_def:    action_def | derived_predicates
 action_def:        LPAR ACTION NAME PARAMETERS action_parameters action_body_def RPAR
@@ -115,6 +116,7 @@ type_def:          LPAR EITHER primitive_type+ RPAR
 %import .common.NUMBER -> NUMBER
 %import .common.INCREASE -> INCREASE
 %import .common.DECREASE -> DECREASE
+%import .common.TOTAL_COST -> TOTAL_COST
 %import .common.LPAR -> LPAR
 %import .common.RPAR -> RPAR
 %import .common.TYPE_SEP -> TYPE_SEP

@@ -27,6 +27,7 @@ from pddl.logic.functions import (
     GreaterThan,
     LesserEqualThan,
     LesserThan,
+    Metric,
 )
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
@@ -189,6 +190,15 @@ class ProblemTransformer(Transformer):
         function_name = args[1]
         variables = [Variable(x, {}) for x in args[2:-1]]
         return Function(function_name, *variables)
+
+    def metric_spec(self, args):
+        """Process the 'metric_spec' rule."""
+        if isinstance(args[3], list) and len(args[3]) == 1:
+            return "metric", Metric(*args[3], args[2])
+        elif not isinstance(args[2], list):
+            return "metric", Metric(args[3], args[2])
+        else:
+            raise ParseError
 
 
 _problem_parser_lark = PROBLEM_GRAMMAR_FILE.read_text()

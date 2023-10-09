@@ -28,7 +28,7 @@ from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
 from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
-from pddl.logic.functions import Function
+from pddl.logic.functions import Function, Metric
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant
 from pddl.requirements import Requirements
@@ -157,6 +157,7 @@ class Problem:
         objects: Optional[Collection["Constant"]] = None,
         init: Optional[Collection[Formula]] = None,
         goal: Optional[Formula] = None,
+        metric: Optional[Metric] = None,
     ):
         """
         Initialize the PDDL problem.
@@ -168,6 +169,7 @@ class Problem:
         :param objects: the set of objects.
         :param init: the initial condition.
         :param goal: the goal condition.
+        :param metric: the metric.
         """
         self._name = parse_name(name)
         self._domain: Optional[Domain]
@@ -181,6 +183,7 @@ class Problem:
         self._objects: AbstractSet[Constant] = ensure_set(objects)
         self._init: AbstractSet[Formula] = ensure_set(init)
         self._goal: Formula = ensure(goal, And())
+        self._metric: Optional[Metric] = metric
         validate(
             all(map(is_literal, self.init)),
             "Not all formulas of initial condition are literals!",
@@ -306,6 +309,11 @@ class Problem:
         """Get the goal."""
         return self._goal
 
+    @property
+    def metric(self) -> Optional[Metric]:
+        """Get the metric."""
+        return self._metric
+
     def __eq__(self, other):
         """Compare with another object."""
         return (
@@ -317,4 +325,5 @@ class Problem:
             and self.objects == other.objects
             and self.init == other.init
             and self.goal == other.goal
+            and self.metric == other.metric
         )

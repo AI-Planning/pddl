@@ -1,6 +1,6 @@
 start: problem
 
-problem:           LPAR DEFINE problem_def problem_domain [problem_requirements] [objects] init goal RPAR
+problem:           LPAR DEFINE problem_def problem_domain [problem_requirements] [objects] init goal [metric_spec] RPAR
 problem_def:       LPAR PROBLEM NAME RPAR
 problem_domain:    LPAR DOMAIN_P NAME RPAR
 
@@ -33,6 +33,11 @@ gd_name:    atomic_formula_name
       | f_head
 f_head: NAME
        | LPAR NAME term* RPAR
+
+metric_spec: LPAR METRIC optimization basic_function_term RPAR
+
+?optimization: MAXIMIZE
+             | MINIMIZE
 
 DOMAIN_P: ":domain"
 PROBLEM: "problem"
@@ -70,6 +75,9 @@ GOAL: ":goal"
 %import .common.GREATER_EQUAL_OP -> GREATER_EQUAL_OP
 %import .common.LESSER_OP -> LESSER_OP
 %import .common.LESSER_EQUAL_OP -> LESSER_EQUAL_OP
+%import .common.METRIC -> METRIC
+%import .common.MAXIMIZE -> MAXIMIZE
+%import .common.MINIMIZE -> MINIMIZE
 %import .common.TYPING -> TYPING
 %import .common.EQUALITY -> EQUALITY
 %import .common.STRIPS -> STRIPS

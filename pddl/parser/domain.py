@@ -32,6 +32,7 @@ from pddl.logic.functions import (
     Increase,
     LesserEqualThan,
     LesserThan,
+    TotalCost,
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
@@ -340,6 +341,10 @@ class DomainTransformer(Transformer):
 
     def atomic_function_skeleton(self, args):
         """Process the 'atomic_function_skeleton' rule."""
+        if args[1] == Symbols.TOTAL_COST.value:
+            if not bool({Requirements.ACTION_COSTS}):
+                raise PDDLMissingRequirementError(Requirements.ACTION_COSTS)
+            return TotalCost()
         function_name = args[1]
         variables = self._formula_skeleton(args)
         return Function(function_name, *variables)
