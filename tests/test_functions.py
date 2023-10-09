@@ -14,7 +14,7 @@
 import pytest
 
 from pddl.core import Function
-from pddl.logic.functions import TotalCost, Metric
+from pddl.logic.functions import Metric, TotalCost
 from pddl.logic.helpers import variables
 
 
@@ -107,10 +107,14 @@ class TestMetric:
 
     def test_to_str(self):
         """Test to string."""
-        assert str(self.maximize_metric) == f"{self.maximize_metric.optimization} {self.maximize_metric.function}"
+        assert (
+            str(self.maximize_metric)
+            == f"{self.maximize_metric.optimization} {self.maximize_metric.function}"
+        )
 
     def test_to_repr(self):
         """Test to repr."""
         assert (
-            repr(self.minimize_metric) == f"Metric(({self.function.name} {self.a} {self.b}), minimize)"
+            repr(self.minimize_metric)
+            == f"Metric(({self.function.name} {self.a} {self.b}), minimize)"
         )
