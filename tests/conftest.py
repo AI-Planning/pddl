@@ -37,10 +37,9 @@ BLOCKSWORLD_FILES = FIXTURES_PDDL_FILES / "blocksworld-ipc08"
 TRIANGLE_FILES = FIXTURES_PDDL_FILES / "triangle-tireworld"
 BLOCKSWORLD_FOND_FILES = FIXTURES_PDDL_FILES / "blocksworld_fond"
 
-# TODO once missing features are supported, uncomment this
-# DOMAIN_FILES = [
-#     *FIXTURES_PDDL_FILES.glob("./**/domain.pddl")
-# ]
+DOMAIN_FILES = [
+    *FIXTURES_PDDL_FILES.glob("./**/domain.pddl")
+]
 
 DOMAIN_NAMES = [
     "acrobatics",
@@ -48,10 +47,10 @@ DOMAIN_NAMES = [
     "blocksworld-ipc08",
     "blocksworld_fond",
     "doors",
-    # "earth_observation",
+    "earth_observation",
     "elevators",
     # "faults-ipc08",
-    # "first-responders-ipc08",
+    "first-responders-ipc08",
     "islands",
     "maintenance-sequential-satisficing-ipc2014",
     "miner",
@@ -63,10 +62,6 @@ DOMAIN_NAMES = [
     "triangle-tireworld",
     "zenotravel",
     "hello-world-functions",
-]
-
-DOMAIN_FILES = [
-    FIXTURES_PDDL_FILES / domain_name / "domain.pddl" for domain_name in DOMAIN_NAMES
 ]
 
 PROBLEM_FILES = list(
