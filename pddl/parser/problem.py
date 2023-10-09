@@ -129,8 +129,8 @@ class ProblemTransformer(Transformer):
     def basic_function_term(self, args):
         """Process the 'basic_function_term' rule."""
         if len(args) == 1:
-            return args[0]
-        return args[1:-1]
+            return Function(args[0])
+        return [Function(x) for x in args[1:-1]]
 
     def goal(self, args):
         """Process the 'goal' rule."""
