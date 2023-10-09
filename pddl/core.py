@@ -99,7 +99,7 @@ class Domain:
             Requirements.ACTION_COSTS in _extend_domain_requirements(self._requirements)
         ) and any(isinstance(f, TotalCost) for f in self._functions):
             raise PDDLValidationError(
-                f"action costs requirement is not specified, but the total-cost function is specified."
+                "action costs requirement is not specified, but the total-cost function is specified."
             )
 
     @property
