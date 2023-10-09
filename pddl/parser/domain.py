@@ -23,15 +23,15 @@ from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
 from pddl.logic.effects import AndEffect, Forall, When
+from pddl.logic.functions import Decrease
+from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
     Function,
     GreaterEqualThan,
     GreaterThan,
+    Increase,
     LesserEqualThan,
     LesserThan,
-    Increase,
-    Decrease,
-    EqualTo as FunctionEqualTo,
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable

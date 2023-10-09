@@ -15,24 +15,24 @@ import sys
 from typing import Dict
 
 from lark import Lark, ParseError, Transformer
-from pddl.exceptions import PDDLParsingError, PDDLMissingRequirementError
 
 from pddl.core import Problem
+from pddl.exceptions import PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import And, Not
+from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
     Function,
     GreaterEqualThan,
     GreaterThan,
     LesserEqualThan,
     LesserThan,
-    EqualTo as FunctionEqualTo,
 )
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser import PARSERS_DIRECTORY, PROBLEM_GRAMMAR_FILE
 from pddl.parser.domain import DomainTransformer
-from pddl.parser.symbols import Symbols, BINARY_COMP_SYMBOLS
+from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols
 from pddl.requirements import Requirements
 
 
