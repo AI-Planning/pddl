@@ -55,7 +55,7 @@ class TestPredicateSimpleInitialisation:
 
 
 class TestEqualToPredicate:
-    """Test the eaual to predicate."""
+    """Test the equal to predicate."""
 
     def setup_method(self):
         """Set up the tests."""
