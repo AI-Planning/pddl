@@ -89,6 +89,69 @@ class Function(Atomic):
         return super().__lt__(other)
 
 
+class TotalCost(Function):
+    """A class for the total-cost function in PDDL."""
+
+    def __init__(self):
+        """Initialize the function."""
+        super().__init__("total-cost")
+
+
+class Metric(Atomic):
+    """A class for the metric function in PDDL."""
+
+    MINIMIZE = "minimize"
+    MAXIMIZE = "maximize"
+
+    def __init__(self, function: Function, optimization: str = MINIMIZE):
+        """
+        Initialize the metric function.
+
+        :param function: function to minimize or maximize.
+        :param optimization: whether to minimize or maximize the function.
+        """
+        self._function = function
+        self._optimization = optimization
+        self._validate()
+
+    @property
+    def function(self) -> Function:
+        """Get the function."""
+        return self._function
+
+    @property
+    def optimization(self) -> str:
+        """Get the optimization."""
+        return self._optimization
+
+    def _validate(self):
+        """Validate the metric."""
+        assert_(
+            self.optimization in {self.MAXIMIZE, self.MINIMIZE},
+            "Optimization metric not recognized.",
+        )
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return f"{self.optimization} {self.function}"
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return f"{type(self).__name__}({self.function}, {self.optimization})"
+
+    def __eq__(self, other):
+        """Override equal operator."""
+        return (
+            isinstance(other, Metric)
+            and self.function == other.function
+            and self.optimization == other.optimization
+        )
+
+    def __hash__(self):
+        """Get the hash of a Metric."""
+        return hash((self.function, self.optimization))
+
+
 class FunctionOperator(Atomic):
     """Operator for to numerical fluent."""
 

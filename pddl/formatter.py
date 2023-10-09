@@ -157,6 +157,7 @@ def problem_to_string(problem: Problem) -> str:
         "(:init ", problem.init, ")\n", is_mandatory=True
     )
     body += f"{'(:goal ' + str(problem.goal) + ')'}\n"
+    body += f"{'(:metric ' + str(problem.metric) + ')'}\n" if problem.metric else ""
     result = result + "\n" + indent(body, indentation) + "\n)"
     result = _remove_empty_lines(result)
     return result

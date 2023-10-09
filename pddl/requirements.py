@@ -36,6 +36,7 @@ class Requirements(Enum):
     NON_DETERMINISTIC = RS.NON_DETERMINISTIC.strip()
     FLUENTS = RS.FLUENTS.strip()
     NUMERIC_FLUENTS = RS.NUMERIC_FLUENTS.strip()
+    ACTION_COSTS = RS.ACTION_COSTS.strip()
 
     @classmethod
     def quantified_precondition_requirements(cls) -> Set["Requirements"]:

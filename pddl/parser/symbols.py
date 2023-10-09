@@ -50,6 +50,7 @@ class Symbols(Enum):
     PROBLEM = "problem"
     REQUIREMENTS = ":requirements"
     TYPES = ":types"
+    METRIC = ":metric"
     WHEN = "when"
     GREATER_EQUAL = ">="
     GREATER = ">"
@@ -58,6 +59,7 @@ class Symbols(Enum):
     ASSIGN = "assign"
     INCREASE = "increase"
     DECREASE = "decrease"
+    TOTAL_COST = "total-cost"
 
 
 ALL_SYMBOLS: Set[str] = {v.value for v in Symbols}
@@ -83,6 +85,7 @@ class RequirementSymbols(Enum):
     NON_DETERMINISTIC = ":non-deterministic"
     FLUENTS = ":fluents"
     NUMERIC_FLUENTS = ":numeric-fluents"
+    ACTION_COSTS = ":action-costs"
 
     def strip(self) -> str:
         """Strip the leading colon."""

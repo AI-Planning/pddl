@@ -100,7 +100,8 @@ def to_types(names: Dict[namelike, Optional[namelike]]) -> Dict[name, Optional[n
 def _is_a_keyword(word: str, ignore: Optional[AbstractSet[str]] = None) -> bool:
     """Check that the word is not a keyword."""
     ignore_set = ensure_set(ignore)
-    return word not in ignore_set and word in ALL_SYMBOLS
+    # we remove the TOTAL_COST because it is not a keyword but a special function
+    return word not in ignore_set and word in ALL_SYMBOLS - {Symbols.TOTAL_COST.value}
 
 
 def _check_not_a_keyword(
