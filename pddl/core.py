@@ -26,12 +26,13 @@ from pddl._validation import (
 from pddl.action import Action
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
+from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
-from pddl.logic.functions import Function, Metric
+from pddl.logic.functions import Function, Metric, TotalCost
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant
-from pddl.requirements import Requirements
+from pddl.requirements import Requirements, _extend_domain_requirements
 
 
 class Domain:
@@ -75,12 +76,13 @@ class Domain:
 
     def _check_consistency(self) -> None:
         """Check consistency of a domain instance object."""
-        checker = TypeChecker(self._types, self.requirements)
-        checker.check_type(self._constants)
-        checker.check_type(self._predicates)
-        checker.check_type(self._actions)
+        type_checker = TypeChecker(self._types, self.requirements)
+        type_checker.check_type(self._constants)
+        type_checker.check_type(self._predicates)
+        type_checker.check_type(self._actions)
         _check_types_in_has_terms_objects(self._actions, self._types.all_types)  # type: ignore
         self._check_types_in_derived_predicates()
+        self._check_action_costs_requirement()
 
     def _check_types_in_derived_predicates(self) -> None:
         """Check types in derived predicates."""
@@ -90,6 +92,15 @@ class Domain:
             else set()
         )
         _check_types_in_has_terms_objects(dp_list, self._types.all_types)
+
+    def _check_action_costs_requirement(self) -> None:
+        """Check that the action-costs requirement is specified."""
+        if not (
+            Requirements.ACTION_COSTS in _extend_domain_requirements(self._requirements)
+        ) and any(isinstance(f, TotalCost) for f in self._functions):
+            raise PDDLValidationError(
+                f"action costs requirement is not specified, but the total-cost function is specified."
+            )
 
     @property
     def name(self) -> name_type:
