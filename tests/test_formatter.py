@@ -132,7 +132,6 @@ def test_numerical_hello_world_domain_formatter():
         (
             "(define (domain hello-world-functions)",
             "    (:requirements :fluents :strips)",
-            "    (:constants)\n"
             "    (:functions (hello_counter ?neighbor))",
             "    (:action say-hello-world",
             "        :parameters (?neighbor)",
