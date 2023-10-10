@@ -12,7 +12,7 @@
 
 """This class implements PDDL functions."""
 import functools
-from typing import Sequence, Collection
+from typing import Collection, Sequence
 
 from pddl.custom_types import namelike, parse_name
 from pddl.helpers.base import assert_

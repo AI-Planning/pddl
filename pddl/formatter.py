@@ -60,7 +60,8 @@ def _print_constants(
     term_by_type_tags: Dict[Optional[name], List[name]] = {}
     for c in constants:
         term_by_type_tags.setdefault(c.type_tag, []).append(c.name)
-
+    if not bool(term_by_type_tags):
+        return ""
     return _print_typed_lists(prefix, term_by_type_tags, postfix, to_string)
 
 
