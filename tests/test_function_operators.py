@@ -31,7 +31,7 @@ class TestFunctionOperators:
 
     def test_symbol(self):
         """Test the symbol getter."""
-        assert self.function_op.symbol == Symbols.EQUAL.value
+        assert self.function_op.symbol == Symbols.EQUAL
 
     def test_value(self):
         """Test the value getter."""

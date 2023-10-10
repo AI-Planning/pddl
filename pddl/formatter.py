@@ -48,6 +48,8 @@ def _print_types_with_parents(
     name_by_type: Dict[Optional[name], List[name]] = {}
     for type_name, parent_type in types_dict.items():
         name_by_type.setdefault(parent_type, []).append(type_name)
+    if not bool(name_by_type):
+        return ""
     return _print_typed_lists(prefix, name_by_type, postfix, to_string)
 
 
