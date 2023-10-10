@@ -26,7 +26,6 @@ from pddl._validation import (
 from pddl.action import Action
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
-from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
 from pddl.logic.functions import Function, Metric, TotalCost
@@ -82,7 +81,7 @@ class Domain:
         type_checker.check_type(self._actions)
         _check_types_in_has_terms_objects(self._actions, self._types.all_types)  # type: ignore
         self._check_types_in_derived_predicates()
-        self._check_action_costs_requirement()
+        self._check_numeric_fluent_requirements()
 
     def _check_types_in_derived_predicates(self) -> None:
         """Check types in derived predicates."""
@@ -93,14 +92,19 @@ class Domain:
         )
         _check_types_in_has_terms_objects(dp_list, self._types.all_types)
 
-    def _check_action_costs_requirement(self) -> None:
-        """Check that the action-costs requirement is specified."""
-        if not (
-            Requirements.ACTION_COSTS in _extend_domain_requirements(self._requirements)
-        ) and any(isinstance(f, TotalCost) for f in self._functions):
-            raise PDDLValidationError(
-                "action costs requirement is not specified, but the total-cost function is specified."
+    def _check_numeric_fluent_requirements(self) -> None:
+        """Check that the numeric-fluents requirement is specified."""
+        if self._functions:
+            validate(
+                Requirements.NUMERIC_FLUENTS
+                in _extend_domain_requirements(self._requirements),
+                "numeric-fluents requirement is not specified, but numeric fluents are specified.",
             )
+            if any(isinstance(f, TotalCost) for f in self._functions):
+                validate(
+                    Requirements.ACTION_COSTS in self._requirements,
+                    "action costs requirement is not specified, but the total-cost function is specified.",
+                )
 
     @property
     def name(self) -> name_type:
