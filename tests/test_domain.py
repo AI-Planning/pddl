@@ -20,8 +20,20 @@ import pytest
 from pddl.action import Action
 from pddl.core import Domain
 from pddl.exceptions import PDDLValidationError
+from pddl.formatter import domain_to_string
 from pddl.logic import Constant, Variable
 from pddl.logic.base import And, Not
+from pddl.logic.functions import Decrease
+from pddl.logic.functions import EqualTo as FunctionEqualTo
+from pddl.logic.functions import (
+    Function,
+    GreaterEqualThan,
+    GreaterThan,
+    Increase,
+    LesserEqualThan,
+    LesserThan,
+    TotalCost,
+)
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.parser.symbols import Symbols
@@ -82,6 +94,108 @@ def test_build_simple_domain():
         "simple_domain", constants={a, b, c}, predicates={p}, actions={action_1}
     )
 
+    assert domain
+
+
+def test_build_simple_domain_with_derived_predicates():
+    """Test a simple PDDL domain with derived predicates."""
+    x, y, z = variables("x y z")
+    p = Predicate("p", x, y, z)
+    q = Predicate("q")
+    r = Predicate("r")
+    dp = DerivedPredicate(p, And(q, r))
+    action_1 = Action("action_1", [x, y, z], precondition=p, effect=Not(p))
+    domain = Domain(
+        "simple_domain",
+        predicates={p},
+        derived_predicates={dp},
+        actions={action_1},
+    )
+    assert domain
+
+
+def test_build_domain_with_numeric_fluents():
+    """Test a PDDL domain with simple numeric fluents."""
+    x, y, z = variables("x y z")
+    p = Predicate("p", x, y, z)
+    q = Predicate("q")
+    r = Predicate("r")
+    func1 = Function("f1", x, y)
+    func2 = Function("f2")
+    func3 = Function("f3")
+    action_1 = Action(
+        "action_1",
+        [x, y, z],
+        precondition=p
+        & FunctionEqualTo(func1, 0)
+        & GreaterThan(func2, 1)
+        & LesserThan(func3, 5),
+        effect=Not(p) | q,
+    )
+    action_2 = Action(
+        "action_2",
+        [x, y, z],
+        precondition=r & GreaterEqualThan(func1, 1) & LesserEqualThan(func2, 5),
+        effect=Not(p) | q,
+    )
+    domain = Domain(
+        "domain_with_numeric",
+        predicates={p},
+        functions={func1, func2, func3},
+        actions={action_1, action_2},
+    )
+    assert domain
+
+
+def test_build_domain_with_action_cost():
+    """Test a PDDL domain with action costs."""
+    x, y, z = variables("x y z")
+    p = Predicate("p", x, y, z)
+    q = Predicate("q")
+    r = Predicate("r")
+    cost1 = Function("cost1", x, y)
+    cost2 = Function("cost2")
+    action_1 = Action(
+        "action_1",
+        [x, y, z],
+        precondition=p & FunctionEqualTo(cost1, 0) & GreaterThan(cost2, 1),
+        effect=Not(p) & Increase(cost1, 1),
+    )
+    action_2 = Action(
+        "action_2",
+        [x, y, z],
+        precondition=r & GreaterEqualThan(cost1, 1),
+        effect=(Not(p) | q) & Decrease(cost2, 1),
+    )
+    domain = Domain(
+        "domain_with_numeric",
+        predicates={p},
+        functions={cost1, cost2},
+        actions={action_1, action_2},
+    )
+    assert domain
+
+
+def test_build_domain_with_total_cost():
+    """Test a PDDL domain with total costs."""
+    x, y, z = variables("x y z")
+    p = Predicate("p", x, y, z)
+    q = Predicate("q")
+    total_cost = TotalCost()
+    action_1 = Action(
+        "action_1",
+        [x, y, z],
+        precondition=p & q,
+        effect=Not(p) & Increase(total_cost, 1),
+    )
+    domain = Domain(
+        "domain_with_total_cost",
+        requirements={Requirements.ACTION_COSTS},
+        predicates={p},
+        functions={total_cost},
+        actions={action_1},
+    )
+    print(domain_to_string(domain))
     assert domain
 
 
