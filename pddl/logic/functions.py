@@ -12,7 +12,7 @@
 
 """This class implements PDDL functions."""
 import functools
-from typing import Sequence
+from typing import Sequence, Collection
 
 from pddl.custom_types import namelike, parse_name
 from pddl.helpers.base import assert_
@@ -103,21 +103,21 @@ class Metric(Atomic):
     MINIMIZE = "minimize"
     MAXIMIZE = "maximize"
 
-    def __init__(self, function: Function, optimization: str = MINIMIZE):
+    def __init__(self, functions: Collection[Function], optimization: str = MINIMIZE):
         """
         Initialize the metric function.
 
-        :param function: function to minimize or maximize.
+        :param functions: functions to minimize or maximize.
         :param optimization: whether to minimize or maximize the function.
         """
-        self._function = function
+        self._functions = functions
         self._optimization = optimization
         self._validate()
 
     @property
-    def function(self) -> Function:
-        """Get the function."""
-        return self._function
+    def functions(self) -> Collection[Function]:
+        """Get the functions."""
+        return self._functions
 
     @property
     def optimization(self) -> str:
@@ -133,23 +133,23 @@ class Metric(Atomic):
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"{self.optimization} {self.function}"
+        return f"{self.optimization} {' '.join(map(str, self.functions))}"
 
     def __repr__(self) -> str:
         """Get an unambiguous string representation."""
-        return f"{type(self).__name__}({self.function}, {self.optimization})"
+        return f"{type(self).__name__}({*self.functions,}, {self.optimization})"
 
     def __eq__(self, other):
         """Override equal operator."""
         return (
             isinstance(other, Metric)
-            and self.function == other.function
+            and self.functions == other.functions
             and self.optimization == other.optimization
         )
 
     def __hash__(self):
         """Get the hash of a Metric."""
-        return hash((self.function, self.optimization))
+        return hash((self.functions, self.optimization))
 
 
 class FunctionOperator(Atomic):
