@@ -95,15 +95,24 @@ class Domain:
     def _check_numeric_fluent_requirements(self) -> None:
         """Check that the numeric-fluents requirement is specified."""
         if self._functions:
-            validate(
-                Requirements.NUMERIC_FLUENTS
-                in _extend_domain_requirements(self._requirements),
-                "numeric-fluents requirement is not specified, but numeric fluents are specified.",
-            )
             if any(isinstance(f, TotalCost) for f in self._functions):
                 validate(
                     Requirements.ACTION_COSTS in self._requirements,
                     "action costs requirement is not specified, but the total-cost function is specified.",
+                )
+                if any(
+                    isinstance(f, Function) and not isinstance(f, TotalCost)
+                    for f in self._functions
+                ):
+                    validate(
+                        Requirements.NUMERIC_FLUENTS in self._requirements,
+                        "numeric-fluents requirement is not specified, but numeric fluents are specified.",
+                    )
+            else:
+                validate(
+                    Requirements.NUMERIC_FLUENTS
+                    in _extend_domain_requirements(self._requirements),
+                    "numeric-fluents requirement is not specified, but numeric fluents are specified.",
                 )
 
     @property

@@ -1,7 +1,7 @@
 ;Hello world domain to test numerical fluents (functions) 
 (define (domain hello-world-functions)
 
-    (:requirements :strips :fluents)
+    (:requirements :strips :numeric-fluents)
 
     (:functions
         (hello_counter)

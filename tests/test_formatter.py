@@ -123,7 +123,7 @@ def test_numerical_hello_world_domain_formatter():
 
     domain = Domain(
         name="hello-world-functions",
-        requirements=[Requirements.STRIPS, Requirements.FLUENTS],
+        requirements=[Requirements.STRIPS, Requirements.NUMERIC_FLUENTS],
         functions=[hello_counter],
         actions=[action],
     )
@@ -131,7 +131,7 @@ def test_numerical_hello_world_domain_formatter():
     assert domain_to_string(domain) == "\n".join(
         (
             "(define (domain hello-world-functions)",
-            "    (:requirements :fluents :strips)",
+            "    (:requirements :numeric-fluents :strips)",
             "    (:functions (hello_counter ?neighbor))",
             "    (:action say-hello-world",
             "        :parameters (?neighbor)",

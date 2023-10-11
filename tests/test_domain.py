@@ -20,7 +20,6 @@ import pytest
 from pddl.action import Action
 from pddl.core import Domain
 from pddl.exceptions import PDDLValidationError
-from pddl.formatter import domain_to_string
 from pddl.logic import Constant, Variable
 from pddl.logic.base import And, Not
 from pddl.logic.functions import Decrease
@@ -140,6 +139,7 @@ def test_build_domain_with_numeric_fluents():
     )
     domain = Domain(
         "domain_with_numeric",
+        requirements={Requirements.NUMERIC_FLUENTS},
         predicates={p},
         functions={func1, func2, func3},
         actions={action_1, action_2},
@@ -169,6 +169,7 @@ def test_build_domain_with_action_cost():
     )
     domain = Domain(
         "domain_with_numeric",
+        requirements={Requirements.NUMERIC_FLUENTS},
         predicates={p},
         functions={cost1, cost2},
         actions={action_1, action_2},
@@ -195,7 +196,6 @@ def test_build_domain_with_total_cost():
         functions={total_cost},
         actions={action_1},
     )
-    print(domain_to_string(domain))
     assert domain
 
 

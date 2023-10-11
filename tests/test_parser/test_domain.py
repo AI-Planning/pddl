@@ -307,7 +307,7 @@ def test_check_action_costs_requirement_with_total_cost() -> None:
         (:action a
             :parameters (?x - t1 ?y - t2)
             :precondition (and (p ?x ?x))
-            :effect (p ?x ?x)
+            :effect (and (p ?x ?x) (increase (total-cost) 1))
         )
     )
     """

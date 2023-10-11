@@ -73,16 +73,16 @@ class TestMetric:
         """Set up the tests."""
         self.a, self.b = variables("a b")
         self.function = Function("f", self.a, self.b)
-        self.maximize_metric = Metric(self.function, Metric.MAXIMIZE)
-        self.minimize_metric = Metric(self.function, Metric.MINIMIZE)
+        self.maximize_metric = Metric([self.function], Metric.MAXIMIZE)
+        self.minimize_metric = Metric([self.function], Metric.MINIMIZE)
 
     def test_function_maximize(self):
         """Test function getter for maximize metric."""
-        assert self.maximize_metric.function == self.function
+        assert self.maximize_metric.functions == [self.function]
 
     def test_function_minimize(self):
         """Test function getter for minimize metric."""
-        assert self.minimize_metric.function == self.function
+        assert self.minimize_metric.functions == [self.function]
 
     def test_optimization_maximize(self):
         """Test optimization getter for maximize metric."""
@@ -98,23 +98,23 @@ class TestMetric:
             AssertionError,
             match="Optimization metric not recognized.",
         ):
-            Metric(self.function, "other")
+            Metric([self.function], "other")
 
     def test_to_equal(self):
         """Test to equal."""
-        other = Metric(Function("f", self.a, self.b), Metric.MINIMIZE)
+        other = Metric([Function("f", self.a, self.b)], Metric.MINIMIZE)
         assert self.minimize_metric == other
 
     def test_to_str(self):
         """Test to string."""
         assert (
             str(self.maximize_metric)
-            == f"{self.maximize_metric.optimization} {self.maximize_metric.function}"
+            == f"{self.maximize_metric.optimization} {' '.join(map(str, self.maximize_metric.functions))}"
         )
 
     def test_to_repr(self):
         """Test to repr."""
         assert (
             repr(self.minimize_metric)
-            == f"Metric(({self.function.name} {self.a} {self.b}), minimize)"
+            == f"Metric({*self.maximize_metric.functions,}, minimize)"
         )
