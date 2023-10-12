@@ -28,7 +28,7 @@ from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
 from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
-from pddl.logic.functions import Function, Metric, TotalCost
+from pddl.logic.functions import FunctionExpression, Metric, TotalCost
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant
 from pddl.requirements import Requirements, _extend_domain_requirements
@@ -47,7 +47,7 @@ class Domain:
         derived_predicates: Optional[
             Collection[DerivedPredicate]
         ] = None,  # TODO cannot be empty
-        functions: Optional[Collection[Function]] = None,
+        functions: Optional[Collection[FunctionExpression]] = None,
         actions: Optional[Collection["Action"]] = None,
     ):
         """
@@ -101,7 +101,7 @@ class Domain:
                     "action costs requirement is not specified, but the total-cost function is specified.",
                 )
                 if any(
-                    isinstance(f, Function) and not isinstance(f, TotalCost)
+                    isinstance(f, FunctionExpression) and not isinstance(f, TotalCost)
                     for f in self._functions
                 ):
                     validate(
@@ -136,7 +136,7 @@ class Domain:
         return self._predicates
 
     @property
-    def functions(self) -> AbstractSet[Function]:
+    def functions(self) -> AbstractSet[FunctionExpression]:
         """Get the functions."""
         return self._functions
 
