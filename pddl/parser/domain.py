@@ -23,15 +23,20 @@ from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
 from pddl.logic.effects import AndEffect, Forall, When
-from pddl.logic.functions import Decrease
+from pddl.logic.functions import Decrease, Divide
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
-    Function,
+    FunctionExpression,
     GreaterEqualThan,
     GreaterThan,
     Increase,
     LesserEqualThan,
     LesserThan,
+    Minus,
+    NumericFunction,
+    NumericValue,
+    Plus,
+    Times,
     TotalCost,
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
@@ -51,7 +56,7 @@ class DomainTransformer(Transformer):
 
         self._constants_by_name: Dict[str, Constant] = {}
         self._predicates_by_name: Dict[str, Predicate] = {}
-        self._functions_by_name: Dict[str, Function] = {}
+        self._functions_by_name: Dict[str, FunctionExpression] = {}
         self._current_parameters_by_name: Dict[str, Variable] = {}
         self._requirements: Set[str] = set()
         self._extended_requirements: Set[str] = set()
@@ -347,15 +352,36 @@ class DomainTransformer(Transformer):
             return TotalCost()
         function_name = args[1]
         variables = self._formula_skeleton(args)
-        return Function(function_name, *variables)
+        return NumericFunction(function_name, *variables)
+
+    def f_exp(self, args):
+        """Process the 'f_exp' rule."""
+        if len(args) == 1:
+            if isinstance(args[0], (int, float)):
+                return NumericValue(args[0])
+            return args[0]
+        op = None
+        if args[1] == Symbols.MINUS.value:
+            op = Minus
+        if args[1] == Symbols.PLUS.value:
+            op = Plus
+        if args[1] == Symbols.TIMES.value:
+            op = Times
+        if args[1] == Symbols.DIVIDE.value:
+            op = Divide
+        return (
+            op(*args[2:-1])
+            if op is not None
+            else PDDLParsingError("Operator not recognized")
+        )
 
     def f_head(self, args):
         """Process the 'f_head' rule."""
         if len(args) == 1:
-            return args[0]
+            return NumericFunction(args[0])
         function_name = args[1]
         variables = [Variable(x, {}) for x in args[2:-1]]
-        return Function(function_name, *variables)
+        return NumericFunction(function_name, *variables)
 
     def typed_list_name(self, args) -> Dict[name, Optional[name]]:
         """Process the 'typed_list_name' rule."""
