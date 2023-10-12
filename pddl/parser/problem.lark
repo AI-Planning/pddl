@@ -34,10 +34,16 @@ gd_name:    atomic_formula_name
 f_head: NAME
        | LPAR NAME term* RPAR
 
-metric_spec: LPAR METRIC optimization basic_function_term RPAR
+metric_spec: LPAR METRIC optimization metric_f_exp RPAR
 
 ?optimization: MAXIMIZE
              | MINIMIZE
+
+metric_f_exp: LPAR binary_op metric_f_exp metric_f_exp RPAR
+            | LPAR multi_op metric_f_exp metric_f_exp+ RPAR
+            | LPAR MINUS metric_f_exp RPAR
+            | basic_function_term
+            | NUMBER
 
 DOMAIN_P: ":domain"
 PROBLEM: "problem"
@@ -53,6 +59,8 @@ GOAL: ":goal"
 %import .domain.typed_list_name -> typed_list_name
 %import .domain.predicate -> predicate
 %import .domain.binary_comp -> binary_comp
+%import .domain.binary_op -> binary_op
+%import .domain.multi_op -> multi_op
 %import .domain.term -> term
 %import .common.NAME -> NAME
 %import .common.DEFINE -> DEFINE
@@ -75,6 +83,7 @@ GOAL: ":goal"
 %import .common.GREATER_EQUAL_OP -> GREATER_EQUAL_OP
 %import .common.LESSER_OP -> LESSER_OP
 %import .common.LESSER_EQUAL_OP -> LESSER_EQUAL_OP
+%import .common.MINUS -> MINUS
 %import .common.METRIC -> METRIC
 %import .common.MAXIMIZE -> MAXIMIZE
 %import .common.MINIMIZE -> MINIMIZE

@@ -61,13 +61,24 @@ constant: NAME
             | GREATER_EQUAL_OP
             | LESSER_EQUAL_OP
 
+?binary_op: multi_op
+          | MINUS
+          | DIVIDE
+
+?multi_op: TIMES
+         | PLUS
+
+f_exp:      NUMBER
+      |     LPAR binary_op f_exp f_exp RPAR
+      |     LPAR multi_op f_exp f_exp+ RPAR
+      |     LPAR MINUS f_exp RPAR
+      |     f_head
+
+f_head:     NAME
+      |     LPAR NAME term* RPAR
+
 ?assign_op: INCREASE
           | DECREASE
-
-?f_exp: NUMBER
-     | f_head
-f_head: NAME
-       | LPAR NAME term* RPAR
 
 typed_list_variable:   variable*
                    |   (variable+ TYPE_SEP type_def)+ variable*
@@ -113,6 +124,10 @@ type_def:          LPAR EITHER primitive_type+ RPAR
 %import .common.GREATER_EQUAL_OP -> GREATER_EQUAL_OP
 %import .common.LESSER_OP -> LESSER_OP
 %import .common.LESSER_EQUAL_OP -> LESSER_EQUAL_OP
+%import .common.MINUS -> MINUS
+%import .common.PLUS -> PLUS
+%import .common.TIMES -> TIMES
+%import .common.DIVIDE -> DIVIDE
 %import .common.NUMBER -> NUMBER
 %import .common.INCREASE -> INCREASE
 %import .common.DECREASE -> DECREASE
