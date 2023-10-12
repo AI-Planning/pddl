@@ -25,7 +25,7 @@ from pddl.logic.base import And, Not
 from pddl.logic.functions import Decrease
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
-    Function,
+    NumericFunction,
     GreaterEqualThan,
     GreaterThan,
     Increase,
@@ -119,9 +119,9 @@ def test_build_domain_with_numeric_fluents():
     p = Predicate("p", x, y, z)
     q = Predicate("q")
     r = Predicate("r")
-    func1 = Function("f1", x, y)
-    func2 = Function("f2")
-    func3 = Function("f3")
+    func1 = NumericFunction("f1", x, y)
+    func2 = NumericFunction("f2")
+    func3 = NumericFunction("f3")
     action_1 = Action(
         "action_1",
         [x, y, z],
@@ -153,8 +153,8 @@ def test_build_domain_with_action_cost():
     p = Predicate("p", x, y, z)
     q = Predicate("q")
     r = Predicate("r")
-    cost1 = Function("cost1", x, y)
-    cost2 = Function("cost2")
+    cost1 = NumericFunction("cost1", x, y)
+    cost2 = NumericFunction("cost2")
     action_1 = Action(
         "action_1",
         [x, y, z],

@@ -12,7 +12,7 @@
 """This module contains tests for a PDDL function."""
 
 from pddl.logic import variables
-from pddl.logic.functions import Function
+from pddl.logic.functions import NumericFunction, NumericValue
 
 
 class TestFunctionEmpty:
@@ -20,7 +20,7 @@ class TestFunctionEmpty:
 
     def setup_method(self):
         """Set up the tests."""
-        self.function = Function("empty_function")
+        self.function = NumericFunction("empty_function")
 
     def test_name(self):
         """Test the name getter."""
@@ -38,5 +38,17 @@ class TestFunctionEmpty:
 def test_build_simple_function():
     """Test a simple PDDL action."""
     x, y, z = variables("x y z", types=["type1"])
-    function = Function("simple_function", x, y, z)
+    function = NumericFunction("simple_function", x, y, z)
     assert function
+
+
+class TestNumericValue:
+    """Test the numeric value."""
+
+    def setup_method(self):
+        """Set up the tests."""
+        self.numeric_value = NumericValue(3)
+
+    def test_value(self):
+        """Test the name getter."""
+        assert self.numeric_value.value == 3

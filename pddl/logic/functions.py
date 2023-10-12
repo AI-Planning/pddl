@@ -102,6 +102,11 @@ class NumericValue(FunctionExpression):
         """Init the numeric value object."""
         self._value = value
 
+    @property
+    def value(self) -> float:
+        """Get the value."""
+        return self._value
+
     def __hash__(self) -> int:
         """Compute the hash of the object."""
         return hash(self._value)
@@ -194,7 +199,7 @@ class Metric(Atomic):
 
     def __repr__(self) -> str:
         """Get an unambiguous string representation."""
-        return f"{type(self).__name__}({*self.expression,}, {self.optimization})"  # type: ignore
+        return f"{type(self).__name__}({self.expression}, {self.optimization})"  # type: ignore
 
     def __eq__(self, other):
         """Override equal operator."""

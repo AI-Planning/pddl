@@ -13,8 +13,7 @@
 """This module contains tests for PDDL functions."""
 import pytest
 
-from pddl.core import Function
-from pddl.logic.functions import Metric, TotalCost
+from pddl.logic.functions import Metric, TotalCost, NumericFunction
 from pddl.logic.helpers import variables
 
 
@@ -24,11 +23,11 @@ class TestFunctionSimpleInitialisation:
     def setup_method(self):
         """Set up the tests."""
         self.a, self.b = variables("a b")
-        self.function = Function("f", self.a, self.b)
+        self.function = NumericFunction("func", self.a, self.b)
 
     def test_name(self):
         """Test name getter."""
-        assert self.function.name == "f"
+        assert self.function.name == "func"
 
     def test_variables(self):
         """Test terms getter."""
@@ -40,7 +39,7 @@ class TestFunctionSimpleInitialisation:
 
     def test_to_equal(self):
         """Test to equal."""
-        other = Function("f", self.a, self.b)
+        other = NumericFunction("f", self.a, self.b)
         assert self.function == other
 
     def test_to_str(self):
@@ -50,7 +49,7 @@ class TestFunctionSimpleInitialisation:
     def test_to_repr(self):
         """Test to repr."""
         assert (
-            repr(self.function) == f"Function({self.function.name}, {self.a}, {self.b})"
+            repr(self.function) == f"NumericFunction({self.function.name}, {self.a}, {self.b})"
         )
 
 
@@ -59,11 +58,11 @@ class TestTotalCost:
 
     def setup_method(self):
         """Set up the tests."""
-        self.predicate = TotalCost()
+        self.total_cost = TotalCost()
 
     def test_name(self):
         """Test name getter."""
-        assert self.predicate.name == "total-cost"
+        assert self.total_cost.name == "total-cost"
 
 
 class TestMetric:
@@ -72,17 +71,17 @@ class TestMetric:
     def setup_method(self):
         """Set up the tests."""
         self.a, self.b = variables("a b")
-        self.function = Function("f", self.a, self.b)
-        self.maximize_metric = Metric([self.function], Metric.MAXIMIZE)
-        self.minimize_metric = Metric([self.function], Metric.MINIMIZE)
+        self.function = NumericFunction("func", self.a, self.b)
+        self.maximize_metric = Metric(self.function, Metric.MAXIMIZE)
+        self.minimize_metric = Metric(self.function, Metric.MINIMIZE)
 
     def test_function_maximize(self):
         """Test function getter for maximize metric."""
-        assert self.maximize_metric.functions == [self.function]
+        assert self.maximize_metric.expression == self.function
 
     def test_function_minimize(self):
         """Test function getter for minimize metric."""
-        assert self.minimize_metric.functions == [self.function]
+        assert self.minimize_metric.expression == self.function
 
     def test_optimization_maximize(self):
         """Test optimization getter for maximize metric."""
@@ -98,23 +97,23 @@ class TestMetric:
             AssertionError,
             match="Optimization metric not recognized.",
         ):
-            Metric([self.function], "other")
+            Metric(self.function, "other")
 
     def test_to_equal(self):
         """Test to equal."""
-        other = Metric([Function("f", self.a, self.b)], Metric.MINIMIZE)
+        other = Metric(NumericFunction("func", self.a, self.b), Metric.MINIMIZE)
         assert self.minimize_metric == other
 
     def test_to_str(self):
         """Test to string."""
         assert (
             str(self.maximize_metric)
-            == f"{self.maximize_metric.optimization} {' '.join(map(str, self.maximize_metric.functions))}"
+            == f"{self.maximize_metric.optimization} {self.maximize_metric.expression}"
         )
 
     def test_to_repr(self):
         """Test to repr."""
         assert (
-            repr(self.minimize_metric)
-            == f"Metric({*self.maximize_metric.functions,}, minimize)"
+            repr(self.maximize_metric)
+            == f"Metric({self.maximize_metric.expression}, {self.maximize_metric.optimization})"
         )

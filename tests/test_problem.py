@@ -20,7 +20,7 @@ from pddl.core import Domain, Problem
 from pddl.logic.base import And, Not
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
-    Function,
+    NumericFunction,
     GreaterEqualThan,
     GreaterThan,
     LesserEqualThan,
@@ -117,8 +117,8 @@ def test_build_problem_with_metric_list():
     o1, o2 = constants("o1 o2")
     p = Predicate("p", x, y)
     q = Predicate("q")
-    cost1 = Function("cost1", x, y)
-    cost2 = Function("cost2")
+    cost1 = NumericFunction("cost1", x, y)
+    cost2 = NumericFunction("cost2")
     problem = Problem(
         "simple_problem",
         domain_name="simple_domain",
@@ -136,8 +136,8 @@ def test_build_problem_with_numeric_goal():
     o1, o2 = constants("o1 o2")
     p = Predicate("p", x, y)
     q = Predicate("q")
-    cost1 = Function("cost1", x, y)
-    cost2 = Function("cost2")
+    cost1 = NumericFunction("cost1", x, y)
+    cost2 = NumericFunction("cost2")
     problem = Problem(
         "simple_problem",
         domain_name="simple_domain",

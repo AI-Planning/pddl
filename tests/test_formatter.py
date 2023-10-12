@@ -21,15 +21,17 @@ from pddl.action import Action
 from pddl.core import Domain, Problem
 from pddl.formatter import domain_to_string, problem_to_string
 from pddl.logic import Constant, Variable, constants
-from pddl.logic.base import ForallCondition, Number
+from pddl.logic.base import ForallCondition
 from pddl.logic.effects import AndEffect
 from pddl.logic.functions import (
     EqualTo,
-    Function,
+    NumericFunction,
     GreaterEqualThan,
     Increase,
     LesserEqualThan,
+    NumericValue,
 )
+
 from pddl.requirements import Requirements
 from tests.conftest import DOMAIN_FILES, PROBLEM_FILES
 
@@ -111,20 +113,20 @@ def test_typed_objects_formatting_in_problem() -> None:
 
 
 def test_numerical_hello_world_domain_formatter():
-    """Test that numerical functions are formatted correctly."""
+    """Test that numerical NumericFunctions are formatted correctly."""
     neighbor = Variable("neighbor")
-    hello_counter = Function("hello_counter", neighbor)
+    hello_counter = NumericFunction("hello_counter", neighbor)
     action = Action(
         "say-hello-world",
         parameters=[neighbor],
-        precondition=LesserEqualThan(hello_counter, Number(3)),
-        effect=AndEffect(Increase(hello_counter, Number(1))),
+        precondition=LesserEqualThan(hello_counter, NumericValue(3)),
+        effect=AndEffect(Increase(hello_counter, NumericValue(1))),
     )
 
     domain = Domain(
         name="hello-world-functions",
         requirements=[Requirements.STRIPS, Requirements.NUMERIC_FLUENTS],
-        functions=[hello_counter],
+        NumericFunctions=[hello_counter],
         actions=[action],
     )
 
@@ -144,19 +146,19 @@ def test_numerical_hello_world_domain_formatter():
 
 
 def test_numerical_hello_world_problem_formatter():
-    """Test that numerical functions are formatted correctly."""
+    """Test that numerical NumericFunctions are formatted correctly."""
     neighbors = [Constant(name, "neighbor") for name in ("Alice", "Bob", "Charlie")]
     problem = Problem(
         name="hello-3-times",
         domain_name="hello-world-functions",
         objects=neighbors,
         init=[
-            EqualTo(Function("hello_counter", neighbor), Number(0))
+            EqualTo(NumericFunction("hello_counter", neighbor), NumericValue(0))
             for neighbor in neighbors
         ],
         goal=ForallCondition(
             GreaterEqualThan(
-                Function("hello_counter", Variable("neighbor")), Number(1)
+                NumericFunction("hello_counter", Variable("neighbor")), NumericValue(1)
             ),
             [Variable("neighbor", ["neighbor"])],
         ),

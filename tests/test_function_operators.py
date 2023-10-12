@@ -11,7 +11,7 @@
 #
 """This module contains tests for PDDL function operators."""
 from pddl.logic import variables
-from pddl.logic.functions import Function, FunctionOperator
+from pddl.logic.functions import NumericFunction
 from pddl.parser.symbols import Symbols
 
 
@@ -22,8 +22,8 @@ class TestFunctionOperators:
         """Set up the tests."""
         x, y = variables("x y", types=["type1"])
         z = variables("z", types=["type2"])
-        self.function = Function("function_1", x, y, z)
-        self.function_op = FunctionOperator(self.function, 3, Symbols.EQUAL)
+        self.function = NumericFunction("function_1", x, y, z)
+
 
     def test_function(self):
         """Test the function getter."""
