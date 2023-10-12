@@ -24,7 +24,7 @@ from pddl.helpers.base import check, ensure, ensure_set, find_cycle
 from pddl.logic import Predicate
 from pddl.logic.base import BinaryOp, QuantifiedCondition, UnaryOp
 from pddl.logic.effects import AndEffect, Forall, When
-from pddl.logic.functions import Assign, Decrease, Divide, ScaleUp, ScaleDown
+from pddl.logic.functions import Assign, Decrease, Divide
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
     GreaterEqualThan,
@@ -36,6 +36,8 @@ from pddl.logic.functions import (
     NumericFunction,
     NumericValue,
     Plus,
+    ScaleDown,
+    ScaleUp,
     Times,
     TotalCost,
 )
