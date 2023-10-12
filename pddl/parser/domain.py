@@ -23,7 +23,7 @@ from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
 from pddl.logic.effects import AndEffect, Forall, When
-from pddl.logic.functions import Decrease, Divide
+from pddl.logic.functions import Assign, Decrease, Divide
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
     FunctionExpression,
@@ -36,6 +36,8 @@ from pddl.logic.functions import (
     NumericFunction,
     NumericValue,
     Plus,
+    ScaleDown,
+    ScaleUp,
     Times,
     TotalCost,
 )
@@ -293,13 +295,18 @@ class DomainTransformer(Transformer):
 
     def num_effect(self, args):
         """Process the 'num_effect' rule."""
-        function = args[2]
-        value = args[3]
-        if args[1] == Symbols.INCREASE.value:
-            return Increase(function, value)
-        if args[1] == Symbols.DECREASE.value:
-            return Decrease(function, value)
-        raise PDDLParsingError("Assign operator not recognized")
+        if args[1] == Symbols.ASSIGN.value:
+            return Assign(args[2], args[3])
+        elif args[1] == Symbols.SCALE_UP.value:
+            return ScaleUp(args[2], args[3])
+        elif args[1] == Symbols.SCALE_DOWN.value:
+            return ScaleDown(args[2], args[3])
+        elif args[1] == Symbols.INCREASE.value:
+            return Increase(args[2], args[3])
+        elif args[1] == Symbols.DECREASE.value:
+            return Decrease(args[2], args[3])
+        else:
+            raise PDDLParsingError(f"Unrecognized assign operator: {args[1]}")
 
     def atomic_formula_term(self, args):
         """Process the 'atomic_formula_term' rule."""
@@ -357,7 +364,7 @@ class DomainTransformer(Transformer):
     def f_exp(self, args):
         """Process the 'f_exp' rule."""
         if len(args) == 1:
-            if isinstance(args[0], (int, float)):
+            if float(args[0]):
                 return NumericValue(args[0])
             return args[0]
         op = None

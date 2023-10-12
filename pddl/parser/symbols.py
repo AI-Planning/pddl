@@ -61,6 +61,8 @@ class Symbols(Enum):
     TIMES = "*"
     DIVIDE = "/"
     ASSIGN = "assign"
+    SCALE_UP = "scale-up"
+    SCALE_DOWN = "scale-down"
     INCREASE = "increase"
     DECREASE = "decrease"
     MAXIMIZE = "maximize"

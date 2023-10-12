@@ -77,7 +77,10 @@ f_exp:      NUMBER
 f_head:     NAME
       |     LPAR NAME term* RPAR
 
-?assign_op: INCREASE
+?assign_op: ASSIGN
+          | SCALE_UP
+          | SCALE_DOWN
+          | INCREASE
           | DECREASE
 
 typed_list_variable:   variable*
@@ -129,6 +132,9 @@ type_def:          LPAR EITHER primitive_type+ RPAR
 %import .common.TIMES -> TIMES
 %import .common.DIVIDE -> DIVIDE
 %import .common.NUMBER -> NUMBER
+%import .common.ASSIGN -> ASSIGN
+%import .common.SCALE_UP -> SCALE_UP
+%import .common.SCALE_DOWN -> SCALE_DOWN
 %import .common.INCREASE -> INCREASE
 %import .common.DECREASE -> DECREASE
 %import .common.TOTAL_COST -> TOTAL_COST

@@ -156,7 +156,7 @@ class TotalCost(NumericFunction):
 
     def __init__(self):
         """Initialize the function."""
-        super().__init__("total-cost")
+        super().__init__("total-cost", *[])
 
 
 class Metric(Atomic):
@@ -252,6 +252,34 @@ class Assign(BinaryFunction):
     def __init__(self, *operands: FunctionExpression):
         """
         Initialize the Assign operator.
+
+        :param operands: the operands.
+        """
+        super().__init__(*operands)
+
+
+class ScaleUp(BinaryFunction):
+    """Scale-Up operator."""
+
+    SYMBOL = Symbols.SCALE_UP
+
+    def __init__(self, *operands: FunctionExpression):
+        """
+        Initialize the Scale-Up operator.
+
+        :param operands: the operands.
+        """
+        super().__init__(*operands)
+
+
+class ScaleDown(BinaryFunction):
+    """Scale-Down operator."""
+
+    SYMBOL = Symbols.SCALE_DOWN
+
+    def __init__(self, *operands: FunctionExpression):
+        """
+        Initialize the Scale-Down operator.
 
         :param operands: the operands.
         """

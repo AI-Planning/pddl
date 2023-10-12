@@ -24,7 +24,7 @@ from pddl.helpers.base import check, ensure, ensure_set, find_cycle
 from pddl.logic import Predicate
 from pddl.logic.base import BinaryOp, QuantifiedCondition, UnaryOp
 from pddl.logic.effects import AndEffect, Forall, When
-from pddl.logic.functions import Assign, Decrease, Divide
+from pddl.logic.functions import Assign, Decrease, Divide, ScaleUp, ScaleDown
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
     GreaterEqualThan,
@@ -293,6 +293,16 @@ class TypeChecker:
     def _(self, assign: Assign) -> None:
         """Check types annotations of a PDDL numeric assign to."""
         self.check_type(assign.operands)
+
+    @check_type.register
+    def _(self, scale_up: ScaleUp) -> None:
+        """Check types annotations of a PDDL numeric assign to."""
+        self.check_type(scale_up.operands)
+
+    @check_type.register
+    def _(self, scale_down: ScaleDown) -> None:
+        """Check types annotations of a PDDL numeric assign to."""
+        self.check_type(scale_down.operands)
 
     @check_type.register
     def _(self, increase: Increase) -> None:
