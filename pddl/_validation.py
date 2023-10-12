@@ -34,8 +34,10 @@ from pddl.logic.functions import (
     LesserThan,
     Minus,
     NumericFunction,
+    NumericValue,
     Plus,
     Times,
+    TotalCost,
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo
 from pddl.logic.terms import Term
@@ -251,6 +253,16 @@ class TypeChecker:
     def _(self, function: NumericFunction) -> None:
         """Check types annotations of a PDDL numeric function."""
         self.check_type(function.terms)
+
+    @check_type.register
+    def _(self, _: NumericValue) -> None:
+        """Check types annotations of a PDDL numeric value operator."""
+        return None
+
+    @check_type.register
+    def _(self, _: TotalCost) -> None:
+        """Check types annotations of a PDDL numeric total-cost operator."""
+        return None
 
     @check_type.register
     def _(self, equal_to: FunctionEqualTo) -> None:
