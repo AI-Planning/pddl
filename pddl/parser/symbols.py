@@ -56,9 +56,15 @@ class Symbols(Enum):
     GREATER = ">"
     LESSER_EQUAL = "<="
     LESSER = "<"
+    MINUS = "-"
+    PLUS = "+"
+    TIMES = "*"
+    DIVIDE = "/"
     ASSIGN = "assign"
     INCREASE = "increase"
     DECREASE = "decrease"
+    MAXIMIZE = "maximize"
+    MINIMIZE = "minimize"
     TOTAL_COST = "total-cost"
 
 
@@ -84,6 +90,7 @@ class RequirementSymbols(Enum):
     DERIVED_PREDICATES = ":derived-predicates"
     NON_DETERMINISTIC = ":non-deterministic"
     FLUENTS = ":fluents"
+    OBJECT_FLUENTS = ":object-fluents"
     NUMERIC_FLUENTS = ":numeric-fluents"
     ACTION_COSTS = ":action-costs"
 
