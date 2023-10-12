@@ -12,20 +12,25 @@
 
 """This class implements PDDL functions."""
 import functools
-from typing import Collection, Sequence
+from typing import Sequence
 
 from pddl.custom_types import namelike, parse_name
 from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
-from pddl.logic.base import Atomic, Number
+from pddl.logic.base import Atomic, MonotoneOp
 from pddl.logic.terms import Term
 from pddl.parser.symbols import Symbols
 
 
 @cache_hash
+class FunctionExpression(Atomic):
+    """A class for all the function expressions."""
+
+
+@cache_hash
 @functools.total_ordering
-class Function(Atomic):
-    """A class for a Function in PDDL."""
+class NumericFunction(FunctionExpression):
+    """A class for a numeric function."""
 
     def __init__(self, name: namelike, *terms: Term):
         """Initialize the function."""
@@ -57,7 +62,7 @@ class Function(Atomic):
             all(t1.type_tags == t2.type_tags for t1, t2 in zip(self.terms, terms)),
             "Wrong types of replacements.",
         )
-        return Function(self.name, *terms)
+        return NumericFunction(self.name, *terms)
 
     def __str__(self) -> str:
         """Get the string."""
@@ -73,23 +78,75 @@ class Function(Atomic):
     def __eq__(self, other):
         """Override equal operator."""
         return (
-            isinstance(other, Function)
+            isinstance(other, NumericFunction)
             and self.name == other.name
             and self.terms == other.terms
         )
 
-    def __hash__(self):
-        """Get the has of a Function."""
-        return hash((self.name, self.arity, self.terms))
+    def __hash__(self) -> int:
+        """Compute the hash of the object."""
+        return hash((self.name, self.terms))
 
     def __lt__(self, other):
+        """Override less than operator."""
+        if not isinstance(other, NumericFunction):
+            return NotImplemented
+        return (self.name, self.terms) < (other.name, other.terms)
+
+
+@cache_hash
+class NumericValue(FunctionExpression):
+    """A class for a numeric value."""
+
+    def __init__(self, value: float) -> None:
+        """Init the numeric value object."""
+        self._value = value
+
+    def __hash__(self) -> int:
+        """Compute the hash of the object."""
+        return hash(self._value)
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return str(self._value)
+
+
+class BinaryFunction(FunctionExpression):
+    """A class for a numeric binary function."""
+
+    SYMBOL: Symbols
+
+    def __init__(self, *operands: FunctionExpression):
+        """
+        Init a binary operator.
+
+        :param operands: the operands.
+        """
+        self._operands = list(operands)
+
+    @property
+    def operands(self) -> Sequence[FunctionExpression]:
+        """Get the operands."""
+        return tuple(self._operands)
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return f"({self.SYMBOL.value} {' '.join(map(str, self.operands))})"
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return f"{type(self).__name__}({repr(self.operands)})"
+
+    def __eq__(self, other):
         """Compare with another object."""
-        if isinstance(other, Function):
-            return (self.name, self.terms) < (other.name, other.terms)
-        return super().__lt__(other)
+        return isinstance(other, type(self)) and self.operands == other.operands
+
+    def __hash__(self) -> int:
+        """Compute the hash of the object."""
+        return hash((type(self), self.operands))
 
 
-class TotalCost(Function):
+class TotalCost(NumericFunction):
     """A class for the total-cost function in PDDL."""
 
     def __init__(self):
@@ -100,24 +157,24 @@ class TotalCost(Function):
 class Metric(Atomic):
     """A class for the metric function in PDDL."""
 
-    MINIMIZE = "minimize"
-    MAXIMIZE = "maximize"
+    MINIMIZE = Symbols.MINIMIZE.value
+    MAXIMIZE = Symbols.MAXIMIZE.value
 
-    def __init__(self, functions: Collection[Function], optimization: str = MINIMIZE):
+    def __init__(self, expression: FunctionExpression, optimization: str = MINIMIZE):
         """
-        Initialize the metric function.
+        Initialize the metric.
 
-        :param functions: functions to minimize or maximize.
+        :param expression: functions to minimize or maximize.
         :param optimization: whether to minimize or maximize the function.
         """
-        self._functions = functions
+        self._expression = expression
         self._optimization = optimization
         self._validate()
 
     @property
-    def functions(self) -> Collection[Function]:
+    def expression(self) -> FunctionExpression:
         """Get the functions."""
-        return self._functions
+        return self._expression
 
     @property
     def optimization(self) -> str:
@@ -133,175 +190,148 @@ class Metric(Atomic):
 
     def __str__(self) -> str:
         """Get the string representation."""
-        return f"{self.optimization} {' '.join(map(str, self.functions))}"
+        return f"{self.optimization} {self.expression}"
 
     def __repr__(self) -> str:
         """Get an unambiguous string representation."""
-        return f"{type(self).__name__}({*self.functions,}, {self.optimization})"
+        return f"{type(self).__name__}({*self.expression,}, {self.optimization})"  # type: ignore
 
     def __eq__(self, other):
         """Override equal operator."""
         return (
             isinstance(other, Metric)
-            and self.functions == other.functions
+            and self.expression == other.expression
             and self.optimization == other.optimization
         )
 
     def __hash__(self):
         """Get the hash of a Metric."""
-        return hash((self.functions, self.optimization))
+        return hash((self.expression, self.optimization))
 
 
-class FunctionOperator(Atomic):
-    """Operator for to numerical fluent."""
+class EqualTo(BinaryFunction, metaclass=MonotoneOp):
+    """Equal to operator."""
 
-    def __init__(self, function: Function, value: Number, symbol: Symbols):
+    SYMBOL = Symbols.EQUAL
+
+
+class LesserThan(BinaryFunction):
+    """Lesser than operator."""
+
+    SYMBOL = Symbols.LESSER
+
+
+class LesserEqualThan(BinaryFunction):
+    """Lesser or equal than operator."""
+
+    SYMBOL = Symbols.LESSER_EQUAL
+
+
+class GreaterThan(BinaryFunction):
+    """Greater than operator."""
+
+    SYMBOL = Symbols.GREATER
+
+
+class GreaterEqualThan(BinaryFunction):
+    """Greater or equal than operator."""
+
+    SYMBOL = Symbols.GREATER_EQUAL
+
+
+class Assign(BinaryFunction):
+    """Assign operator."""
+
+    SYMBOL = Symbols.ASSIGN
+
+    def __init__(self, *operands: FunctionExpression):
         """
-        Initialize the function operator.
+        Initialize the Assign operator.
 
-        :param func: function to operate on.
-        :param value: value of the operator.
-        :param symbol: symbol of the operator.
+        :param operands: the operands.
         """
-        self._function = function
-        self._value = value
-        self._symbol = symbol
-
-    @property
-    def function(self) -> Function:
-        """Get the numerical fluent."""
-        return self._function
-
-    @property
-    def symbol(self) -> Symbols:
-        """Get the operation symbol."""
-        return self._symbol
-
-    @property
-    def value(self) -> Number:
-        """Get the value of the operation."""
-        return self._value
-
-    def __eq__(self, other) -> bool:
-        """Compare with another object."""
-        return (
-            isinstance(other, self.__class__)
-            and self.function == other.function
-            and self.value == other.value
-        )
-
-    def __hash__(self) -> int:
-        """Get the hash."""
-        return hash((self.symbol, self.function, self.value))
-
-    def __str__(self) -> str:
-        """Get the string representation."""
-        return f"({self.symbol.value} {self.function} {self.value})"
-
-    def __repr__(self) -> str:
-        """Get the string representation."""
-        return f"{type(self).__name__}({self.function}, {self.value})"
+        super().__init__(*operands)
 
 
-class EqualTo(FunctionOperator):
-    """Check if numerical fluent is equal to value."""
+class Increase(BinaryFunction):
+    """Increase operator."""
 
-    def __init__(self, function: Function, value: Number):
-        """
-        Initialize the EqualTo operator.
+    SYMBOL = Symbols.INCREASE
 
-        :param func: function to operate on.
-        :param value: value of the operator.
-        """
-        super().__init__(function, value, Symbols.EQUAL)
-
-
-class LesserThan(FunctionOperator):
-    """Check if numerical fluent is lesser than value."""
-
-    def __init__(self, function: Function, value: Number):
-        """
-        Initialize the LesserThan operator.
-
-        :param func: function to operate on.
-        :param value: value of the operator.
-        """
-        super().__init__(function, value, Symbols.LESSER)
-
-
-class LesserEqualThan(FunctionOperator):
-    """Check if numerical fluent is lesser or equal than value."""
-
-    def __init__(self, function: Function, value: Number):
-        """
-        Initialize the LesserEqualThan operator.
-
-        :param func: function to operate on.
-        :param value: value of the operator.
-        """
-        super().__init__(function, value, Symbols.LESSER_EQUAL)
-
-
-class GreaterThan(FunctionOperator):
-    """Check if numerical fluent is greater than value."""
-
-    def __init__(self, function: Function, value: Number):
-        """
-        Initialize the GreaterThan operator.
-
-        :param func: function to operate on.
-        :param value: value of the operator.
-        """
-        super().__init__(function, value, Symbols.GREATER)
-
-
-class GreaterEqualThan(FunctionOperator):
-    """Check if numerical fluent is greater or equal than value."""
-
-    def __init__(self, function: Function, value: Number):
-        """
-        Initialize the GreaterEqualThan operator.
-
-        :param func: function to operate on.
-        :param value: value of the operator.
-        """
-        super().__init__(function, value, Symbols.GREATER_EQUAL)
-
-
-class AssignTo(FunctionOperator):
-    """Assign value to numerical fluent."""
-
-    def __init__(self, function: Function, value: Number):
-        """
-        Initialize the AssignTo operator.
-
-        :param func: function to operate on.
-        :param value: value of the operator.
-        """
-        super().__init__(function, value, Symbols.ASSIGN)
-
-
-class Increase(FunctionOperator):
-    """Increase numerical fluent by value."""
-
-    def __init__(self, function: Function, value: Number):
+    def __init__(self, *operands: FunctionExpression):
         """
         Initialize the Increase operator.
 
-        :param func: function to operate on.
-        :param value: value of the operator.
+        :param operands: the operands.
         """
-        super().__init__(function, value, Symbols.INCREASE)
+        super().__init__(*operands)
 
 
-class Decrease(FunctionOperator):
-    """Decrease numerical fluent by value."""
+class Decrease(BinaryFunction):
+    """Decrease operator."""
 
-    def __init__(self, function: Function, value: Number):
+    SYMBOL = Symbols.DECREASE
+
+    def __init__(self, *operands: FunctionExpression):
         """
         Initialize the Decrease operator.
 
-        :param func: function to operate on.
-        :param value: value of the operator.
+        :param operands: the operands.
         """
-        super().__init__(function, value, Symbols.DECREASE)
+        super().__init__(*operands)
+
+
+class Minus(BinaryFunction, metaclass=MonotoneOp):
+    """Minus operator."""
+
+    SYMBOL = Symbols.MINUS
+
+    def __init__(self, *operands: FunctionExpression):
+        """
+        Initialize the Minus operator.
+
+        :param operands: the operands.
+        """
+        super().__init__(*operands)
+
+
+class Plus(BinaryFunction, metaclass=MonotoneOp):
+    """Plus operator."""
+
+    SYMBOL = Symbols.PLUS
+
+    def __init__(self, *operands: FunctionExpression):
+        """
+        Initialize the Plus operator.
+
+        :param operands: the operands.
+        """
+        super().__init__(*operands)
+
+
+class Times(BinaryFunction, metaclass=MonotoneOp):
+    """Times operator."""
+
+    SYMBOL = Symbols.TIMES
+
+    def __init__(self, *operands: FunctionExpression):
+        """
+        Initialize the Times operator.
+
+        :param operands: the operands.
+        """
+        super().__init__(*operands)
+
+
+class Divide(BinaryFunction, metaclass=MonotoneOp):
+    """Divide operator."""
+
+    SYMBOL = Symbols.DIVIDE
+
+    def __init__(self, *operands: FunctionExpression):
+        """
+        Initialize the Divide operator.
+
+        :param operands: the operands.
+        """
+        super().__init__(*operands)
