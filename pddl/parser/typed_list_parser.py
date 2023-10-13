@@ -12,9 +12,9 @@
 
 """Utility to handle typed lists."""
 import itertools
-from typing import Dict, List, Optional, Set, Tuple, TypeVar, Union, cast, Generic, Any
+from typing import Any, Dict, Generic, List, Optional, Set, Tuple, TypeVar, Union
 
-from pddl.custom_types import parse_name, parse_type, name
+from pddl.custom_types import name, parse_name, parse_type
 from pddl.helpers.base import check, safe_index
 from pddl.logic.functions import NumericFunction
 from pddl.logic.terms import _print_tag_set

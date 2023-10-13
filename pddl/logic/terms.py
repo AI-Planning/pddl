@@ -12,7 +12,7 @@
 
 """This modules implements PDDL terms."""
 import functools
-from typing import AbstractSet, Collection, Optional, Any
+from typing import AbstractSet, Any, Collection, Optional
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_type

@@ -15,7 +15,6 @@ import copy
 import pickle  # nosec
 
 import pytest
-from pddl.parser.symbols import Symbols
 
 from pddl.core import Domain, Problem
 from pddl.logic.base import And, Not
@@ -30,6 +29,7 @@ from pddl.logic.functions import (
 )
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
+from pddl.parser.symbols import Symbols
 from tests.conftest import pddl_objects_problems
 
 

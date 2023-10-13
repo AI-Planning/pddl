@@ -12,10 +12,10 @@
 
 """This module contains tests for PDDL functions."""
 import pytest
-from pddl.parser.symbols import Symbols
 
 from pddl.logic.functions import Metric, NumericFunction, NumericValue
 from pddl.logic.helpers import variables
+from pddl.parser.symbols import Symbols
 
 
 class TestNumericFunction:
