@@ -20,12 +20,12 @@ from pddl.core import Domain, Problem
 from pddl.logic.base import And, Not
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
-    NumericFunction,
     GreaterEqualThan,
     GreaterThan,
     LesserEqualThan,
     LesserThan,
     Metric,
+    NumericFunction,
     TotalCost,
 )
 from pddl.logic.helpers import constants, variables

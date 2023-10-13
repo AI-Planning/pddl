@@ -13,16 +13,16 @@
 """This module contains tests for PDDL functions."""
 import pytest
 
-from pddl.logic.functions import Metric, TotalCost, NumericFunction
+from pddl.logic.functions import Metric, NumericFunction, NumericValue, TotalCost
 from pddl.logic.helpers import variables
 
 
-class TestFunctionSimpleInitialisation:
-    """Test simple function initialisation."""
+class TestNumericFunction:
+    """Test simple numeric function."""
 
     def setup_method(self):
         """Set up the tests."""
-        self.a, self.b = variables("a b")
+        self.a, self.b = variables("a b", types=["type1"])
         self.function = NumericFunction("func", self.a, self.b)
 
     def test_name(self):
@@ -39,7 +39,7 @@ class TestFunctionSimpleInitialisation:
 
     def test_to_equal(self):
         """Test to equal."""
-        other = NumericFunction("f", self.a, self.b)
+        other = NumericFunction("func", self.a, self.b)
         assert self.function == other
 
     def test_to_str(self):
@@ -49,7 +49,8 @@ class TestFunctionSimpleInitialisation:
     def test_to_repr(self):
         """Test to repr."""
         assert (
-            repr(self.function) == f"NumericFunction({self.function.name}, {self.a}, {self.b})"
+            repr(self.function)
+            == f"NumericFunction({self.function.name}, {self.a}, {self.b})"
         )
 
 
@@ -117,3 +118,15 @@ class TestMetric:
             repr(self.maximize_metric)
             == f"Metric({self.maximize_metric.expression}, {self.maximize_metric.optimization})"
         )
+
+
+class TestNumericValue:
+    """Test the numeric value."""
+
+    def setup_method(self):
+        """Set up the tests."""
+        self.numeric_value = NumericValue(3)
+
+    def test_value(self):
+        """Test the name getter."""
+        assert self.numeric_value.value == 3

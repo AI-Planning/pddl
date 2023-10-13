@@ -25,13 +25,12 @@ from pddl.logic.base import ForallCondition
 from pddl.logic.effects import AndEffect
 from pddl.logic.functions import (
     EqualTo,
-    NumericFunction,
     GreaterEqualThan,
     Increase,
     LesserEqualThan,
+    NumericFunction,
     NumericValue,
 )
-
 from pddl.requirements import Requirements
 from tests.conftest import DOMAIN_FILES, PROBLEM_FILES
 
@@ -126,7 +125,7 @@ def test_numerical_hello_world_domain_formatter():
     domain = Domain(
         name="hello-world-functions",
         requirements=[Requirements.STRIPS, Requirements.NUMERIC_FLUENTS],
-        NumericFunctions=[hello_counter],
+        functions=[hello_counter],
         actions=[action],
     )
 

@@ -25,12 +25,13 @@ from pddl.logic.base import And, Not
 from pddl.logic.functions import Decrease
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
-    NumericFunction,
     GreaterEqualThan,
     GreaterThan,
     Increase,
     LesserEqualThan,
     LesserThan,
+    NumericFunction,
+    NumericValue,
     TotalCost,
 )
 from pddl.logic.helpers import constants, variables
@@ -126,15 +127,17 @@ def test_build_domain_with_numeric_fluents():
         "action_1",
         [x, y, z],
         precondition=p
-        & FunctionEqualTo(func1, 0)
-        & GreaterThan(func2, 1)
-        & LesserThan(func3, 5),
+        & FunctionEqualTo(func1, NumericValue(0))
+        & GreaterThan(func2, NumericValue(1))
+        & LesserThan(func3, NumericValue(5)),
         effect=Not(p) | q,
     )
     action_2 = Action(
         "action_2",
         [x, y, z],
-        precondition=r & GreaterEqualThan(func1, 1) & LesserEqualThan(func2, 5),
+        precondition=r
+        & GreaterEqualThan(func1, NumericValue(1))
+        & LesserEqualThan(func2, NumericValue(5)),
         effect=Not(p) | q,
     )
     domain = Domain(
@@ -158,14 +161,16 @@ def test_build_domain_with_action_cost():
     action_1 = Action(
         "action_1",
         [x, y, z],
-        precondition=p & FunctionEqualTo(cost1, 0) & GreaterThan(cost2, 1),
-        effect=Not(p) & Increase(cost1, 1),
+        precondition=p
+        & FunctionEqualTo(cost1, NumericValue(0))
+        & GreaterThan(cost2, NumericValue(1)),
+        effect=Not(p) & Increase(cost1, NumericValue(1)),
     )
     action_2 = Action(
         "action_2",
         [x, y, z],
-        precondition=r & GreaterEqualThan(cost1, 1),
-        effect=(Not(p) | q) & Decrease(cost2, 1),
+        precondition=r & GreaterEqualThan(cost1, NumericValue(1)),
+        effect=(Not(p) | q) & Decrease(cost2, NumericValue(1)),
     )
     domain = Domain(
         "domain_with_numeric",
@@ -187,7 +192,7 @@ def test_build_domain_with_total_cost():
         "action_1",
         [x, y, z],
         precondition=p & q,
-        effect=Not(p) & Increase(total_cost, 1),
+        effect=Not(p) & Increase(total_cost, NumericValue(1)),
     )
     domain = Domain(
         "domain_with_total_cost",

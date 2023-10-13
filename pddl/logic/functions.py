@@ -107,6 +107,10 @@ class NumericValue(FunctionExpression):
         """Get the value."""
         return self._value
 
+    def __eq__(self, other):
+        """Compare with another object."""
+        return isinstance(other, NumericValue) and self.value == other.value
+
     def __hash__(self) -> int:
         """Compute the hash of the object."""
         return hash(self._value)
@@ -127,7 +131,7 @@ class BinaryFunction(FunctionExpression):
 
         :param operands: the operands.
         """
-        self._operands = list(operands)
+        self._operands = operands
 
     @property
     def operands(self) -> Sequence[FunctionExpression]:
