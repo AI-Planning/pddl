@@ -364,7 +364,7 @@ class DomainTransformer(Transformer):
     def f_exp(self, args):
         """Process the 'f_exp' rule."""
         if len(args) == 1:
-            if float(args[0]):
+            if not isinstance(args[0], NumericFunction):
                 return NumericValue(args[0])
             return args[0]
         op = None

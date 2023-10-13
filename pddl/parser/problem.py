@@ -190,6 +190,27 @@ class ProblemTransformer(Transformer):
             ]
             return Predicate(name, *terms)
 
+    def f_exp(self, args):
+        """Process the 'f_exp' rule."""
+        if len(args) == 1:
+            if not isinstance(args[0], NumericFunction):
+                return NumericValue(args[0])
+            return args[0]
+        op = None
+        if args[1] == Symbols.MINUS.value:
+            op = Minus
+        if args[1] == Symbols.PLUS.value:
+            op = Plus
+        if args[1] == Symbols.TIMES.value:
+            op = Times
+        if args[1] == Symbols.DIVIDE.value:
+            op = Divide
+        return (
+            op(*args[2:-1])
+            if op is not None
+            else PDDLParsingError("Operator not recognized")
+        )
+
     def f_head(self, args):
         """Process the 'f_head' rule."""
         if len(args) == 1:
@@ -210,7 +231,7 @@ class ProblemTransformer(Transformer):
     def metric_f_exp(self, args):
         """Process the 'metric_f_exp' rule."""
         if len(args) == 1:
-            if isinstance(args[0], (int, float)):
+            if not isinstance(args[0], NumericFunction):
                 return NumericValue(args[0])
             return args[0]
         op = None
