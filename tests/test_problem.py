@@ -15,6 +15,7 @@ import copy
 import pickle  # nosec
 
 import pytest
+from pddl.parser.symbols import Symbols
 
 from pddl.core import Domain, Problem
 from pddl.logic.base import And, Not
@@ -26,7 +27,6 @@ from pddl.logic.functions import (
     LesserThan,
     Metric,
     NumericFunction,
-    TotalCost,
 )
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
@@ -99,7 +99,7 @@ def test_build_problem_with_metric():
     o1, o2 = constants("o1 o2")
     p = Predicate("p", x, y)
     q = Predicate("q")
-    total_cost = TotalCost()
+    total_cost = NumericFunction(Symbols.TOTAL_COST.value)
     problem = Problem(
         "simple_problem",
         domain_name="simple_domain",

@@ -32,7 +32,6 @@ from pddl.logic.functions import (
     LesserThan,
     NumericFunction,
     NumericValue,
-    TotalCost,
 )
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import DerivedPredicate, Predicate
@@ -144,7 +143,7 @@ def test_build_domain_with_numeric_fluents():
         "domain_with_numeric",
         requirements={Requirements.NUMERIC_FLUENTS},
         predicates={p},
-        functions={func1, func2, func3},
+        functions={func1: None, func2: None, func3: None},
         actions={action_1, action_2},
     )
     assert domain
@@ -176,7 +175,7 @@ def test_build_domain_with_action_cost():
         "domain_with_numeric",
         requirements={Requirements.NUMERIC_FLUENTS},
         predicates={p},
-        functions={cost1, cost2},
+        functions={cost1: None, cost2: None},
         actions={action_1, action_2},
     )
     assert domain
@@ -187,7 +186,7 @@ def test_build_domain_with_total_cost():
     x, y, z = variables("x y z")
     p = Predicate("p", x, y, z)
     q = Predicate("q")
-    total_cost = TotalCost()
+    total_cost = NumericFunction(Symbols.TOTAL_COST.value)
     action_1 = Action(
         "action_1",
         [x, y, z],
@@ -198,7 +197,7 @@ def test_build_domain_with_total_cost():
         "domain_with_total_cost",
         requirements={Requirements.ACTION_COSTS},
         predicates={p},
-        functions={total_cost},
+        functions={total_cost: None},
         actions={action_1},
     )
     assert domain

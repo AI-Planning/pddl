@@ -12,8 +12,9 @@
 
 """This module contains tests for PDDL functions."""
 import pytest
+from pddl.parser.symbols import Symbols
 
-from pddl.logic.functions import Metric, NumericFunction, NumericValue, TotalCost
+from pddl.logic.functions import Metric, NumericFunction, NumericValue
 from pddl.logic.helpers import variables
 
 
@@ -59,7 +60,7 @@ class TestTotalCost:
 
     def setup_method(self):
         """Set up the tests."""
-        self.total_cost = TotalCost()
+        self.total_cost = NumericFunction(Symbols.TOTAL_COST.value)
 
     def test_name(self):
         """Test name getter."""
