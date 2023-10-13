@@ -12,11 +12,14 @@
 
 """Formatting utilities for PDDL domains and problems."""
 from textwrap import indent
-from typing import Callable, Collection, Dict, List, Optional
+from typing import Callable, Collection, Dict, List, Optional, TypeVar
 
 from pddl.core import Domain, Problem
 from pddl.custom_types import name
+from pddl.logic.functions import NumericFunction
 from pddl.logic.terms import Constant
+
+T = TypeVar("T", name, NumericFunction)
 
 
 def _remove_empty_lines(s: str) -> str:
@@ -38,19 +41,19 @@ def _sort_and_print_collection(
     return ""
 
 
-def _print_types_with_parents(
+def _print_types_or_functions_with_parents(
     prefix: str,
-    types_dict: Dict[name, Optional[name]],
+    types_dict: Dict[T, Optional[name]],
     postfix: str,
     to_string: Callable = str,
 ):
     """Print the type dictionary of a PDDL domain."""
-    name_by_type: Dict[Optional[name], List[name]] = {}
-    for type_name, parent_type in types_dict.items():
-        name_by_type.setdefault(parent_type, []).append(type_name)
-    if not bool(name_by_type):
+    name_by_obj: Dict[Optional[T], List[name]] = {}
+    for obj_name, parent_type in types_dict.items():
+        name_by_obj.setdefault(parent_type, []).append(obj_name)  # type: ignore
+    if not bool(name_by_obj):
         return ""
-    return _print_typed_lists(prefix, name_by_type, postfix, to_string)
+    return _print_typed_lists(prefix, name_by_obj, postfix, to_string)
 
 
 def _print_constants(
@@ -88,7 +91,7 @@ def _print_predicates_with_types(predicates: Collection):
 
 def _print_typed_lists(
     prefix,
-    names_by_type: Dict[Optional[name], List[name]],
+    names_by_obj: Dict[Optional[T], List[name]],
     postfix,
     to_string: Callable = str,
 ):
@@ -96,11 +99,11 @@ def _print_typed_lists(
     result = prefix + " "
 
     # names with no type will be printed at the end
-    names_with_none_types = names_by_type.pop(None, [])
+    names_with_none_types = names_by_obj.pop(None, [])
 
     # print typed constants, first sorted by type, then by constant name
     for type_tag, typed_names in sorted(
-        names_by_type.items(), key=lambda type_and_name: type_and_name[0]  # type: ignore
+        names_by_obj.items(), key=lambda type_and_name: type_and_name[0]  # type: ignore
     ):
         result += (
             " ".join(sorted(to_string(n) for n in typed_names)) + " - " + type_tag + " "  # type: ignore
@@ -125,12 +128,14 @@ def domain_to_string(domain: Domain) -> str:
     body = ""
     indentation = " " * 4
     body += _sort_and_print_collection("(:requirements ", domain.requirements, ")\n")
-    body += _print_types_with_parents("(:types", domain.types, ")\n")
+    body += _print_types_or_functions_with_parents("(:types", domain.types, ")\n")
     body += _print_constants("(:constants", domain.constants, ")\n")
     if domain.predicates:
         body += f"(:predicates {_print_predicates_with_types(domain.predicates)})\n"
     if domain.functions:
-        body += f"(:functions {_print_predicates_with_types(domain.functions)})\n"
+        body += _print_types_or_functions_with_parents(
+            "(:functions", domain.functions, ")\n"
+        )
     body += _sort_and_print_collection(
         "",
         domain.derived_predicates,

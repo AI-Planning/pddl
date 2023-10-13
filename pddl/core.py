@@ -18,6 +18,7 @@ It contains the class definitions to build and modify PDDL domains or problems.
 from typing import AbstractSet, Collection, Dict, Optional, Tuple, cast
 
 from pddl._validation import (
+    Functions,
     TypeChecker,
     Types,
     _check_types_in_has_terms_objects,
@@ -28,10 +29,10 @@ from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
 from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
-from pddl.logic.functions import FunctionExpression, Metric, TotalCost
+from pddl.logic.functions import FunctionExpression, Metric, NumericFunction
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant
-from pddl.requirements import Requirements, _extend_domain_requirements
+from pddl.requirements import Requirements
 
 
 class Domain:
@@ -59,6 +60,8 @@ class Domain:
             types is a dictionary mapping a type name to its ancestor.
         :param constants: the constants.
         :param predicates: the predicates.
+        :param functions: the functions.
+            functions is a dictionary mapping a function to its type.
         :param derived_predicates: the derived predicates.
         :param actions: the actions.
         """
@@ -69,7 +72,7 @@ class Domain:
         self._predicates = ensure_set(predicates)
         self._derived_predicates = ensure_set(derived_predicates)
         self._actions = ensure_set(actions)
-        self._functions = ensure_set(functions)
+        self._functions = Functions(functions, self._requirements)
 
         self._check_consistency()
 
@@ -81,7 +84,6 @@ class Domain:
         type_checker.check_type(self._actions)
         _check_types_in_has_terms_objects(self._actions, self._types.all_types)  # type: ignore
         self._check_types_in_derived_predicates()
-        self._check_numeric_fluent_requirements()
 
     def _check_types_in_derived_predicates(self) -> None:
         """Check types in derived predicates."""
@@ -91,29 +93,6 @@ class Domain:
             else set()
         )
         _check_types_in_has_terms_objects(dp_list, self._types.all_types)
-
-    def _check_numeric_fluent_requirements(self) -> None:
-        """Check that the numeric-fluents requirement is specified."""
-        if self._functions:
-            if any(isinstance(f, TotalCost) for f in self._functions):
-                validate(
-                    Requirements.ACTION_COSTS in self._requirements,
-                    "action costs requirement is not specified, but the total-cost function is specified.",
-                )
-                if any(
-                    isinstance(f, FunctionExpression) and not isinstance(f, TotalCost)
-                    for f in self._functions
-                ):
-                    validate(
-                        Requirements.NUMERIC_FLUENTS in self._requirements,
-                        "numeric-fluents requirement is not specified, but numeric fluents are specified.",
-                    )
-            else:
-                validate(
-                    Requirements.NUMERIC_FLUENTS
-                    in _extend_domain_requirements(self._requirements),
-                    "numeric-fluents requirement is not specified, but numeric fluents are specified.",
-                )
 
     @property
     def name(self) -> name_type:
@@ -136,9 +115,9 @@ class Domain:
         return self._predicates
 
     @property
-    def functions(self) -> AbstractSet[FunctionExpression]:
+    def functions(self) -> Dict[NumericFunction, Optional[name_type]]:
         """Get the functions."""
-        return self._functions
+        return self._functions.raw
 
     @property
     def derived_predicates(self) -> AbstractSet[DerivedPredicate]:
@@ -164,6 +143,7 @@ class Domain:
             and self.types == other.types
             and self.constants == other.constants
             and self.predicates == other.predicates
+            and self.functions == other.functions
             and self.derived_predicates == other.derived_predicates
             and self.actions == other.actions
         )

@@ -12,19 +12,22 @@
 
 """Utility to handle typed lists."""
 import itertools
-from typing import Dict, List, Optional, Set, Tuple, Union, cast
+from typing import Dict, List, Optional, Set, Tuple, TypeVar, Union, cast, Generic, Any
 
-from pddl.custom_types import name, parse_name, parse_type
+from pddl.custom_types import parse_name, parse_type, name
 from pddl.helpers.base import check, safe_index
+from pddl.logic.functions import NumericFunction
 from pddl.logic.terms import _print_tag_set
 from pddl.parser.symbols import Symbols
 
+T = TypeVar("T", name, NumericFunction)
 
-class TypedListParser:
+
+class TypedListParser(Generic[T]):
     """
-    An index for PDDL types and PDDL names/variables.
+    An index for PDDL types and PDDL names/variables/functions.
 
-    This class is used to index PDDL names and variables by their types.
+    This class is used to index PDDL names, variables, and functions by their types.
     OrderedDict is used to preserve the order of the types and the names, e.g. for predicate variables.
 
     Other types of validations are performed to ensure that the types index is consistent.
@@ -34,12 +37,11 @@ class TypedListParser:
         """Initialize the types index."""
         self._allow_duplicates = allow_duplicates
 
-        self._types_to_items: Dict[name, Set[name]] = {}
-        self._item_to_types: Dict[name, Set[name]] = {}
+        self._types_to_items: Dict[T, Set[T]] = {}
+        self._item_to_types: Dict[T, Set[T]] = {}
+        self._item_to_types_sequence: List[Tuple[T, Set[T]]] = []
 
-        self._item_to_types_sequence: List[Tuple[name, Set[name]]] = []
-
-    def add_item(self, item_name: name, type_tags: Set[name]) -> None:
+    def add_item(self, item_name: T, type_tags: Set[T]) -> None:
         """
         Add an item to the types index with the given type tags.
 
@@ -54,9 +56,9 @@ class TypedListParser:
         self._check_item_types(item_name, type_tags)
         self._add_item(item_name, type_tags)
 
-    def get_typed_list_of_names(self) -> Dict[name, Optional[name]]:
+    def get_typed_list_of_names(self) -> Dict[T, Optional[T]]:
         """Get the typed list of names in form of dictionary."""
-        result: Dict[name, Optional[name]] = {}
+        result: Dict[T, Optional[T]] = {}
         for item, types_tags in self._item_to_types.items():
             if len(types_tags) > 1:
                 self._raise_multiple_types_error(item, types_tags)
@@ -64,13 +66,13 @@ class TypedListParser:
             result[item] = type_tag
         return result
 
-    def get_typed_list_of_variables(self) -> Tuple[Tuple[name, Set[name]], ...]:
+    def get_typed_list_of_variables(self) -> Tuple[Tuple[T, Set[T]], ...]:
         """Get the typed list of variables in form of a tuple of pairs."""
         return tuple(self._item_to_types_sequence)
 
     @classmethod
     def parse_typed_list(
-        cls, tokens: List[Union[str, List[str]]], allow_duplicates: bool = False
+        cls, tokens: List[Union[T, List[T]]], allow_duplicates: bool = False
     ) -> "TypedListParser":
         """
         Parse typed list.
@@ -149,7 +151,7 @@ class TypedListParser:
         result: "TypedListParser",
         start_index: int,
         end_index: int,
-        tokens: List[Union[str, List[str]]],
+        tokens: List[Union[T, List[T]]],
         type_tags: Set[str],
     ) -> None:
         """
@@ -160,16 +162,19 @@ class TypedListParser:
         """
         for item_name in itertools.islice(tokens, start_index, end_index):
             check(
-                isinstance(item_name, str), f"invalid item '{item_name}' in typed list"
+                isinstance(item_name, str) or isinstance(item_name, NumericFunction),
+                f"invalid item '{item_name}' in typed list",
             )
             # these lines implicitly perform name validation
-            item_name = parse_name(cast(str, item_name))
-            type_tags_names: Set[name] = set(map(parse_type, type_tags))
-            result.add_item(item_name, type_tags_names)
+            cast_item_name: Any = (
+                parse_name(item_name) if isinstance(item_name, str) else item_name
+            )
+            type_tags_names: Set[Any] = set(map(parse_type, type_tags))
+            result.add_item(cast_item_name, type_tags_names)
 
-    def _check_item_name_already_present(self, item_name: name) -> None:
+    def _check_item_name_already_present(self, item_name: T) -> None:
         """
-        Check if the item name is already present in the index.
+        Check if the item name/function is already present in the index.
 
         :param item_name: the item name
         """
@@ -183,23 +188,21 @@ class TypedListParser:
                 f"duplicate name '{item_name}' in typed list already present"
             )
 
-    def _check_tags_already_present(
-        self, item_name: name, type_tags: Set[name]
-    ) -> None:
+    def _check_tags_already_present(self, item_name: T, type_tags: Set[T]) -> None:
         """
         Check if the type tags are already present for the given item name.
 
         :param item_name: the item name
         :param type_tags: the type tags
         """
-        exisiting_tags = self._item_to_types.get(item_name, set())
+        existing_tags = self._item_to_types.get(item_name, set())
         for type_tag in type_tags:
-            if type_tag in exisiting_tags:
+            if type_tag in existing_tags:
                 raise ValueError(
                     f"duplicate type tag '{type_tag}' in typed list: type already specified for item {item_name}"
                 )
 
-    def _check_item_types(self, item_name: name, type_tags: Set[name]) -> None:
+    def _check_item_types(self, item_name: T, type_tags: Set[T]) -> None:
         """Check if the types of the item are valid."""
         if item_name in self._item_to_types:
             previous_type_tags = self._item_to_types[item_name]
@@ -209,16 +212,14 @@ class TypedListParser:
                     f"{_print_tag_set(previous_type_tags)}, got {_print_tag_set(type_tags)}"
                 )
 
-    def _add_item(self, item_name: name, type_tags: Set[name]) -> None:
+    def _add_item(self, item_name: T, type_tags: Set[T]) -> None:
         """Add an item (no validation)."""
         for type_tag in type_tags:
             self._types_to_items.setdefault(type_tag, set()).add(item_name)
         self._item_to_types.setdefault(item_name, set()).update(type_tags)
         self._item_to_types_sequence.append((item_name, type_tags))
 
-    def _raise_multiple_types_error(
-        self, item_name: name, type_tags: Set[name]
-    ) -> None:
+    def _raise_multiple_types_error(self, item_name: T, type_tags: Set[T]) -> None:
         """Raise an error if the item has multiple types."""
         raise ValueError(
             f"typed list names should not have more than one type, got '{item_name}' with "

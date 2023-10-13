@@ -17,6 +17,7 @@ from collections.abc import Iterable
 from typing import AbstractSet, Collection, Dict, Optional, Set, Tuple, cast
 
 from pddl.action import Action
+from pddl.custom_types import _check_not_a_keyword  # noqa: F401
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names, to_types  # noqa: F401
 from pddl.exceptions import PDDLValidationError
@@ -27,6 +28,7 @@ from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.functions import Assign, Decrease, Divide
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
+    FunctionExpression,
     GreaterEqualThan,
     GreaterThan,
     Increase,
@@ -39,7 +41,6 @@ from pddl.logic.functions import (
     ScaleDown,
     ScaleUp,
     Times,
-    TotalCost,
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo
 from pddl.logic.terms import Term
@@ -262,11 +263,6 @@ class TypeChecker:
         return None
 
     @check_type.register
-    def _(self, _: TotalCost) -> None:
-        """Check types annotations of a PDDL numeric total-cost operator."""
-        return None
-
-    @check_type.register
     def _(self, equal_to: FunctionEqualTo) -> None:
         """Check types annotations of a PDDL numeric equal to operator."""
         self.check_type(equal_to.operands)
@@ -387,3 +383,68 @@ class TypeChecker:
         self.check_type(action.parameters)
         self.check_type(action.precondition)
         self.check_type(action.effect)
+
+
+class Functions:
+    """A class for representing and managing the numeric functions available in a PDDL Domain."""
+
+    def __init__(
+        self,
+        functions: Optional[Collection[FunctionExpression]] = None,
+        requirements: Optional[AbstractSet[Requirements]] = None,
+        skip_checks: bool = False,
+    ) -> None:
+        """Initialize the Functions object."""
+        self._functions = ensure(functions, dict())
+        self._all_function = self._get_all_functions()
+
+        if not skip_checks:
+            self._check_total_cost(self._functions, ensure_set(requirements))
+
+    @property
+    def raw(self) -> Dict[NumericFunction, Optional[name_type]]:
+        """Get the raw functions' dictionary."""
+        return self._functions
+
+    @property
+    def all_functions(self) -> Set[NumericFunction]:
+        """Get all available functions."""
+        return self._all_function
+
+    def _get_all_functions(self) -> Set[NumericFunction]:
+        """Get all function supported by the domain."""
+        if self._functions is None:
+            return set()
+        result = set(self._functions.keys()) | set(self._functions.values())
+        result.discard(None)
+        return cast(Set[NumericFunction], result)
+
+    @classmethod
+    def _check_total_cost(
+        cls,
+        function_dict: Dict[NumericFunction, Optional[name_type]],
+        requirements: AbstractSet[Requirements],
+    ) -> None:
+        """Check consistency of total-cost function with the requirements."""
+        if bool(function_dict):
+            if any(f.name == Symbols.TOTAL_COST.value for f in {*function_dict}):
+                validate(
+                    Requirements.ACTION_COSTS in requirements,
+                    f"action costs requirement is not specified, but the {Symbols.TOTAL_COST.value} "
+                    f"function is specified.",
+                )
+                if any(
+                    isinstance(f, FunctionExpression)
+                    and not f.name == Symbols.TOTAL_COST.value
+                    for f in function_dict.keys()
+                ):
+                    validate(
+                        Requirements.NUMERIC_FLUENTS in requirements,
+                        "numeric-fluents requirement is not specified, but numeric fluents are specified.",
+                    )
+            else:
+                validate(
+                    Requirements.NUMERIC_FLUENTS
+                    in _extend_domain_requirements(requirements),
+                    "numeric-fluents requirement is not specified, but numeric fluents are specified.",
+                )
