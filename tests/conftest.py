@@ -41,9 +41,12 @@ DOMAIN_FILES = [*FIXTURES_PDDL_FILES.glob("./**/domain.pddl")]
 
 DOMAIN_NAMES = [
     "acrobatics",
+    "barman-sequential-optimal",
     "beam-walk",
     "blocksworld-ipc08",
     "blocksworld_fond",
+    "cave-diving-sequential-optimal",
+    "depots-numeric-automatic",
     "doors",
     "earth_observation",
     "elevators",
@@ -53,6 +56,7 @@ DOMAIN_NAMES = [
     "maintenance-sequential-satisficing-ipc2014",
     "miner",
     "rovers_fond",
+    "sokoban-sequential-optimal",
     "spiky-tireworld",
     "storage",
     "tireworld",
