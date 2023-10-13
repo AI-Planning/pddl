@@ -14,7 +14,7 @@
 import functools
 from typing import Sequence
 
-from pddl.custom_types import namelike, parse_name
+from pddl.custom_types import namelike, parse_function
 from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, MonotoneOp
@@ -34,7 +34,7 @@ class NumericFunction(FunctionExpression):
 
     def __init__(self, name: namelike, *terms: Term):
         """Initialize the function."""
-        self._name = parse_name(name)
+        self._name = parse_function(name)
         self._terms = tuple(terms)
 
     @property
@@ -153,14 +153,6 @@ class BinaryFunction(FunctionExpression):
     def __hash__(self) -> int:
         """Compute the hash of the object."""
         return hash((type(self), self.operands))
-
-
-class TotalCost(NumericFunction):
-    """A class for the total-cost function in PDDL."""
-
-    def __init__(self):
-        """Initialize the function."""
-        super().__init__("total-cost", *[])
 
 
 class Metric(Atomic):

@@ -79,6 +79,23 @@ def parse_type(s: str) -> name:
     return name(s)
 
 
+def parse_function(s: str) -> name:
+    """
+    Parse a function name from a string.
+
+    It performs two validations:
+    - the function name is not a keyword;
+    - the function name is a valid name, i.e. it matches the name regular expression.
+
+    The function name 'total-cost' is allowed.
+
+    :param s: the input string to be parsed
+    :return: the parsed name
+    """
+    _check_not_a_keyword(s, "name", ignore={Symbols.TOTAL_COST.value})
+    return name(s)
+
+
 def to_names(names: Collection[namelike]) -> List[name]:
     """From name-like sequence to list of names."""
     return list(map(parse_name, names))
@@ -101,7 +118,7 @@ def _is_a_keyword(word: str, ignore: Optional[AbstractSet[str]] = None) -> bool:
     """Check that the word is not a keyword."""
     ignore_set = ensure_set(ignore)
     # we remove the TOTAL_COST because it is not a keyword but a special function
-    return word not in ignore_set and word in ALL_SYMBOLS - {Symbols.TOTAL_COST.value}
+    return word not in ignore_set and word in ALL_SYMBOLS
 
 
 def _check_not_a_keyword(

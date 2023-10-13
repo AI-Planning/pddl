@@ -8,10 +8,16 @@ requirements:              LPAR REQUIREMENTS require_key+ RPAR
 types:                 LPAR TYPES typed_list_name RPAR
 constants:             LPAR CONSTANTS typed_list_name RPAR
 predicates:            LPAR PREDICATES atomic_formula_skeleton+ RPAR
-functions:             LPAR FUNCTIONS atomic_function_skeleton+ RPAR
+functions:             LPAR FUNCTIONS f_typed_list_atomic_function_skeleton RPAR
+
 atomic_formula_skeleton:   LPAR NAME typed_list_variable RPAR
+
+f_typed_list_atomic_function_skeleton: atomic_function_skeleton+
+                                     | (atomic_function_skeleton+ TYPE_SEP f_type_def)+ atomic_function_skeleton*
+
+?f_type_def: TYPE_NUMBER
+
 atomic_function_skeleton:  LPAR NAME typed_list_variable RPAR
-                        |  LPAR TOTAL_COST RPAR
 
 ?structure_def:    action_def | derived_predicates
 action_def:        LPAR ACTION NAME PARAMETERS action_parameters action_body_def RPAR
@@ -141,4 +147,5 @@ type_def:          LPAR EITHER primitive_type+ RPAR
 %import .common.LPAR -> LPAR
 %import .common.RPAR -> RPAR
 %import .common.TYPE_SEP -> TYPE_SEP
+%import .common.TYPE_NUMBER -> TYPE_NUMBER
 

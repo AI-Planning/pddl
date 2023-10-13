@@ -39,7 +39,6 @@ from pddl.logic.functions import (
     ScaleDown,
     ScaleUp,
     Times,
-    TotalCost,
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
@@ -119,9 +118,8 @@ class DomainTransformer(Transformer):
 
     def functions(self, args):
         """Process the 'functions' rule."""
-        functions = args[2:-1]
-        self._functions_by_name = {f.name: f for f in functions}
-        return dict(functions=functions)
+        function_definition = args[2]
+        return dict(functions=function_definition)
 
     def action_def(self, args):
         """Process the 'action_def' rule."""
@@ -356,7 +354,7 @@ class DomainTransformer(Transformer):
         if args[1] == Symbols.TOTAL_COST.value:
             if not bool({Requirements.ACTION_COSTS}):
                 raise PDDLMissingRequirementError(Requirements.ACTION_COSTS)
-            return TotalCost()
+            return NumericFunction("total-cost")
         function_name = args[1]
         variables = self._formula_skeleton(args)
         return NumericFunction(function_name, *variables)
@@ -410,6 +408,14 @@ class DomainTransformer(Transformer):
         try:
             types_index = TypedListParser.parse_typed_list(args, allow_duplicates=True)
             return types_index.get_typed_list_of_variables()
+        except ValueError as e:
+            raise self._raise_typed_list_parsing_error(args, e) from e
+
+    def f_typed_list_atomic_function_skeleton(self, args):
+        """Process the 'f_typed_list_atomic_function_skeleton' rule."""
+        try:
+            types_index = TypedListParser.parse_typed_list(args)
+            return types_index.get_typed_list_of_names()
         except ValueError as e:
             raise self._raise_typed_list_parsing_error(args, e) from e
 
