@@ -183,7 +183,7 @@ requirements:
 - [x] `:quantified-preconditions`
 - [x] `:conditional-effects`
 - [ ] `:fluents`
-- [ ] `:numeric-fluents`
+- [x] `:numeric-fluents`
 - [x] `:non-deterministic` (see [6th IPC: Uncertainty Part](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.163.7140&rep=rep1&type=pdf))
 - [x] `:adl`
 - [ ] `:durative-actions`
@@ -192,7 +192,7 @@ requirements:
 - [ ] `:timed-initial-literals`
 - [ ] `:preferences`
 - [ ] `:constraints`
-- [ ] `:action-costs`
+- [x] `:action-costs`
 
 ## Development
 
