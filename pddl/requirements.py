@@ -94,4 +94,6 @@ def _extend_domain_requirements(
         )
     if Requirements.ADL in requirements:
         extended_requirements.update(Requirements.adl_requirements())
+    if Requirements.FLUENTS in requirements:
+        extended_requirements.update(Requirements.fluents_requirements())
     return extended_requirements

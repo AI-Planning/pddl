@@ -439,7 +439,8 @@ class Functions:
                     for f in function_dict.keys()
                 ):
                     validate(
-                        Requirements.NUMERIC_FLUENTS in requirements,
+                        Requirements.NUMERIC_FLUENTS
+                        in _extend_domain_requirements(requirements),
                         "numeric-fluents requirement is not specified, but numeric fluents are specified.",
                     )
             else:
