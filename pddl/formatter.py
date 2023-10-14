@@ -89,6 +89,23 @@ def _print_predicates_with_types(predicates: Collection):
     return result.strip()
 
 
+def _print_function_skeleton(function: NumericFunction) -> str:
+    """Callable to print a function skeleton with type tags."""
+    result = ""
+    if function.arity == 0:
+        result += f"({function.name})"
+    else:
+        result += f"({function.name}"
+        for t in function.terms:
+            result += (
+                f" ?{t.name} - {sorted(t.type_tags)[0]}"
+                if t.type_tags
+                else f" ?{t.name}"
+            )
+        result += ")"
+    return result
+
+
 def _print_typed_lists(
     prefix,
     names_by_obj: Dict[Optional[T], List[name]],
@@ -134,7 +151,7 @@ def domain_to_string(domain: Domain) -> str:
         body += f"(:predicates {_print_predicates_with_types(domain.predicates)})\n"
     if domain.functions:
         body += _print_types_or_functions_with_parents(
-            "(:functions", domain.functions, ")\n"
+            "(:functions", domain.functions, ")\n", _print_function_skeleton
         )
     body += _sort_and_print_collection(
         "",
