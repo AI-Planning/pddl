@@ -119,6 +119,7 @@ class DomainTransformer(Transformer):
     def functions(self, args):
         """Process the 'functions' rule."""
         function_definition = args[2]
+        # arg[2] is a dict with NumericFunction as keys and types as values, e.g., {(fuel ?l): number, (cost): number}
         return dict(functions=function_definition)
 
     def action_def(self, args):

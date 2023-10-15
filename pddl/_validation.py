@@ -25,22 +25,11 @@ from pddl.helpers.base import check, ensure, ensure_set, find_cycle
 from pddl.logic import Predicate
 from pddl.logic.base import BinaryOp, QuantifiedCondition, UnaryOp
 from pddl.logic.effects import AndEffect, Forall, When
-from pddl.logic.functions import Assign, Decrease, Divide
-from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
+    BinaryFunction,
     FunctionExpression,
-    GreaterEqualThan,
-    GreaterThan,
-    Increase,
-    LesserEqualThan,
-    LesserThan,
-    Minus,
     NumericFunction,
     NumericValue,
-    Plus,
-    ScaleDown,
-    ScaleUp,
-    Times,
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo
 from pddl.logic.terms import Term
@@ -263,74 +252,9 @@ class TypeChecker:
         return None
 
     @check_type.register
-    def _(self, equal_to: FunctionEqualTo) -> None:
-        """Check types annotations of a PDDL numeric equal to operator."""
-        self.check_type(equal_to.operands)
-
-    @check_type.register
-    def _(self, lesser: LesserThan) -> None:
-        """Check types annotations of a PDDL numeric lesser operator."""
-        self.check_type(lesser.operands)
-
-    @check_type.register
-    def _(self, lesser_equal: LesserEqualThan) -> None:
-        """Check types annotations of a PDDL numeric lesser or equal operator."""
-        self.check_type(lesser_equal.operands)
-
-    @check_type.register
-    def _(self, greater: GreaterThan) -> None:
-        """Check types annotations of a PDDL numeric greater operator."""
-        self.check_type(greater.operands)
-
-    @check_type.register
-    def _(self, greater_equal: GreaterEqualThan) -> None:
-        """Check types annotations of a PDDL numeric greater or equal to."""
-        self.check_type(greater_equal.operands)
-
-    @check_type.register
-    def _(self, assign: Assign) -> None:
-        """Check types annotations of a PDDL numeric assign to."""
-        self.check_type(assign.operands)
-
-    @check_type.register
-    def _(self, scale_up: ScaleUp) -> None:
-        """Check types annotations of a PDDL numeric assign to."""
-        self.check_type(scale_up.operands)
-
-    @check_type.register
-    def _(self, scale_down: ScaleDown) -> None:
-        """Check types annotations of a PDDL numeric assign to."""
-        self.check_type(scale_down.operands)
-
-    @check_type.register
-    def _(self, increase: Increase) -> None:
-        """Check types annotations of a PDDL numeric increase to."""
-        self.check_type(increase.operands)
-
-    @check_type.register
-    def _(self, decrease: Decrease) -> None:
-        """Check types annotations of a PDDL numeric decrease operator."""
-        self.check_type(decrease.operands)
-
-    @check_type.register
-    def _(self, minus: Minus) -> None:
-        """Check types annotations of a PDDL numeric minus operator."""
-        self.check_type(minus.operands)
-
-    @check_type.register
-    def _(self, plus: Plus) -> None:
-        """Check types annotations of a PDDL numeric plus operator."""
-        self.check_type(plus.operands)
-
-    @check_type.register
-    def _(self, times: Times) -> None:
-        """Check types annotations of a PDDL numeric times operator."""
-        self.check_type(times.operands)
-
-    @check_type.register
-    def _(self, divide: Divide) -> None:
-        """Check types annotations of a PDDL numeric divide operator."""
-        self.check_type(divide.operands)
+    def _(self, binary_function: BinaryFunction) -> None:
+        """Check types annotations of a PDDL numeric binary operator."""
+        self.check_type(binary_function.operands)
 
     @check_type.register
     def _(self, equal_to: EqualTo) -> None:
