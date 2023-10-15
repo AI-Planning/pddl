@@ -115,31 +115,34 @@ class Atomic(Formula):
     """Atomic formula."""
 
 
-class MonotoneOp(type):
+class BinaryOpMetaclass(type):
     """Metaclass to simplify monotone operator instantiations."""
 
     _absorbing: Optional[Formula] = None
+    idempotency: bool = False
 
     def __call__(cls, *args, **kwargs):
         """Init the subclass object."""
         operands = _simplify_monotone_op_operands(cls, *args)
-        if len(operands) == 1:
+        if len(operands) == 1 and cls.idempotency:
             return operands[0]
 
-        return super(MonotoneOp, cls).__call__(*operands, **kwargs)
+        return super(BinaryOpMetaclass, cls).__call__(*operands, **kwargs)
 
 
-class And(BinaryOp, metaclass=MonotoneOp):
+class And(BinaryOp, metaclass=BinaryOpMetaclass):
     """And operator."""
 
     _absorbing = False
+    idempotency = True
     SYMBOL = "and"
 
 
-class Or(BinaryOp, metaclass=MonotoneOp):
+class Or(BinaryOp, metaclass=BinaryOpMetaclass):
     """Or operator."""
 
     _absorbing = True
+    idempotency = True
     SYMBOL = "or"
 
 

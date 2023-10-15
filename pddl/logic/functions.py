@@ -17,7 +17,7 @@ from typing import Sequence
 from pddl.custom_types import namelike, parse_function
 from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
-from pddl.logic.base import Atomic, MonotoneOp
+from pddl.logic.base import Atomic, BinaryOpMetaclass
 from pddl.logic.terms import Term
 from pddl.parser.symbols import Symbols
 
@@ -52,9 +52,6 @@ class NumericFunction(FunctionExpression):
         """Get the arity of the function."""
         return len(self.terms)
 
-    # TODO: check whether it's a good idea...
-    # TODO: allow also for keyword-based replacement
-    # TODO: allow skip replacement with None arguments.
     def __call__(self, *terms: Term):
         """Replace terms."""
         assert_(len(terms) == self.arity, "Wrong number of terms.")
@@ -95,6 +92,7 @@ class NumericFunction(FunctionExpression):
 
 
 @cache_hash
+@functools.total_ordering
 class NumericValue(FunctionExpression):
     """A class for a numeric value."""
 
@@ -110,6 +108,12 @@ class NumericValue(FunctionExpression):
     def __eq__(self, other):
         """Compare with another object."""
         return isinstance(other, NumericValue) and self.value == other.value
+
+    def __lt__(self, other):
+        """Compare with another object."""
+        if not isinstance(other, NumericValue):
+            return NotImplemented
+        return self.value < other.value
 
     def __hash__(self) -> int:
         """Compute the hash of the object."""
@@ -210,7 +214,7 @@ class Metric(Atomic):
         return hash((self.expression, self.optimization))
 
 
-class EqualTo(BinaryFunction, metaclass=MonotoneOp):
+class EqualTo(BinaryFunction, metaclass=BinaryOpMetaclass):
     """Equal to operator."""
 
     SYMBOL = Symbols.EQUAL
@@ -310,7 +314,7 @@ class Decrease(BinaryFunction):
         super().__init__(*operands)
 
 
-class Minus(BinaryFunction, metaclass=MonotoneOp):
+class Minus(BinaryFunction, metaclass=BinaryOpMetaclass):
     """Minus operator."""
 
     SYMBOL = Symbols.MINUS
@@ -324,7 +328,7 @@ class Minus(BinaryFunction, metaclass=MonotoneOp):
         super().__init__(*operands)
 
 
-class Plus(BinaryFunction, metaclass=MonotoneOp):
+class Plus(BinaryFunction, metaclass=BinaryOpMetaclass):
     """Plus operator."""
 
     SYMBOL = Symbols.PLUS
@@ -338,7 +342,7 @@ class Plus(BinaryFunction, metaclass=MonotoneOp):
         super().__init__(*operands)
 
 
-class Times(BinaryFunction, metaclass=MonotoneOp):
+class Times(BinaryFunction, metaclass=BinaryOpMetaclass):
     """Times operator."""
 
     SYMBOL = Symbols.TIMES
@@ -352,7 +356,7 @@ class Times(BinaryFunction, metaclass=MonotoneOp):
         super().__init__(*operands)
 
 
-class Divide(BinaryFunction, metaclass=MonotoneOp):
+class Divide(BinaryFunction, metaclass=BinaryOpMetaclass):
     """Divide operator."""
 
     SYMBOL = Symbols.DIVIDE

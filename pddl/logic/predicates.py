@@ -67,9 +67,6 @@ class Predicate(Atomic):
         """Get the arity of the predicate."""
         return len(self.terms)
 
-    # TODO check whether it's a good idea...
-    # TODO allow also for keyword-based replacement
-    # TODO allow skip replacement with None arguments.
     def __call__(self, *terms: Term):
         """Replace terms."""
         assert_(len(terms) == self.arity, "Number of terms not correct.")
