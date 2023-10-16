@@ -35,7 +35,7 @@ from pddl.logic.functions import (
     Times,
 )
 from pddl.logic.predicates import EqualTo, Predicate
-from pddl.logic.terms import Constant, Variable
+from pddl.logic.terms import Constant
 from pddl.parser import PARSERS_DIRECTORY, PROBLEM_GRAMMAR_FILE
 from pddl.parser.domain import DomainTransformer
 from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols
@@ -192,32 +192,11 @@ class ProblemTransformer(Transformer):
 
     def f_exp(self, args):
         """Process the 'f_exp' rule."""
-        if len(args) == 1:
-            if not isinstance(args[0], NumericFunction):
-                return NumericValue(args[0])
-            return args[0]
-        op = None
-        if args[1] == Symbols.MINUS.value:
-            op = Minus
-        if args[1] == Symbols.PLUS.value:
-            op = Plus
-        if args[1] == Symbols.TIMES.value:
-            op = Times
-        if args[1] == Symbols.DIVIDE.value:
-            op = Divide
-        return (
-            op(*args[2:-1])
-            if op is not None
-            else PDDLParsingError("Operator not recognized")
-        )
+        return self._domain_transformer.f_exp(args)
 
     def f_head(self, args):
         """Process the 'f_head' rule."""
-        if len(args) == 1:
-            return NumericFunction(args[0])
-        function_name = args[1]
-        variables = [Variable(x, {}) for x in args[2:-1]]
-        return NumericFunction(function_name, *variables)
+        return self._domain_transformer.f_head(args)
 
     def metric_spec(self, args):
         """Process the 'metric_spec' rule."""

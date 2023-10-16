@@ -29,15 +29,6 @@ gd_name:    atomic_formula_name
        |    LPAR AND gd_name* RPAR
        |    LPAR binary_comp f_exp f_exp RPAR
 
-f_exp:  NUMBER
-      | LPAR binary_op f_exp f_exp RPAR
-      | LPAR multi_op f_exp f_exp+ RPAR
-      | LPAR MINUS f_exp RPAR
-      | f_head
-
-f_head: NAME
-      | LPAR NAME term* RPAR
-
 metric_spec: LPAR METRIC optimization metric_f_exp RPAR
 
 ?optimization: MAXIMIZE
@@ -62,6 +53,8 @@ GOAL: ":goal"
 %import .domain.require_key -> require_key
 %import .domain.typed_list_name -> typed_list_name
 %import .domain.predicate -> predicate
+%import .domain.f_head -> f_head
+%import .domain.f_exp -> f_exp
 %import .domain.binary_comp -> binary_comp
 %import .domain.binary_op -> binary_op
 %import .domain.multi_op -> multi_op
