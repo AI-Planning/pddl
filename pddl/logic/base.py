@@ -12,7 +12,7 @@
 
 """Base classes for PDDL logic formulas."""
 import functools
-from typing import AbstractSet, Collection, Optional, Sequence
+from typing import AbstractSet, Any, Collection, List, Optional, Sequence
 
 from pddl.helpers.base import ensure_set
 from pddl.helpers.cache_hash import cache_hash
@@ -123,7 +123,9 @@ class BinaryOpMetaclass(type):
 
     def __call__(cls, *args, **kwargs):
         """Init the subclass object."""
-        operands = _simplify_monotone_op_operands(cls, *args)
+        operands = _simplify_monotone_op_operands(
+            cls, *args, idempotency=cls.idempotency
+        )
         if len(operands) == 1 and cls.idempotency:
             return operands[0]
 
@@ -263,20 +265,25 @@ def is_literal(formula: Formula) -> bool:
     )
 
 
-def _simplify_monotone_op_operands(cls, *operands):
-    operands = list(dict.fromkeys(operands))
-    if len(operands) == 0:
+def _simplify_monotone_op_operands(cls, *operands, idempotency: bool = False):
+    old_operands: List[Any] = (
+        list(dict.fromkeys(operands)) if idempotency else list(operands)
+    )
+    if len(old_operands) == 0:
         return []
-    elif len(operands) == 1:
-        return [operands[0]]
+    elif len(old_operands) == 1:
+        return [old_operands[0]]
 
     # shift-up subformulas with same operator. DFS on expression tree.
+    seen = set()
     new_operands = []
-    stack = operands[::-1]  # it is reversed in order to preserve order.
+    stack = old_operands[::-1]  # it is reversed in order to preserve order.
     while len(stack) > 0:
         element = stack.pop()
         if not isinstance(element, cls):
-            new_operands.append(element)
+            if element not in seen:
+                seen.add(element)
+                new_operands.append(element)
             continue
         stack.extend(reversed(element.operands))  # see above regarding reversed.
 
