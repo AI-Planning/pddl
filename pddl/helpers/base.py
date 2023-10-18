@@ -127,11 +127,13 @@ def find(seq: Sequence, condition: Callable[[Any], bool]) -> int:
 def _typed_parameters(parameters) -> str:
     """Return a list of parameters along with types if available."""
     result = ""
-    for p in parameters:
+    for i, p in enumerate(parameters):
+        if i > 0:
+            result += " "
         if p.type_tags:
-            result += f"?{p.name} - {' '.join(map(str, p.type_tags))} "
+            result += f"?{p.name} - {' '.join(map(str, p.type_tags))}"
         else:
-            result += str(p) + " "
+            result += str(p)
     return result.strip()
 
 

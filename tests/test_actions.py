@@ -18,7 +18,7 @@ from pddl.action import Action
 class TestActionSimpleInitialization:
     """Test simple action initialization."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the tests."""
         self.action = Action("action", [])
 

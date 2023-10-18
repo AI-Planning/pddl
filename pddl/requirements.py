@@ -34,6 +34,10 @@ class Requirements(Enum):
     ADL = RS.ADL.strip()
     DERIVED_PREDICATES = RS.DERIVED_PREDICATES.strip()
     NON_DETERMINISTIC = RS.NON_DETERMINISTIC.strip()
+    FLUENTS = RS.FLUENTS.strip()
+    OBJECT_FLUENTS = RS.OBJECT_FLUENTS.strip()
+    NUMERIC_FLUENTS = RS.NUMERIC_FLUENTS.strip()
+    ACTION_COSTS = RS.ACTION_COSTS.strip()
 
     @classmethod
     def quantified_precondition_requirements(cls) -> Set["Requirements"]:
@@ -54,6 +58,14 @@ class Requirements(Enum):
             Requirements.EQUALITY,
             Requirements.CONDITIONAL_EFFECTS,
         }.union(cls.quantified_precondition_requirements())
+
+    @classmethod
+    def fluents_requirements(cls) -> Set["Requirements"]:
+        """Get the fluents requirements."""
+        return {
+            Requirements.OBJECT_FLUENTS,
+            Requirements.NUMERIC_FLUENTS,
+        }
 
     def __str__(self) -> str:
         """Get the string representation."""
@@ -82,4 +94,6 @@ def _extend_domain_requirements(
         )
     if Requirements.ADL in requirements:
         extended_requirements.update(Requirements.adl_requirements())
+    if Requirements.FLUENTS in requirements:
+        extended_requirements.update(Requirements.fluents_requirements())
     return extended_requirements

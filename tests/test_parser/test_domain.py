@@ -293,3 +293,27 @@ def test_variables_repetition_allowed_if_same_type() -> None:
     """
     )
     DomainParser()(domain_str)
+
+
+def test_check_action_costs_requirement_with_total_cost() -> None:
+    """Check action costs requirement when total-cost is specified."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing)
+        (:types t1 t2)
+        (:predicates (p ?x - t1 ?y - t2))
+        (:functions (total-cost))
+        (:action a
+            :parameters (?x - t1 ?y - t2)
+            :precondition (and (p ?x ?x))
+            :effect (and (p ?x ?x) (increase (total-cost) 1))
+        )
+    )
+    """
+    )
+    with pytest.raises(
+        lark.exceptions.VisitError,
+        match=r"action costs requirement is not specified, but the total-cost function is specified.",
+    ):
+        DomainParser()(domain_str)

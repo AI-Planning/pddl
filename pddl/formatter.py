@@ -12,11 +12,14 @@
 
 """Formatting utilities for PDDL domains and problems."""
 from textwrap import indent
-from typing import Callable, Collection, Dict, List, Optional
+from typing import Callable, Collection, Dict, List, Optional, TypeVar
 
 from pddl.core import Domain, Problem
 from pddl.custom_types import name
+from pddl.logic.functions import NumericFunction
 from pddl.logic.terms import Constant
+
+T = TypeVar("T", name, NumericFunction)
 
 
 def _remove_empty_lines(s: str) -> str:
@@ -38,17 +41,19 @@ def _sort_and_print_collection(
     return ""
 
 
-def _print_types_with_parents(
+def _print_types_or_functions_with_parents(
     prefix: str,
-    types_dict: Dict[name, Optional[name]],
+    types_dict: Dict[T, Optional[name]],
     postfix: str,
     to_string: Callable = str,
 ):
     """Print the type dictionary of a PDDL domain."""
-    name_by_type: Dict[Optional[name], List[name]] = {}
-    for type_name, parent_type in types_dict.items():
-        name_by_type.setdefault(parent_type, []).append(type_name)
-    return _print_typed_lists(prefix, name_by_type, postfix, to_string)
+    name_by_obj: Dict[Optional[T], List[name]] = {}
+    for obj_name, parent_type in types_dict.items():
+        name_by_obj.setdefault(parent_type, []).append(obj_name)  # type: ignore
+    if not bool(name_by_obj):
+        return ""
+    return _print_typed_lists(prefix, name_by_obj, postfix, to_string)
 
 
 def _print_constants(
@@ -58,7 +63,8 @@ def _print_constants(
     term_by_type_tags: Dict[Optional[name], List[name]] = {}
     for c in constants:
         term_by_type_tags.setdefault(c.type_tag, []).append(c.name)
-
+    if not bool(term_by_type_tags):
+        return ""
     return _print_typed_lists(prefix, term_by_type_tags, postfix, to_string)
 
 
@@ -83,9 +89,26 @@ def _print_predicates_with_types(predicates: Collection):
     return result.strip()
 
 
+def _print_function_skeleton(function: NumericFunction) -> str:
+    """Callable to print a function skeleton with type tags."""
+    result = ""
+    if function.arity == 0:
+        result += f"({function.name})"
+    else:
+        result += f"({function.name}"
+        for t in function.terms:
+            result += (
+                f" ?{t.name} - {sorted(t.type_tags)[0]}"
+                if t.type_tags
+                else f" ?{t.name}"
+            )
+        result += ")"
+    return result
+
+
 def _print_typed_lists(
     prefix,
-    names_by_type: Dict[Optional[name], List[name]],
+    names_by_obj: Dict[Optional[T], List[name]],
     postfix,
     to_string: Callable = str,
 ):
@@ -93,11 +116,11 @@ def _print_typed_lists(
     result = prefix + " "
 
     # names with no type will be printed at the end
-    names_with_none_types = names_by_type.pop(None, [])
+    names_with_none_types = names_by_obj.pop(None, [])
 
     # print typed constants, first sorted by type, then by constant name
     for type_tag, typed_names in sorted(
-        names_by_type.items(), key=lambda type_and_name: type_and_name[0]  # type: ignore
+        names_by_obj.items(), key=lambda type_and_name: type_and_name[0]  # type: ignore
     ):
         result += (
             " ".join(sorted(to_string(n) for n in typed_names)) + " - " + type_tag + " "  # type: ignore
@@ -122,9 +145,14 @@ def domain_to_string(domain: Domain) -> str:
     body = ""
     indentation = " " * 4
     body += _sort_and_print_collection("(:requirements ", domain.requirements, ")\n")
-    body += _print_types_with_parents("(:types", domain.types, ")\n")
+    body += _print_types_or_functions_with_parents("(:types", domain.types, ")\n")
     body += _print_constants("(:constants", domain.constants, ")\n")
-    body += f"(:predicates {_print_predicates_with_types(domain.predicates)})\n"
+    if domain.predicates:
+        body += f"(:predicates {_print_predicates_with_types(domain.predicates)})\n"
+    if domain.functions:
+        body += _print_types_or_functions_with_parents(
+            "(:functions", domain.functions, ")\n", _print_function_skeleton
+        )
     body += _sort_and_print_collection(
         "",
         domain.derived_predicates,
@@ -148,11 +176,13 @@ def problem_to_string(problem: Problem) -> str:
     body = f"(:domain {problem.domain_name})\n"
     indentation = " " * 4
     body += _sort_and_print_collection("(:requirements ", problem.requirements, ")\n")
-    body += _print_constants("(:objects", problem.objects, ")\n")
+    if problem.objects:
+        body += _print_constants("(:objects", problem.objects, ")\n")
     body += _sort_and_print_collection(
         "(:init ", problem.init, ")\n", is_mandatory=True
     )
     body += f"{'(:goal ' + str(problem.goal) + ')'}\n"
+    body += f"{'(:metric ' + str(problem.metric) + ')'}\n" if problem.metric else ""
     result = result + "\n" + indent(body, indentation) + "\n)"
     result = _remove_empty_lines(result)
     return result

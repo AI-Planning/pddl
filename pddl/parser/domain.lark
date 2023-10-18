@@ -1,6 +1,6 @@
 start: domain
 
-domain:        LPAR DEFINE domain_def [requirements] [types] [constants] [predicates] structure_def* RPAR
+domain:        LPAR DEFINE domain_def [requirements] [types] [constants] [predicates] [functions] structure_def* RPAR
 domain_def:    LPAR DOMAIN NAME RPAR
 
 requirements:              LPAR REQUIREMENTS require_key+ RPAR
@@ -8,8 +8,16 @@ requirements:              LPAR REQUIREMENTS require_key+ RPAR
 types:                 LPAR TYPES typed_list_name RPAR
 constants:             LPAR CONSTANTS typed_list_name RPAR
 predicates:            LPAR PREDICATES atomic_formula_skeleton+ RPAR
+functions:             LPAR FUNCTIONS f_typed_list_atomic_function_skeleton RPAR
+
 atomic_formula_skeleton:   LPAR NAME typed_list_variable RPAR
 
+f_typed_list_atomic_function_skeleton: atomic_function_skeleton+
+                                     | (atomic_function_skeleton+ TYPE_SEP f_type_def)+ atomic_function_skeleton*
+
+?f_type_def: TYPE_NUMBER
+
+atomic_function_skeleton:  LPAR NAME typed_list_variable RPAR
 
 ?structure_def:    action_def | derived_predicates
 action_def:        LPAR ACTION NAME PARAMETERS action_parameters action_body_def RPAR
@@ -27,20 +35,24 @@ gd:                atomic_formula_term
   |                LPAR IMPLY gd gd RPAR
   |                LPAR EXISTS LPAR typed_list_variable RPAR gd RPAR
   |                LPAR FORALL LPAR typed_list_variable RPAR gd RPAR
+  |                LPAR binary_comp f_exp f_exp RPAR
 
 // effects
 emptyor_effect:    LPAR RPAR
               |    effect
 effect:            LPAR AND c_effect* RPAR
       |            c_effect
+
 c_effect:          LPAR FORALL LPAR typed_list_variable RPAR effect RPAR
         |          LPAR WHEN gd cond_effect RPAR
         |          LPAR ONEOF effect+ RPAR
         |          p_effect
 p_effect:          LPAR NOT atomic_formula_term RPAR
         |          atomic_formula_term
+        |          num_effect
 cond_effect:       LPAR AND p_effect* RPAR
            |       p_effect
+num_effect:        LPAR assign_op f_head f_exp RPAR
 
 atomic_formula_term:   LPAR predicate term* RPAR
                    |   LPAR EQUAL_OP term term RPAR
@@ -48,6 +60,34 @@ atomic_formula_term:   LPAR predicate term* RPAR
      |  variable
 ?predicate: NAME
 constant: NAME
+
+?binary_comp: GREATER_OP
+            | LESSER_OP
+            | EQUAL_OP
+            | GREATER_EQUAL_OP
+            | LESSER_EQUAL_OP
+
+?binary_op: multi_op
+          | MINUS
+          | DIVIDE
+
+?multi_op: TIMES
+         | PLUS
+
+f_exp:      NUMBER
+      |     LPAR binary_op f_exp f_exp RPAR
+      |     LPAR multi_op f_exp f_exp+ RPAR
+      |     LPAR MINUS f_exp RPAR
+      |     f_head
+
+f_head:     NAME
+      |     LPAR NAME term* RPAR
+
+?assign_op: ASSIGN
+          | SCALE_UP
+          | SCALE_DOWN
+          | INCREASE
+          | DECREASE
 
 typed_list_variable:   variable*
                    |   (variable+ TYPE_SEP type_def)+ variable*
@@ -72,6 +112,7 @@ type_def:          LPAR EITHER primitive_type+ RPAR
 %import .common.TYPES -> TYPES
 %import .common.CONSTANTS -> CONSTANTS
 %import .common.PREDICATES -> PREDICATES
+%import .common.FUNCTIONS -> FUNCTIONS
 %import .common.ACTION -> ACTION
 %import .common.PARAMETERS -> PARAMETERS
 %import .common.PRECONDITION -> PRECONDITION
@@ -88,7 +129,23 @@ type_def:          LPAR EITHER primitive_type+ RPAR
 %import .common.EITHER -> EITHER
 %import .common.ONEOF -> ONEOF
 %import .common.EQUAL_OP -> EQUAL_OP
+%import .common.GREATER_OP -> GREATER_OP
+%import .common.GREATER_EQUAL_OP -> GREATER_EQUAL_OP
+%import .common.LESSER_OP -> LESSER_OP
+%import .common.LESSER_EQUAL_OP -> LESSER_EQUAL_OP
+%import .common.MINUS -> MINUS
+%import .common.PLUS -> PLUS
+%import .common.TIMES -> TIMES
+%import .common.DIVIDE -> DIVIDE
+%import .common.NUMBER -> NUMBER
+%import .common.ASSIGN -> ASSIGN
+%import .common.SCALE_UP -> SCALE_UP
+%import .common.SCALE_DOWN -> SCALE_DOWN
+%import .common.INCREASE -> INCREASE
+%import .common.DECREASE -> DECREASE
+%import .common.TOTAL_COST -> TOTAL_COST
 %import .common.LPAR -> LPAR
 %import .common.RPAR -> RPAR
 %import .common.TYPE_SEP -> TYPE_SEP
+%import .common.TYPE_NUMBER -> TYPE_NUMBER
 

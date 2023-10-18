@@ -18,6 +18,7 @@ It contains the class definitions to build and modify PDDL domains or problems.
 from typing import AbstractSet, Collection, Dict, Optional, Tuple, cast
 
 from pddl._validation import (
+    Functions,
     TypeChecker,
     Types,
     _check_types_in_has_terms_objects,
@@ -28,6 +29,7 @@ from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
 from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
+from pddl.logic.functions import FunctionExpression, Metric, NumericFunction
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant
 from pddl.requirements import Requirements
@@ -46,6 +48,7 @@ class Domain:
         derived_predicates: Optional[
             Collection[DerivedPredicate]
         ] = None,  # TODO cannot be empty
+        functions: Optional[Collection[FunctionExpression]] = None,
         actions: Optional[Collection["Action"]] = None,
     ):
         """
@@ -57,6 +60,8 @@ class Domain:
             types is a dictionary mapping a type name to its ancestor.
         :param constants: the constants.
         :param predicates: the predicates.
+        :param functions: the functions.
+            functions is a dictionary mapping a function to its type.
         :param derived_predicates: the derived predicates.
         :param actions: the actions.
         """
@@ -67,15 +72,16 @@ class Domain:
         self._predicates = ensure_set(predicates)
         self._derived_predicates = ensure_set(derived_predicates)
         self._actions = ensure_set(actions)
+        self._functions = Functions(functions, self._requirements)
 
         self._check_consistency()
 
     def _check_consistency(self) -> None:
         """Check consistency of a domain instance object."""
-        checker = TypeChecker(self._types, self.requirements)
-        checker.check_type(self._constants)
-        checker.check_type(self._predicates)
-        checker.check_type(self._actions)
+        type_checker = TypeChecker(self._types, self.requirements)
+        type_checker.check_type(self._constants)
+        type_checker.check_type(self._predicates)
+        type_checker.check_type(self._actions)
         _check_types_in_has_terms_objects(self._actions, self._types.all_types)  # type: ignore
         self._check_types_in_derived_predicates()
 
@@ -109,6 +115,11 @@ class Domain:
         return self._predicates
 
     @property
+    def functions(self) -> Dict[NumericFunction, Optional[name_type]]:
+        """Get the functions."""
+        return self._functions.raw
+
+    @property
     def derived_predicates(self) -> AbstractSet[DerivedPredicate]:
         """Get the derived predicates."""
         return self._derived_predicates
@@ -132,6 +143,7 @@ class Domain:
             and self.types == other.types
             and self.constants == other.constants
             and self.predicates == other.predicates
+            and self.functions == other.functions
             and self.derived_predicates == other.derived_predicates
             and self.actions == other.actions
         )
@@ -149,6 +161,7 @@ class Problem:
         objects: Optional[Collection["Constant"]] = None,
         init: Optional[Collection[Formula]] = None,
         goal: Optional[Formula] = None,
+        metric: Optional[Metric] = None,
     ):
         """
         Initialize the PDDL problem.
@@ -160,6 +173,7 @@ class Problem:
         :param objects: the set of objects.
         :param init: the initial condition.
         :param goal: the goal condition.
+        :param metric: the metric.
         """
         self._name = parse_name(name)
         self._domain: Optional[Domain]
@@ -173,6 +187,7 @@ class Problem:
         self._objects: AbstractSet[Constant] = ensure_set(objects)
         self._init: AbstractSet[Formula] = ensure_set(init)
         self._goal: Formula = ensure(goal, And())
+        self._metric: Optional[Metric] = metric
         validate(
             all(map(is_literal, self.init)),
             "Not all formulas of initial condition are literals!",
@@ -298,6 +313,11 @@ class Problem:
         """Get the goal."""
         return self._goal
 
+    @property
+    def metric(self) -> Optional[Metric]:
+        """Get the metric."""
+        return self._metric
+
     def __eq__(self, other):
         """Compare with another object."""
         return (
@@ -309,4 +329,5 @@ class Problem:
             and self.objects == other.objects
             and self.init == other.init
             and self.goal == other.goal
+            and self.metric == other.metric
         )

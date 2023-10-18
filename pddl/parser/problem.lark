@@ -1,6 +1,6 @@
 start: problem
 
-problem:           LPAR DEFINE problem_def problem_domain [problem_requirements] [objects] init goal RPAR
+problem:           LPAR DEFINE problem_def problem_domain [problem_requirements] [objects] init goal [metric_spec] RPAR
 problem_def:       LPAR PROBLEM NAME RPAR
 problem_domain:    LPAR DOMAIN_P NAME RPAR
 
@@ -10,9 +10,15 @@ problem_requirements: LPAR REQUIREMENTS require_key+ RPAR
 objects:   LPAR OBJECTS typed_list_name RPAR
 
 init:                  LPAR INIT init_el* RPAR
-?init_el:              literal_name
+init_el:               literal_name
+       |               LPAR EQUAL_OP basic_function_term NUMBER RPAR
+
 literal_name:          atomic_formula_name
             |          LPAR NOT atomic_formula_name RPAR
+
+basic_function_term:   NAME
+                   |   LPAR NAME NAME* RPAR
+
 atomic_formula_name:   LPAR predicate NAME* RPAR
                    |   LPAR EQUAL_OP NAME NAME RPAR
 
@@ -21,6 +27,18 @@ goal:  LPAR GOAL gd_name RPAR
 gd_name:    atomic_formula_name
        |    LPAR NOT atomic_formula_name RPAR
        |    LPAR AND gd_name* RPAR
+       |    LPAR binary_comp f_exp f_exp RPAR
+
+metric_spec: LPAR METRIC optimization metric_f_exp RPAR
+
+?optimization: MAXIMIZE
+             | MINIMIZE
+
+metric_f_exp: LPAR binary_op metric_f_exp metric_f_exp RPAR
+            | LPAR multi_op metric_f_exp metric_f_exp+ RPAR
+            | LPAR MINUS metric_f_exp RPAR
+            | basic_function_term
+            | NUMBER
 
 DOMAIN_P: ":domain"
 PROBLEM: "problem"
@@ -35,6 +53,12 @@ GOAL: ":goal"
 %import .domain.require_key -> require_key
 %import .domain.typed_list_name -> typed_list_name
 %import .domain.predicate -> predicate
+%import .domain.f_head -> f_head
+%import .domain.f_exp -> f_exp
+%import .domain.binary_comp -> binary_comp
+%import .domain.binary_op -> binary_op
+%import .domain.multi_op -> multi_op
+%import .domain.term -> term
 %import .common.NAME -> NAME
 %import .common.DEFINE -> DEFINE
 %import .common.DOMAIN -> DOMAIN
@@ -52,6 +76,14 @@ GOAL: ":goal"
 %import .common.EITHER -> EITHER
 %import .common.ONEOF -> ONEOF
 %import .common.EQUAL_OP -> EQUAL_OP
+%import .common.GREATER_OP -> GREATER_OP
+%import .common.GREATER_EQUAL_OP -> GREATER_EQUAL_OP
+%import .common.LESSER_OP -> LESSER_OP
+%import .common.LESSER_EQUAL_OP -> LESSER_EQUAL_OP
+%import .common.MINUS -> MINUS
+%import .common.METRIC -> METRIC
+%import .common.MAXIMIZE -> MAXIMIZE
+%import .common.MINIMIZE -> MINIMIZE
 %import .common.TYPING -> TYPING
 %import .common.EQUALITY -> EQUALITY
 %import .common.STRIPS -> STRIPS
@@ -59,3 +91,4 @@ GOAL: ":goal"
 %import .common.LPAR -> LPAR
 %import .common.RPAR -> RPAR
 %import .common.TYPE_SEP -> TYPE_SEP
+%import .common.NUMBER -> NUMBER

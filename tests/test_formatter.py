@@ -17,9 +17,20 @@ from textwrap import dedent
 
 import pytest
 
+from pddl.action import Action
 from pddl.core import Domain, Problem
 from pddl.formatter import domain_to_string, problem_to_string
-from pddl.logic import constants
+from pddl.logic import Constant, Variable, constants
+from pddl.logic.base import ForallCondition
+from pddl.logic.effects import AndEffect
+from pddl.logic.functions import (
+    EqualTo,
+    GreaterEqualThan,
+    Increase,
+    LesserEqualThan,
+    NumericFunction,
+    NumericValue,
+)
 from pddl.requirements import Requirements
 from tests.conftest import DOMAIN_FILES, PROBLEM_FILES
 
@@ -67,7 +78,6 @@ def test_typed_constants_formatting_in_domain() -> None:
         (:requirements :typing)
         (:types type_2 type_3 - type_1 type_1)
         (:constants a b c - type_1 d e f - type_2 g h i - type_3 j k l)
-        (:predicates )
     )"""
     )
 
@@ -98,4 +108,68 @@ def test_typed_objects_formatting_in_problem() -> None:
         (:init )
         (:goal (and ))
     )"""
+    )
+
+
+def test_numerical_hello_world_domain_formatter():
+    """Test that numerical NumericFunctions are formatted correctly."""
+    neighbor = Variable("neighbor")
+    hello_counter = NumericFunction("hello_counter", neighbor)
+    action = Action(
+        "say-hello-world",
+        parameters=[neighbor],
+        precondition=LesserEqualThan(hello_counter, NumericValue(3)),
+        effect=AndEffect(Increase(hello_counter, NumericValue(1))),
+    )
+
+    domain = Domain(
+        name="hello-world-functions",
+        requirements=[Requirements.STRIPS, Requirements.NUMERIC_FLUENTS],
+        functions={hello_counter: None},
+        actions=[action],
+    )
+
+    assert domain_to_string(domain) == "\n".join(
+        (
+            "(define (domain hello-world-functions)",
+            "    (:requirements :numeric-fluents :strips)",
+            "    (:functions (hello_counter ?neighbor))",
+            "    (:action say-hello-world",
+            "        :parameters (?neighbor)",
+            "        :precondition (<= (hello_counter ?neighbor) 3)",
+            "        :effect (and (increase (hello_counter ?neighbor) 1))",
+            "    )",
+            ")",
+        )
+    )
+
+
+def test_numerical_hello_world_problem_formatter():
+    """Test that numerical NumericFunctions are formatted correctly."""
+    neighbors = [Constant(name, "neighbor") for name in ("Alice", "Bob", "Charlie")]
+    problem = Problem(
+        name="hello-3-times",
+        domain_name="hello-world-functions",
+        objects=neighbors,
+        init=[
+            EqualTo(NumericFunction("hello_counter", neighbor), NumericValue(0))
+            for neighbor in neighbors
+        ],
+        goal=ForallCondition(
+            GreaterEqualThan(
+                NumericFunction("hello_counter", Variable("neighbor")), NumericValue(1)
+            ),
+            [Variable("neighbor", ["neighbor"])],
+        ),
+    )
+
+    assert problem_to_string(problem) == "\n".join(
+        (
+            "(define (problem hello-3-times)",
+            "    (:domain hello-world-functions)",
+            "    (:objects Alice Bob Charlie - neighbor)",
+            "    (:init (= (hello_counter Alice) 0) (= (hello_counter Bob) 0) (= (hello_counter Charlie) 0))",
+            "    (:goal (forall (?neighbor - neighbor) (>= (hello_counter ?neighbor) 1)))",
+            ")",
+        )
     )

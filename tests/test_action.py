@@ -19,7 +19,7 @@ from pddl.logic.base import ExistsCondition, ForallCondition, Imply, OneOf
 class TestActionEmpty:
     """Test the empty action."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the tests."""
         self.action = Action("empty_action", [])
 

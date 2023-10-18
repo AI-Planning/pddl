@@ -1,5 +1,5 @@
 (define (domain earth_observation)
-    (:requirements :strips :typing :equality :non-deterministic)
+    (:requirements :strips :typing :equality :non-deterministic :action-costs)
 
     (:types
             patch - object
@@ -18,7 +18,9 @@
         (is-target ?p - patch)
         (scanned ?p - patch)
     ) 
- 
+
+    (:functions (total-cost))
+
     (:action slew 
      :parameters (?p ?n - patch ?d - cost-direction)
      :precondition 

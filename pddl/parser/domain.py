@@ -23,10 +23,27 @@ from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
 from pddl.logic.effects import AndEffect, Forall, When
+from pddl.logic.functions import Assign, Decrease, Divide
+from pddl.logic.functions import EqualTo as FunctionEqualTo
+from pddl.logic.functions import (
+    FunctionExpression,
+    GreaterEqualThan,
+    GreaterThan,
+    Increase,
+    LesserEqualThan,
+    LesserThan,
+    Minus,
+    NumericFunction,
+    NumericValue,
+    Plus,
+    ScaleDown,
+    ScaleUp,
+    Times,
+)
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
-from pddl.parser.symbols import Symbols
+from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols
 from pddl.parser.typed_list_parser import TypedListParser
 from pddl.requirements import Requirements, _extend_domain_requirements
 
@@ -40,6 +57,7 @@ class DomainTransformer(Transformer):
 
         self._constants_by_name: Dict[str, Constant] = {}
         self._predicates_by_name: Dict[str, Predicate] = {}
+        self._functions_by_name: Dict[str, FunctionExpression] = {}
         self._current_parameters_by_name: Dict[str, Variable] = {}
         self._requirements: Set[str] = set()
         self._extended_requirements: Set[str] = set()
@@ -97,6 +115,12 @@ class DomainTransformer(Transformer):
         predicates = args[2:-1]
         self._predicates_by_name = {p.name: p for p in predicates}
         return dict(predicates=predicates)
+
+    def functions(self, args):
+        """Process the 'functions' rule."""
+        function_definition = args[2]
+        # arg[2] is a dict with NumericFunction as keys and types as values, e.g., {(fuel ?l): number, (cost): number}
+        return dict(functions=function_definition)
 
     def action_def(self, args):
         """Process the 'action_def' rule."""
@@ -187,6 +211,25 @@ class DomainTransformer(Transformer):
         condition = args[5]
         return cond_class(cond=condition, variables=variables)
 
+    def gd_comparison(self, args):
+        """Process the 'gd' comparison rule."""
+        if not bool({Requirements.NUMERIC_FLUENTS, Requirements.FLUENTS}):
+            raise PDDLMissingRequirementError(Requirements.NUMERIC_FLUENTS)
+        left = args[2]
+        right = args[3]
+        if args[1] == Symbols.GREATER_EQUAL.value:
+            return GreaterEqualThan(left, right)
+        elif args[1] == Symbols.GREATER.value:
+            return GreaterThan(left, right)
+        elif args[1] == Symbols.LESSER_EQUAL.value:
+            return LesserEqualThan(left, right)
+        elif args[1] == Symbols.LESSER.value:
+            return LesserThan(left, right)
+        elif args[1] == Symbols.EQUAL.value:
+            return FunctionEqualTo(left, right)
+        else:
+            raise PDDLParsingError(f"Unknown comparison operator: {args[1]}")
+
     def gd(self, args):
         """Process the 'gd' rule."""
         if len(args) == 1:
@@ -201,6 +244,8 @@ class DomainTransformer(Transformer):
             return self.gd_imply(args)
         elif args[1] in [Symbols.FORALL.value, Symbols.EXISTS.value]:
             return self.gd_quantifiers(args)
+        elif args[1] in BINARY_COMP_SYMBOLS:
+            return self.gd_comparison(args)
 
     def emptyor_effect(self, args):
         """Process the 'emptyor_effect' rule."""
@@ -247,6 +292,21 @@ class DomainTransformer(Transformer):
         assert_(len(args) == 1)
         return args[0]
 
+    def num_effect(self, args):
+        """Process the 'num_effect' rule."""
+        if args[1] == Symbols.ASSIGN.value:
+            return Assign(args[2], args[3])
+        elif args[1] == Symbols.SCALE_UP.value:
+            return ScaleUp(args[2], args[3])
+        elif args[1] == Symbols.SCALE_DOWN.value:
+            return ScaleDown(args[2], args[3])
+        elif args[1] == Symbols.INCREASE.value:
+            return Increase(args[2], args[3])
+        elif args[1] == Symbols.DECREASE.value:
+            return Decrease(args[2], args[3])
+        else:
+            raise PDDLParsingError(f"Unrecognized assign operator: {args[1]}")
+
     def atomic_formula_term(self, args):
         """Process the 'atomic_formula_term' rule."""
 
@@ -278,12 +338,56 @@ class DomainTransformer(Transformer):
             raise ParseError(f"Constant '{args[0]}' not defined.")
         return constant
 
+    def _formula_skeleton(self, args):
+        """Process the '_formula_skeleton' rule."""
+        variable_data: Dict[str, Set[str]] = args[2]
+        variables = [Variable(var_name, tags) for var_name, tags in variable_data]
+        return variables
+
     def atomic_formula_skeleton(self, args):
         """Process the 'atomic_formula_skeleton' rule."""
         predicate_name = args[1]
-        variable_data: Dict[str, Set[str]] = args[2]
-        variables = [Variable(var_name, tags) for var_name, tags in variable_data]
+        variables = self._formula_skeleton(args)
         return Predicate(predicate_name, *variables)
+
+    def atomic_function_skeleton(self, args):
+        """Process the 'atomic_function_skeleton' rule."""
+        if args[1] == Symbols.TOTAL_COST.value:
+            if not bool({Requirements.ACTION_COSTS}):
+                raise PDDLMissingRequirementError(Requirements.ACTION_COSTS)
+            return NumericFunction("total-cost")
+        function_name = args[1]
+        variables = self._formula_skeleton(args)
+        return NumericFunction(function_name, *variables)
+
+    def f_exp(self, args):
+        """Process the 'f_exp' rule."""
+        if len(args) == 1:
+            if not isinstance(args[0], NumericFunction):
+                return NumericValue(args[0])
+            return args[0]
+        op = None
+        if args[1] == Symbols.MINUS.value:
+            op = Minus
+        if args[1] == Symbols.PLUS.value:
+            op = Plus
+        if args[1] == Symbols.TIMES.value:
+            op = Times
+        if args[1] == Symbols.DIVIDE.value:
+            op = Divide
+        return (
+            op(*args[2:-1])
+            if op is not None
+            else PDDLParsingError("Operator not recognized")
+        )
+
+    def f_head(self, args):
+        """Process the 'f_head' rule."""
+        if len(args) == 1:
+            return NumericFunction(args[0])
+        function_name = args[1]
+        variables = [Variable(x, {}) for x in args[2:-1]]
+        return NumericFunction(function_name, *variables)
 
     def typed_list_name(self, args) -> Dict[name, Optional[name]]:
         """Process the 'typed_list_name' rule."""
@@ -305,6 +409,14 @@ class DomainTransformer(Transformer):
         try:
             types_index = TypedListParser.parse_typed_list(args, allow_duplicates=True)
             return types_index.get_typed_list_of_variables()
+        except ValueError as e:
+            raise self._raise_typed_list_parsing_error(args, e) from e
+
+    def f_typed_list_atomic_function_skeleton(self, args):
+        """Process the 'f_typed_list_atomic_function_skeleton' rule."""
+        try:
+            types_index = TypedListParser.parse_typed_list(args)
+            return types_index.get_typed_list_of_names()
         except ValueError as e:
             raise self._raise_typed_list_parsing_error(args, e) from e
 

@@ -17,13 +17,28 @@ from typing import Dict
 from lark import Lark, ParseError, Transformer
 
 from pddl.core import Problem
+from pddl.exceptions import PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import And, Not
+from pddl.logic.functions import Divide
+from pddl.logic.functions import EqualTo as FunctionEqualTo
+from pddl.logic.functions import (
+    GreaterEqualThan,
+    GreaterThan,
+    LesserEqualThan,
+    LesserThan,
+    Metric,
+    Minus,
+    NumericFunction,
+    NumericValue,
+    Plus,
+    Times,
+)
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant
 from pddl.parser import PARSERS_DIRECTORY, PROBLEM_GRAMMAR_FILE
 from pddl.parser.domain import DomainTransformer
-from pddl.parser.symbols import Symbols
+from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols
 from pddl.requirements import Requirements
 
 
@@ -88,7 +103,25 @@ class ProblemTransformer(Transformer):
 
     def init(self, args):
         """Process the 'init' rule."""
-        return "init", args[2:-1]
+        flat_args = [
+            item
+            for sublist in args[2:-1]
+            for item in (sublist if isinstance(sublist, list) else [sublist])
+        ]
+        return "init", flat_args
+
+    def init_el(self, args):
+        """Process the 'init_el' rule."""
+        if len(args) == 1:
+            return args[0]
+        elif args[1] == Symbols.EQUAL.value:
+            if isinstance(args[2], list) and len(args[2]) == 1:
+                return FunctionEqualTo(*args[2], NumericValue(args[3]))
+            elif not isinstance(args[2], list):
+                return FunctionEqualTo(args[2], NumericValue(args[3]))
+            else:
+                funcs = [FunctionEqualTo(x, NumericValue(args[3])) for x in args[2]]
+                return funcs
 
     def literal_name(self, args):
         """Process the 'literal_name' rule."""
@@ -99,9 +132,34 @@ class ProblemTransformer(Transformer):
         else:
             raise ParseError
 
+    def basic_function_term(self, args):
+        """Process the 'basic_function_term' rule."""
+        if len(args) == 1:
+            return NumericFunction(args[0])
+        function_name = args[1]
+        objects = [Constant(x) for x in args[2:-1]]
+        return NumericFunction(function_name, *objects)
+
     def goal(self, args):
         """Process the 'goal' rule."""
         return "goal", args[2]
+
+    def gd_binary_comparison(self, args):
+        """Process the 'gd' comparison rule."""
+        left = args[2]
+        right = args[3]
+        if args[1] == Symbols.GREATER_EQUAL.value:
+            return GreaterEqualThan(left, right)
+        elif args[1] == Symbols.GREATER.value:
+            return GreaterThan(left, right)
+        elif args[1] == Symbols.LESSER_EQUAL.value:
+            return LesserEqualThan(left, right)
+        elif args[1] == Symbols.LESSER.value:
+            return LesserThan(left, right)
+        elif args[1] == Symbols.EQUAL.value:
+            return FunctionEqualTo(left, right)
+        else:
+            raise PDDLParsingError(f"Unknown comparison operator: {args[1]}")
 
     def gd_name(self, args):
         """Process the 'gd_name' rule."""
@@ -111,6 +169,8 @@ class ProblemTransformer(Transformer):
             return Not(args[2])
         elif args[1] == Symbols.AND.value:
             return And(*args[2:-1])
+        elif args[1] in BINARY_COMP_SYMBOLS:
+            return self.gd_binary_comparison(args)
         else:
             raise ParseError
 
@@ -129,6 +189,44 @@ class ProblemTransformer(Transformer):
                 for _term_name in args[2:-1]
             ]
             return Predicate(name, *terms)
+
+    def f_exp(self, args):
+        """Process the 'f_exp' rule."""
+        return self._domain_transformer.f_exp(args)
+
+    def f_head(self, args):
+        """Process the 'f_head' rule."""
+        return self._domain_transformer.f_head(args)
+
+    def metric_spec(self, args):
+        """Process the 'metric_spec' rule."""
+        if args[2] == Symbols.MINIMIZE.value:
+            return "metric", Metric(args[3], args[2])
+        elif args[2] == Symbols.MAXIMIZE.value:
+            return "metric", Metric(args[3], args[2])
+        else:
+            raise PDDLParsingError(f"Unknown metric operator: {args[2]}")
+
+    def metric_f_exp(self, args):
+        """Process the 'metric_f_exp' rule."""
+        if len(args) == 1:
+            if not isinstance(args[0], NumericFunction):
+                return NumericValue(args[0])
+            return args[0]
+        op = None
+        if args[1] == Symbols.MINUS.value:
+            op = Minus
+        if args[1] == Symbols.PLUS.value:
+            op = Plus
+        if args[1] == Symbols.TIMES.value:
+            op = Times
+        if args[1] == Symbols.DIVIDE.value:
+            op = Divide
+        return (
+            op(*args[2:-1])
+            if op is not None
+            else PDDLParsingError("Operator not recognized")
+        )
 
 
 _problem_parser_lark = PROBLEM_GRAMMAR_FILE.read_text()

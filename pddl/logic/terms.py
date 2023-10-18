@@ -12,7 +12,7 @@
 
 """This modules implements PDDL terms."""
 import functools
-from typing import AbstractSet, Collection, Optional
+from typing import AbstractSet, Any, Collection, Optional
 
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_type
@@ -20,7 +20,7 @@ from pddl.helpers.base import assert_, check_no_duplicates, ensure_set
 from pddl.helpers.cache_hash import cache_hash
 
 
-def _print_tag_set(type_tags: AbstractSet[name_type]) -> str:
+def _print_tag_set(type_tags: AbstractSet[Any]) -> str:
     """Print a tag set."""
     if len(type_tags) == 0:
         return "[]"
