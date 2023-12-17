@@ -12,7 +12,7 @@
 
 """Implementation of the PDDL problem parser."""
 import sys
-from typing import Dict
+from typing import Any, Dict
 
 from lark import Lark, ParseError, Transformer
 
@@ -42,7 +42,7 @@ from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols
 from pddl.requirements import Requirements
 
 
-class ProblemTransformer(Transformer):
+class ProblemTransformer(Transformer[Any, Problem]):
     """Problem Transformer."""
 
     def __init__(self):
@@ -242,7 +242,7 @@ class ProblemParser:
             _problem_parser_lark, parser="lalr", import_paths=[PARSERS_DIRECTORY]
         )
 
-    def __call__(self, text):
+    def __call__(self, text) -> Problem:
         """Call."""
         sys.tracebacklimit = 0  # noqa
         tree = self._parser.parse(text)
