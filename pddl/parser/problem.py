@@ -244,11 +244,13 @@ class ProblemParser:
 
     def __call__(self, text):
         """Call."""
+
         def handle_debug(e):
             print("\nLocation of parse error:")
             print(e.get_context(text))
             print(e.interactive_parser.pretty())
             print()
+
         sys.tracebacklimit = 0  # noqa
         tree = self._parser.parse(text, on_error=handle_debug)
         sys.tracebacklimit = None  # noqa
