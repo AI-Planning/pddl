@@ -112,6 +112,7 @@ def test_problem_init_predicate_repetition_name_allowed() -> None:
     )
     ProblemParser()(problem_str)
 
+
 def test_numeric_comparison_in_goal() -> None:
     """Try to parse a goal with a numeric condition."""
     problem_str = dedent(
@@ -131,6 +132,7 @@ def test_numeric_comparison_in_goal() -> None:
     """
     )
     ProblemParser()(problem_str)
+
 
 def test_numeric_function_comparison_in_goal() -> None:
     """Try to parse a goal with a numeric condition and function."""
