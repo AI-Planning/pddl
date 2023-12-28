@@ -111,3 +111,43 @@ def test_problem_init_predicate_repetition_name_allowed() -> None:
     """
     )
     ProblemParser()(problem_str)
+
+def test_numeric_comparison_in_goal() -> None:
+    """Try to parse a goal with a numeric condition."""
+    problem_str = dedent(
+        """
+    (define (problem hello-3-times)
+        (:domain hello-world-functions)
+
+        (:init
+            ; if this was undefined, some planners would not assumed `0`
+            (= (hello_counter jimmy) 0)
+        )
+
+        (:goal
+            (> 5 3)
+        )
+    )
+    """
+    )
+    ProblemParser()(problem_str)
+
+def test_numeric_function_comparison_in_goal() -> None:
+    """Try to parse a goal with a numeric condition and function."""
+    problem_str = dedent(
+        """
+    (define (problem hello-3-times)
+        (:domain hello-world-functions)
+
+        (:init
+            ; if this was undefined, some planners would not assumed `0`
+            (= (hello_counter jimmy) 0)
+        )
+
+        (:goal
+            (>= (hello_counter jimmy) 3)
+        )
+    )
+    """
+    )
+    ProblemParser()(problem_str)

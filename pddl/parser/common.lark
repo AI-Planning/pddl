@@ -58,7 +58,7 @@ DECREASE: "decrease"
 MAXIMIZE: "maximize"
 MINIMIZE: "minimize"
 TOTAL_COST: "total-cost"
-NUMBER: /[0-9]+(.[0-9]+)*/
+NUMBER: /[0-9]+(\.[0-9]+)*/
 
 // available requirements
 STRIPS: ":strips"

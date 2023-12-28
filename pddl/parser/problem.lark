@@ -27,7 +27,7 @@ goal:  LPAR GOAL gd_name RPAR
 gd_name:    atomic_formula_name
        |    LPAR NOT atomic_formula_name RPAR
        |    LPAR AND gd_name* RPAR
-       |    LPAR binary_comp f_exp f_exp RPAR
+       |    LPAR binary_comp metric_f_exp metric_f_exp RPAR
 
 metric_spec: LPAR METRIC optimization metric_f_exp RPAR
 
