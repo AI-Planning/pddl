@@ -368,7 +368,12 @@ class DomainTransformer(Transformer):
             return args[0]
         op = None
         if args[1] == Symbols.MINUS.value:
-            op = Minus
+            if len(args[2:-1]) == 1:
+                return Times(NumericValue(-1), args[2])
+            elif len(args[2:-1]) == 2:
+                op = Minus
+            else:
+                raise PDDLParsingError(f"MINUS symbol used with {len(args[2:-1])} args")
         if args[1] == Symbols.PLUS.value:
             op = Plus
         if args[1] == Symbols.TIMES.value:
