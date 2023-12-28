@@ -20,7 +20,6 @@ basic_function_term:   NAME
                    |   LPAR NAME NAME* RPAR
 
 atomic_formula_name:   LPAR predicate NAME* RPAR
-                   |   LPAR EQUAL_OP NAME NAME RPAR
 
 goal:  LPAR GOAL gd_name RPAR
 
