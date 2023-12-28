@@ -67,8 +67,7 @@ constant: NAME
             | GREATER_EQUAL_OP
             | LESSER_EQUAL_OP
 
-?binary_op: multi_op
-          | MINUS
+?binary_op: MINUS
           | DIVIDE
 
 ?multi_op: TIMES
@@ -76,8 +75,7 @@ constant: NAME
 
 f_exp:      NUMBER
       |     LPAR binary_op f_exp f_exp RPAR
-      |     LPAR multi_op f_exp f_exp+ RPAR
-      |     LPAR MINUS f_exp RPAR
+      |     LPAR multi_op f_exp+ RPAR
       |     f_head
 
 f_head:     NAME

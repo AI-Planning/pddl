@@ -317,3 +317,31 @@ def test_check_action_costs_requirement_with_total_cost() -> None:
         match=r"action costs requirement is not specified, but the total-cost function is specified.",
     ):
         DomainParser()(domain_str)
+
+
+def test_minus_in_precondition() -> None:
+    """Check minus in precondition."""
+    domain_str = dedent(
+        """
+    (define (domain cant-subtract-in-precondition)
+        (:requirements :strips :typing :numeric-fluents)
+
+        (:types
+            agent - object
+        )
+
+        (:functions
+            (x ?l - agent)
+        )
+
+        (:action move-south
+            :parameters (?ag - agent)
+            :precondition  (and
+                (< (- (x ?ag) 1) 1)
+            )
+            :effect (and (decrease (x ?ag) 1))
+        )
+    )
+    """
+    )
+    DomainParser()(domain_str)
