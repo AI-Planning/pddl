@@ -13,6 +13,7 @@
 """Helper functions."""
 
 import re
+import sys
 from pathlib import Path
 from typing import (
     AbstractSet,
@@ -25,7 +26,10 @@ from typing import (
     Sequence,
     Set,
     Type,
+    TypeVar,
 )
+
+from lark import Lark, Transformer
 
 
 def _get_current_path() -> Path:
@@ -191,3 +195,30 @@ def find_cycle(graph: Dict[str, Optional[AbstractSet[str]]]) -> Optional[Sequenc
                         stack.append((neighbor, path + [current]))
 
     return None
+
+
+T = TypeVar("T")
+
+
+def call_parser(text: str, parser: Lark, transformer: Transformer[Any, T]) -> T:
+    """
+    Parse a text with a Lark parser and transformer.
+
+    To produce a better traceback in case of an error, the function will temporarily overwrite the sys.tracebacklimit
+    value of the current interpreter.
+
+    :param text: the text to parse
+    :param parser: the Lark parser object
+    :param transformer: the Lark transformer object
+    :return: the object returned by the parser
+    """
+    old_tracebacklimit = getattr(sys, "tracebacklimit", None)
+    try:
+        sys.tracebacklimit = 0  # noqa
+        tree = parser.parse(text)
+        sys.tracebacklimit = None  # type: ignore
+        result = transformer.transform(tree)
+    finally:
+        if old_tracebacklimit is not None:
+            sys.tracebacklimit = old_tracebacklimit
+    return result

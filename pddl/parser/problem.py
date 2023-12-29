@@ -11,14 +11,13 @@
 #
 
 """Implementation of the PDDL problem parser."""
-import sys
-from typing import Dict
+from typing import Any, Dict
 
 from lark import Lark, ParseError, Transformer
 
 from pddl.core import Problem
 from pddl.exceptions import PDDLParsingError
-from pddl.helpers.base import assert_
+from pddl.helpers.base import assert_, call_parser
 from pddl.logic.base import And, Not
 from pddl.logic.functions import Divide
 from pddl.logic.functions import EqualTo as FunctionEqualTo
@@ -42,7 +41,7 @@ from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols
 from pddl.requirements import Requirements
 
 
-class ProblemTransformer(Transformer):
+class ProblemTransformer(Transformer[Any, Problem]):
     """Problem Transformer."""
 
     def __init__(self):
@@ -242,17 +241,6 @@ class ProblemParser:
             _problem_parser_lark, parser="lalr", import_paths=[PARSERS_DIRECTORY]
         )
 
-    def __call__(self, text):
+    def __call__(self, text: str) -> Problem:
         """Call."""
-
-        def handle_debug(e):
-            print("\nLocation of parse error:")
-            print(e.get_context(text))
-            print(e.interactive_parser.pretty())
-            print()
-
-        sys.tracebacklimit = 0  # noqa
-        tree = self._parser.parse(text, on_error=handle_debug)
-        sys.tracebacklimit = None  # noqa
-        formula = self._transformer.transform(tree)
-        return formula
+        return call_parser(text, self._parser, self._transformer)

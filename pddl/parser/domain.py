@@ -11,8 +11,7 @@
 #
 
 """Implementation of the PDDL domain parser."""
-import sys
-from typing import Dict, Optional, Set, Tuple
+from typing import Any, Dict, Optional, Set, Tuple
 
 from lark import Lark, ParseError, Transformer
 
@@ -20,7 +19,7 @@ from pddl.action import Action
 from pddl.core import Domain
 from pddl.custom_types import name
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
-from pddl.helpers.base import assert_
+from pddl.helpers.base import assert_, call_parser
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
 from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.functions import Assign, Decrease, Divide
@@ -48,7 +47,7 @@ from pddl.parser.typed_list_parser import TypedListParser
 from pddl.requirements import Requirements, _extend_domain_requirements
 
 
-class DomainTransformer(Transformer):
+class DomainTransformer(Transformer[Any, Domain]):
     """Domain Transformer."""
 
     def __init__(self, *args, **kwargs):
@@ -59,8 +58,8 @@ class DomainTransformer(Transformer):
         self._predicates_by_name: Dict[str, Predicate] = {}
         self._functions_by_name: Dict[str, FunctionExpression] = {}
         self._current_parameters_by_name: Dict[str, Variable] = {}
-        self._requirements: Set[str] = set()
-        self._extended_requirements: Set[str] = set()
+        self._requirements: Set[Requirements] = set()
+        self._extended_requirements: Set[Requirements] = set()
 
     def start(self, args):
         """Entry point."""
@@ -465,17 +464,6 @@ class DomainParser:
             _domain_parser_lark, parser="lalr", import_paths=[PARSERS_DIRECTORY]
         )
 
-    def __call__(self, text):
+    def __call__(self, text: str) -> Domain:
         """Call."""
-
-        def handle_debug(e):
-            print("\nLocation of parse error:")
-            print(e.get_context(text))
-            print(e.interactive_parser.pretty())
-            print()
-
-        sys.tracebacklimit = 0  # noqa
-        tree = self._parser.parse(text, on_error=handle_debug)
-        sys.tracebacklimit = None  # noqa
-        formula = self._transformer.transform(tree)
-        return formula
+        return call_parser(text, self._parser, self._transformer)
