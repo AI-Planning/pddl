@@ -464,6 +464,6 @@ class DomainParser:
         """Call."""
         sys.tracebacklimit = 0  # noqa
         tree = self._parser.parse(text)
-        sys.tracebacklimit = None  # noqa
+        sys.tracebacklimit = None  # type: ignore
         formula = self._transformer.transform(tree)
         return formula
