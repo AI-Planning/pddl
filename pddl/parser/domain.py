@@ -11,7 +11,6 @@
 #
 
 """Implementation of the PDDL domain parser."""
-import sys
 from typing import Any, Dict, Optional, Set, Tuple
 
 from lark import Lark, ParseError, Transformer
@@ -20,7 +19,7 @@ from pddl.action import Action
 from pddl.core import Domain
 from pddl.custom_types import name
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
-from pddl.helpers.base import assert_
+from pddl.helpers.base import assert_, call_parser
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
 from pddl.logic.effects import AndEffect, Forall, When
 from pddl.logic.functions import Assign, Decrease, Divide
@@ -462,8 +461,4 @@ class DomainParser:
 
     def __call__(self, text: str) -> Domain:
         """Call."""
-        sys.tracebacklimit = 0  # noqa
-        tree = self._parser.parse(text)
-        sys.tracebacklimit = None  # type: ignore
-        formula = self._transformer.transform(tree)
-        return formula
+        return call_parser(text, self._parser, self._transformer)
