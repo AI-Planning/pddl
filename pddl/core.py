@@ -9,7 +9,6 @@
 # license that can be found in the LICENSE file or at
 # https://opensource.org/licenses/MIT.
 #
-
 """
 Core module of the package.
 
@@ -34,7 +33,15 @@ from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant
 from pddl.requirements import Requirements
 
-from pddl.formatter import sort_and_print_collection, print_types_or_functions_with_parents, print_predicates_with_types, remove_empty_lines, print_constants, print_function_skeleton, indent
+from pddl.formatter import (
+    sort_and_print_collection,
+    print_types_or_functions_with_parents,
+    print_predicates_with_types,
+    remove_empty_lines,
+    print_constants,
+    print_function_skeleton,
+    indent,
+)
 
 
 class Domain:
@@ -213,9 +220,9 @@ class Problem:
         self._domain, self._domain_name = self._parse_domain_and_domain_name(
             domain, domain_name
         )
-        self._requirements: Optional[
-            AbstractSet[Requirements]
-        ] = self._parse_requirements(domain, requirements)
+        self._requirements: Optional[AbstractSet[Requirements]] = (
+            self._parse_requirements(domain, requirements)
+        )
         self._objects: AbstractSet[Constant] = ensure_set(objects)
         self._init: AbstractSet[Formula] = ensure_set(init)
         self._goal: Formula = ensure(goal, And())
@@ -380,4 +387,3 @@ class Problem:
         result = result + "\n" + indent(body, indentation) + "\n)"
         result = remove_empty_lines(result)
         return result
-
