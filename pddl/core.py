@@ -220,9 +220,9 @@ class Problem:
         self._domain, self._domain_name = self._parse_domain_and_domain_name(
             domain, domain_name
         )
-        self._requirements: Optional[AbstractSet[Requirements]] = (
-            self._parse_requirements(domain, requirements)
-        )
+        self._requirements: Optional[
+            AbstractSet[Requirements]
+        ] = self._parse_requirements(domain, requirements)
         self._objects: AbstractSet[Constant] = ensure_set(objects)
         self._init: AbstractSet[Formula] = ensure_set(init)
         self._goal: Formula = ensure(goal, And())
