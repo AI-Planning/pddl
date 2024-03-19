@@ -11,7 +11,6 @@
 #
 
 """Formatting utilities for PDDL domains and problems."""
-from textwrap import indent
 from typing import Callable, Collection, Dict, List, Optional, TypeVar
 
 from pddl.custom_types import name
@@ -33,6 +32,20 @@ def sort_and_print_collection(
     to_string: Callable = str,
     is_mandatory: bool = False,
 ):
+    """Given a collection (requirements, actions, objects, etc.) produced its sorted string version with prefix and postfix strings.
+    Prefix is used to start with strings like "(:requirements"  or "(:actions"
+    Postfix is used to close the structure, usually with ")\n"
+
+    Args:
+        prefix (str): start of the string
+        collection (Collection): the collection of entities to report as a string
+        postfix (str): the end of the string
+        to_string (Callable, optional): the function to use to convert to string. Defaults to str.
+        is_mandatory (bool, optional): if the string is mandatory even if the collection is empty. Defaults to False.
+
+    Returns:
+        str: a string with <prefix> <string of collection> <postfix>
+    """
     if len(collection) > 0:
         return prefix + " ".join(sorted(map(to_string, collection))) + postfix
     elif is_mandatory:

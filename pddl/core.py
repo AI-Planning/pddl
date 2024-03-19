@@ -14,6 +14,7 @@ Core module of the package.
 
 It contains the class definitions to build and modify PDDL domains or problems.
 """
+from textwrap import indent
 from typing import AbstractSet, Collection, Dict, Optional, Tuple, cast
 
 from pddl._validation import (
@@ -26,22 +27,20 @@ from pddl._validation import (
 from pddl.action import Action
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
+from pddl.formatter import (
+    print_constants,
+    print_function_skeleton,
+    print_predicates_with_types,
+    print_types_or_functions_with_parents,
+    remove_empty_lines,
+    sort_and_print_collection,
+)
 from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
 from pddl.logic.functions import FunctionExpression, Metric, NumericFunction
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant
 from pddl.requirements import Requirements
-
-from pddl.formatter import (
-    sort_and_print_collection,
-    print_types_or_functions_with_parents,
-    print_predicates_with_types,
-    remove_empty_lines,
-    print_constants,
-    print_function_skeleton,
-    indent,
-)
 
 
 class Domain:
@@ -220,9 +219,9 @@ class Problem:
         self._domain, self._domain_name = self._parse_domain_and_domain_name(
             domain, domain_name
         )
-        self._requirements: Optional[
-            AbstractSet[Requirements]
-        ] = self._parse_requirements(domain, requirements)
+        self._requirements: Optional[AbstractSet[Requirements]] = (
+            self._parse_requirements(domain, requirements)
+        )
         self._objects: AbstractSet[Constant] = ensure_set(objects)
         self._init: AbstractSet[Formula] = ensure_set(init)
         self._goal: Formula = ensure(goal, And())
