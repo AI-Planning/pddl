@@ -32,9 +32,11 @@ def sort_and_print_collection(
     to_string: Callable = str,
     is_mandatory: bool = False,
 ):
-    """Given a collection (requirements, actions, objects, etc.) produced its sorted string version with prefix and postfix strings.
-    Prefix is used to start with strings like "(:requirements"  or "(:actions"
-    Postfix is used to close the structure, usually with ")\n"
+    r"""Produce the string of a PDDL section for a collection (e.g., requirements, actions, objects, etc.).
+
+    Prefix starts the PDDL section, like "(:requirements"  or "(:actions"
+    Postfix ends the section, usually with ")\n"
+    The collection is sorted and printed as a string, using to_string to convert each element to a string.
 
     Args:
         prefix (str): start of the string
@@ -81,6 +83,7 @@ def print_constants(
 
 
 def print_predicates_with_types(predicates: Collection):
+    """Generate a string with predicates with type tags for the :predicates section."""
     result = ""
     for p in sorted(predicates):
         if p.arity == 0:
