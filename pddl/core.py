@@ -9,12 +9,12 @@
 # license that can be found in the LICENSE file or at
 # https://opensource.org/licenses/MIT.
 #
-
 """
 Core module of the package.
 
 It contains the class definitions to build and modify PDDL domains or problems.
 """
+from textwrap import indent
 from typing import AbstractSet, Collection, Dict, Optional, Tuple, cast
 
 from pddl._validation import (
@@ -27,6 +27,14 @@ from pddl._validation import (
 from pddl.action import Action
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
+from pddl.formatter import (
+    print_constants,
+    print_function_skeleton,
+    print_predicates_with_types,
+    print_types_or_functions_with_parents,
+    remove_empty_lines,
+    sort_and_print_collection,
+)
 from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
 from pddl.logic.functions import FunctionExpression, Metric, NumericFunction
@@ -147,6 +155,36 @@ class Domain:
             and self.derived_predicates == other.derived_predicates
             and self.actions == other.actions
         )
+
+    def __str__(self) -> str:
+        """Print a PDDL domain object."""
+        result = f"(define (domain {self.name})"
+        body = ""
+        indentation = " " * 4
+        body += sort_and_print_collection("(:requirements ", self.requirements, ")\n")
+        body += print_types_or_functions_with_parents("(:types", self.types, ")\n")
+        body += print_constants("(:constants", self.constants, ")\n")
+        if self.predicates:
+            body += f"(:predicates {print_predicates_with_types(self.predicates)})\n"
+        if self.functions:
+            body += print_types_or_functions_with_parents(
+                "(:functions", self.functions, ")\n", print_function_skeleton
+            )
+        body += sort_and_print_collection(
+            "",
+            self.derived_predicates,
+            "",
+            to_string=lambda obj: str(obj) + "\n",
+        )
+        body += sort_and_print_collection(
+            "",
+            self.actions,
+            "",
+            to_string=lambda obj: str(obj) + "\n",
+        )
+        result = result + "\n" + indent(body, indentation) + "\n)"
+        result = remove_empty_lines(result)
+        return result
 
 
 class Problem:
@@ -331,3 +369,20 @@ class Problem:
             and self.goal == other.goal
             and self.metric == other.metric
         )
+
+    def __str__(self) -> str:
+        """Print a PDDL problem object."""
+        result = f"(define (problem {self.name})"
+        body = f"(:domain {self.domain_name})\n"
+        indentation = " " * 4
+        body += sort_and_print_collection("(:requirements ", self.requirements, ")\n")
+        if self.objects:
+            body += print_constants("(:objects", self.objects, ")\n")
+        body += sort_and_print_collection(
+            "(:init ", self.init, ")\n", is_mandatory=True
+        )
+        body += f"{'(:goal ' + str(self.goal) + ')'}\n"
+        body += f"{'(:metric ' + str(self.metric) + ')'}\n" if self.metric else ""
+        result = result + "\n" + indent(body, indentation) + "\n)"
+        result = remove_empty_lines(result)
+        return result
