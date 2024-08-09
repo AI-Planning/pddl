@@ -60,7 +60,7 @@ def blocksworld_fond_domain():
         ),
         AndEffect(
             on(x, table),
-            When(~EqualTo(z, table), ~on(x, z) & clear(z)),
+            When(~EqualTo(z, table), AndEffect(~on(x, z), clear(z))),
             When(~EqualTo(y, table), ~clear(y)),
         ),
     )
