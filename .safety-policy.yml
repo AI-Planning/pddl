@@ -1,0 +1,4 @@
+security:
+  ignore-vulnerabilities:
+    70612:
+      reason: "This seems to refer to a broken vulnerability for every Jinja version."
