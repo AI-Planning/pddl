@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 import mistune
+import mistune.renderers
 import pytest
 
 MISTUNE_BLOCK_CODE_ID = "block_code"
@@ -55,7 +56,7 @@ class BaseTestMarkdownDocs:
         if cls.MD_FILE is None:
             raise ValueError("cannot set up method as MD_FILE is None")
         content = cls.MD_FILE.read_text()
-        markdown_parser = mistune.create_markdown(renderer=mistune.AstRenderer())
+        markdown_parser = mistune.create_markdown(renderer="ast")
         cls.blocks = markdown_parser(content)
         cls.code_blocks = list(filter(cls.block_code_filter, cls.blocks))
 
@@ -78,7 +79,7 @@ class BaseTestMarkdownDocs:
         """
         if type_ is None:
             return True
-        return b["info"].strip() == type_ if b["info"] is not None else False
+        return b["type"].strip() == type_ if b["type"] is not None else False
 
     @classmethod
     def extract_code_blocks(cls, filter_: Optional[str] = None):
@@ -105,7 +106,7 @@ class BasePythonMarkdownDocs(BaseTestMarkdownDocs):
     @classmethod
     def _python_selector(cls, block: Dict) -> bool:
         return block["type"] == MISTUNE_BLOCK_CODE_ID and (
-            block["info"].strip() == "python" if block["info"] else False
+            block["type"].strip() == "python" if block["type"] else False
         )
 
     def _assert(self, locals_, *mocks):
