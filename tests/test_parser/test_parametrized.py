@@ -14,7 +14,7 @@
 from pathlib import Path
 
 import pytest
-from pytest import lazy_fixture  # type:ignore  # noqa
+from pytest_lazy_fixtures import lf as lazy_fixture  # type:ignore  # noqa
 
 from pddl.core import Domain, Problem
 from tests.conftest import (
