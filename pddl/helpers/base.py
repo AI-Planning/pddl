@@ -154,7 +154,7 @@ class RegexConstrainedString(str):
 
     def __new__(cls, value, *args, **kwargs):
         """Instantiate a new object."""
-        if type(value) == cls:
+        if type(value) is cls:
             return value
         else:
             inst = super(RegexConstrainedString, cls).__new__(cls, value)
