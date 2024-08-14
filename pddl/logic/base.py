@@ -131,21 +131,12 @@ class BinaryOpMetaclass(type):
 
         return super(BinaryOpMetaclass, cls).__call__(*operands, **kwargs)
 
-
-@functools.total_ordering
 class And(BinaryOp, metaclass=BinaryOpMetaclass):
     """And operator."""
 
     _absorbing = False
     idempotency = True
     SYMBOL = "and"
-
-    def __lt__(self, other) -> bool:
-        """Compare with another object."""
-        if isinstance(other, And):
-            return tuple(self.operands) < tuple(other.operands)
-        return super().__lt__(other)
-
 
 class Or(BinaryOp, metaclass=BinaryOpMetaclass):
     """Or operator."""

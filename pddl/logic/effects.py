@@ -126,5 +126,5 @@ class Forall:
 
 PEffect = Union[Atomic, Not]
 CEffect = Union[Forall, When, OneOf, "PEffect"]
-Effect = Union[And["CEffect"], CEffect]
-CondEffect = Union[And["PEffect"], "PEffect"]
+Effect = Union[And, CEffect]
+CondEffect = Union[And, "PEffect"]

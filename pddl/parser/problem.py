@@ -44,7 +44,7 @@ from pddl.requirements import Requirements
 class ProblemTransformer(Transformer[Any, Problem]):
     """Problem Transformer."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the problem transformer."""
         super().__init__()
 

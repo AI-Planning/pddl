@@ -136,7 +136,7 @@ def test_numerical_hello_world_domain_formatter():
             "    (:action say-hello-world",
             "        :parameters (?neighbor)",
             "        :precondition (<= (hello_counter ?neighbor) 3)",
-            "        :effect (and (increase (hello_counter ?neighbor) 1))",
+            "        :effect (increase (hello_counter ?neighbor) 1)",
             "    )",
             ")",
         )
