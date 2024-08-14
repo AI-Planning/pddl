@@ -131,12 +131,14 @@ class BinaryOpMetaclass(type):
 
         return super(BinaryOpMetaclass, cls).__call__(*operands, **kwargs)
 
+
 class And(BinaryOp, metaclass=BinaryOpMetaclass):
     """And operator."""
 
     _absorbing = False
     idempotency = True
     SYMBOL = "and"
+
 
 class Or(BinaryOp, metaclass=BinaryOpMetaclass):
     """Or operator."""
