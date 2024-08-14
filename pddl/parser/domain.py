@@ -11,7 +11,7 @@
 #
 
 """Implementation of the PDDL domain parser."""
-from typing import Any, Dict, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
 
 from lark import Lark, ParseError, Transformer
 
@@ -21,7 +21,7 @@ from pddl.custom_types import name
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_, call_parser
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
-from pddl.logic.effects import AndEffect, Forall, When
+from pddl.logic.effects import Forall, When
 from pddl.logic.functions import Assign, Decrease, Divide
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
@@ -50,7 +50,7 @@ from pddl.requirements import Requirements, _extend_domain_requirements
 class DomainTransformer(Transformer[Any, Domain]):
     """Domain Transformer."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Initialize the domain transformer."""
         super().__init__(*args, **kwargs)
 
@@ -258,7 +258,7 @@ class DomainTransformer(Transformer[Any, Domain]):
         if len(args) == 1:
             return args[0]
         if args[1] == Symbols.AND.value:
-            return AndEffect(*args[2:-1])
+            return And(*args[2:-1])
         raise ValueError("case not recognized")
 
     def c_effect(self, args):
@@ -337,10 +337,12 @@ class DomainTransformer(Transformer[Any, Domain]):
             raise ParseError(f"Constant '{args[0]}' not defined.")
         return constant
 
-    def _formula_skeleton(self, args):
+    def _formula_skeleton(self, args) -> Sequence[Variable]:
         """Process the '_formula_skeleton' rule."""
-        variable_data: Dict[str, Set[str]] = args[2]
-        variables = [Variable(var_name, tags) for var_name, tags in variable_data]
+        variable_data: Tuple[Tuple[str, Set[str]], ...] = args[2]
+        variables: List[Variable] = [
+            Variable(var_name, tags) for var_name, tags in variable_data
+        ]
         return variables
 
     def atomic_formula_skeleton(self, args):

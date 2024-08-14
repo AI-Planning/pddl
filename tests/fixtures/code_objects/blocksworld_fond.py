@@ -17,7 +17,7 @@ from pddl.action import Action
 from pddl.core import Domain, Problem
 from pddl.logic import Constant
 from pddl.logic.base import And, OneOf
-from pddl.logic.effects import AndEffect, When
+from pddl.logic.effects import When
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.requirements import Requirements
@@ -52,15 +52,15 @@ def blocksworld_fond_domain():
         & ~EqualTo(x, table)
     )
     put_on_effect = OneOf(
-        AndEffect(
+        And(
             on(x, y),
             ~on(x, z),
             When(~EqualTo(z, table), clear(z)),
             When(~EqualTo(y, table), ~clear(y)),
         ),
-        AndEffect(
+        And(
             on(x, table),
-            When(~EqualTo(z, table), ~on(x, z) & clear(z)),
+            When(~EqualTo(z, table), And(~on(x, z), clear(z))),
             When(~EqualTo(y, table), ~clear(y)),
         ),
     )

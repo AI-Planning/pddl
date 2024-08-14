@@ -23,8 +23,8 @@ from pddl.custom_types import namelike, to_names, to_types  # noqa: F401
 from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import check, ensure, ensure_set, find_cycle
 from pddl.logic import Predicate
-from pddl.logic.base import BinaryOp, QuantifiedCondition, UnaryOp
-from pddl.logic.effects import AndEffect, Forall, When
+from pddl.logic.base import And, BinaryOp, QuantifiedCondition, UnaryOp
+from pddl.logic.effects import Forall, When
 from pddl.logic.functions import (
     BinaryFunction,
     FunctionExpression,
@@ -285,7 +285,7 @@ class TypeChecker:
         self.check_type(formula.condition)
 
     @check_type.register
-    def _(self, effect: AndEffect) -> None:
+    def _(self, effect: And) -> None:
         """Check types annotations of a PDDL and-effect."""
         self.check_type(effect.operands)
 

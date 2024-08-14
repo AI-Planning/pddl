@@ -16,7 +16,6 @@ import pytest
 from pddl.action import Action
 from pddl.core import Domain, Problem
 from pddl.logic.base import And, OneOf
-from pddl.logic.effects import AndEffect
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
 from pddl.requirements import Requirements
@@ -46,10 +45,10 @@ def triangle_tireworld_domain():
     move_car_name = "move-car"
     move_car_parameters = [from_, to]
     move_car_precondition = vehicleat(from_) & road(from_, to) & not_flattire
-    move_car_effect = AndEffect(
+    move_car_effect = And(
         OneOf(
-            AndEffect(vehicleat(to), ~vehicleat(from_)),
-            AndEffect(vehicleat(to), ~vehicleat(from_), ~not_flattire),
+            And(vehicleat(to), ~vehicleat(from_)),
+            And(vehicleat(to), ~vehicleat(from_), ~not_flattire),
         )
     )
     move_car = Action(
@@ -60,7 +59,7 @@ def triangle_tireworld_domain():
     changetire_name = "changetire"
     changetire_parameters = [loc]
     changetire_precondition = spare_in(loc) & vehicleat(loc)
-    changetire_effect = AndEffect(~spare_in(loc), not_flattire)
+    changetire_effect = And(~spare_in(loc), not_flattire)
     changetire = Action(
         changetire_name,
         changetire_parameters,
