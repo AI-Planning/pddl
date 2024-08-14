@@ -58,9 +58,7 @@ def blocksworld_domain():
     pick_up_from_table_name = "pick-up-from-table"
     pick_up_from_table_parameters = [b]
     pick_up_from_table_precondition = emptyhand & clear(b) & on_table(b)
-    pick_up_from_table_effect = OneOf(
-        And(), And(holding(b), ~emptyhand, ~on_table(b))
-    )
+    pick_up_from_table_effect = OneOf(And(), And(holding(b), ~emptyhand, ~on_table(b)))
     pick_up_from_table = Action(
         pick_up_from_table_name,
         pick_up_from_table_parameters,
