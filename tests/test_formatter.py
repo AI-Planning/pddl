@@ -21,8 +21,7 @@ from pddl.action import Action
 from pddl.core import Domain, Problem
 from pddl.formatter import domain_to_string, problem_to_string
 from pddl.logic import Constant, Variable, constants
-from pddl.logic.base import ForallCondition
-from pddl.logic.effects import AndEffect
+from pddl.logic.base import And, ForallCondition
 from pddl.logic.functions import (
     EqualTo,
     GreaterEqualThan,
@@ -119,7 +118,7 @@ def test_numerical_hello_world_domain_formatter():
         "say-hello-world",
         parameters=[neighbor],
         precondition=LesserEqualThan(hello_counter, NumericValue(3)),
-        effect=AndEffect(Increase(hello_counter, NumericValue(1))),
+        effect=And(Increase(hello_counter, NumericValue(1))),
     )
 
     domain = Domain(

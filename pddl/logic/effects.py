@@ -12,56 +12,15 @@
 
 """This modules implements PDDL effects."""
 import functools
-from typing import AbstractSet, Collection, Generic, Optional, Sequence, TypeVar, Union
+from typing import AbstractSet, Collection, Optional, TypeVar, Union
 
 from pddl.helpers.base import _typed_parameters, ensure_set
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic import Variable
-from pddl.logic.base import Atomic, Formula, Not, OneOf
+from pddl.logic.base import And, Atomic, Formula, Not, OneOf
 from pddl.parser.symbols import Symbols
 
 EffectType = TypeVar("EffectType")
-
-
-@cache_hash
-@functools.total_ordering
-class AndEffect(Generic[EffectType]):
-    """Conjunction of effects."""
-
-    def __init__(self, *operands: EffectType):
-        """
-        Initialize a conjunction of (conditional) effects.
-
-        :param operands: the operands.
-        """
-        self._operands = list(operands)
-
-    @property
-    def operands(self) -> Sequence[EffectType]:
-        """Get the operands."""
-        return tuple(self._operands)
-
-    def __str__(self) -> str:
-        """Get the string representation."""
-        return f"({Symbols.AND.value} {' '.join(map(str, self.operands))})"
-
-    def __repr__(self) -> str:
-        """Get an unambiguous string representation."""
-        return f"{type(self).__name__}({repr(self._operands)})"
-
-    def __eq__(self, other):
-        """Compare with another object."""
-        return isinstance(other, type(self)) and self.operands == other.operands
-
-    def __lt__(self, other) -> bool:
-        """Compare with another object."""
-        if isinstance(other, AndEffect):
-            return tuple(self.operands) < tuple(other.operands)
-        return super().__lt__(other)  # type: ignore
-
-    def __hash__(self) -> int:
-        """Compute the hash of the object."""
-        return hash((type(self), self.operands))
 
 
 @cache_hash
@@ -167,5 +126,5 @@ class Forall:
 
 PEffect = Union[Atomic, Not]
 CEffect = Union[Forall, When, OneOf, "PEffect"]
-Effect = Union[AndEffect["CEffect"], CEffect]
-CondEffect = Union[AndEffect["PEffect"], "PEffect"]
+Effect = Union[And["CEffect"], CEffect]
+CondEffect = Union[And["PEffect"], "PEffect"]

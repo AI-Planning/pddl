@@ -21,7 +21,7 @@ from pddl.custom_types import name
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_, call_parser
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
-from pddl.logic.effects import AndEffect, Forall, When
+from pddl.logic.effects import Forall, When
 from pddl.logic.functions import Assign, Decrease, Divide
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
@@ -258,7 +258,7 @@ class DomainTransformer(Transformer[Any, Domain]):
         if len(args) == 1:
             return args[0]
         if args[1] == Symbols.AND.value:
-            return AndEffect(*args[2:-1])
+            return And(*args[2:-1])
         raise ValueError("case not recognized")
 
     def c_effect(self, args):
@@ -287,7 +287,7 @@ class DomainTransformer(Transformer[Any, Domain]):
         """Process the 'cond_effect' rule."""
         if len(args) >= 3 and args[1] == Symbols.AND.value:
             p_effects = args[2:-1]
-            return AndEffect(*p_effects)
+            return And(*p_effects)
         assert_(len(args) == 1)
         return args[0]
 
