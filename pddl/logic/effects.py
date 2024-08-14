@@ -12,15 +12,13 @@
 
 """This modules implements PDDL effects."""
 import functools
-from typing import AbstractSet, Collection, Optional, TypeVar, Union
+from typing import AbstractSet, Collection, Optional, Union
 
 from pddl.helpers.base import _typed_parameters, ensure_set
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic import Variable
 from pddl.logic.base import And, Atomic, Formula, Not, OneOf
 from pddl.parser.symbols import Symbols
-
-EffectType = TypeVar("EffectType")
 
 
 @cache_hash
