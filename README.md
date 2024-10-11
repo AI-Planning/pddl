@@ -84,7 +84,6 @@ programmatically:
 from pddl.logic import Predicate, constants, variables
 from pddl.core import Domain, Problem
 from pddl.action import Action
-from pddl.formatter import domain_to_string, problem_to_string
 from pddl.requirements import Requirements
 
 # set up variables and constants
@@ -112,7 +111,7 @@ domain = Domain("my_domain",
                 predicates=[p1, p2],
                 actions=[a1])
 
-print(domain_to_string(domain))
+print(domain)
 ```
 
 that gives:
@@ -140,7 +139,7 @@ problem = Problem(
     init=[p1(a, b, c), ~p2(b, c)],
     goal=p2(b, c)
 )
-print(problem_to_string(problem))
+print(problem)
 ```
 
 Output:
@@ -227,7 +226,7 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 `pddl` is released under the MIT License.
 
-Copyright (c) 2021-2022 WhiteMech
+Copyright (c) 2021-2023 WhiteMech
 
 ## Acknowledgements
 
