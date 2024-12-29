@@ -20,9 +20,6 @@ from setuptools import setup, find_packages
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-with open('CHANGES.md') as history_file:
-    history = history_file.read()
-
 here = os.path.abspath(os.path.dirname(__file__))
 about = {}
 with open(os.path.join(here, 'pddl', '__version__.py'), 'r') as f:
@@ -41,7 +38,7 @@ setup(
     author=about['__author__'],
     url=about['__url__'],
     author_email=about["__author_email__"],
-    long_description=readme + '\n\n' + history,
+    long_description=readme,
     long_description_content_type="text/markdown",
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
