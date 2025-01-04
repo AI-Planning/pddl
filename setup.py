@@ -1,5 +1,5 @@
 #
-# Copyright 2021-2023 WhiteMech
+# Copyright 2021-2025 WhiteMech
 #
 # ------------------------------
 #
@@ -20,9 +20,6 @@ from setuptools import setup, find_packages
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-with open('CHANGES.md') as history_file:
-    history = history_file.read()
-
 here = os.path.abspath(os.path.dirname(__file__))
 about = {}
 with open(os.path.join(here, 'pddl', '__version__.py'), 'r') as f:
@@ -41,7 +38,7 @@ setup(
     author=about['__author__'],
     url=about['__url__'],
     author_email=about["__author_email__"],
-    long_description=readme + '\n\n' + history,
+    long_description=readme,
     long_description_content_type="text/markdown",
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -49,12 +46,12 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ],
-    python_requires='>=3.8',
+    python_requires='>=3.9',
     install_requires=install_requires,
     license=about["__license__"],
     include_package_data=True,

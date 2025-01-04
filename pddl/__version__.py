@@ -1,5 +1,5 @@
 #
-# Copyright 2021-2023 WhiteMech
+# Copyright 2021-2025 WhiteMech
 #
 # ------------------------------
 #
@@ -15,10 +15,10 @@
 __title__ = "pddl"
 __description__ = "PDDL parser"
 __url__ = "https://github.com/AI-Planning/pddl.git"
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 __author__ = "Marco Favorito, Francesco Fuggitti, Christian Muise"
 __author_email__ = (
     "marco.favorito@gmail.com, francesco.fuggitti@gmail.com, christian.muise@queensu.ca"
 )
 __license__ = "MIT License"
-__copyright__ = "2021-2023 WhiteMech"
+__copyright__ = "2021-2025 WhiteMech"

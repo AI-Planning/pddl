@@ -199,7 +199,7 @@ If you want to contribute, here's how to set up your development environment.
 
 - Install [Pipenv](https://pipenv-fork.readthedocs.io/en/latest/)
 - Clone the repository: `git clone https://github.com/AI-Planning/pddl.git && cd pddl`
-- Install development dependencies: `pipenv shell --python 3.8 && pipenv install --dev`
+- Install development dependencies: `pipenv shell --python 3.9 && pipenv install --dev`
 
 ## Tests
 
@@ -226,7 +226,7 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 `pddl` is released under the MIT License.
 
-Copyright (c) 2021-2023 WhiteMech
+Copyright (c) 2021-2025 WhiteMech
 
 ## Acknowledgements
 

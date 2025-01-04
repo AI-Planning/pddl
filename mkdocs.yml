@@ -7,7 +7,6 @@ nav:
     - Home: index.md
     - Credits: authors.md
     - How to contribute: contributing.md
-    - Change Log: changelog.md
     - References: references.md
 
 theme:

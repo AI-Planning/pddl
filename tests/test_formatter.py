@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright 2021-2023 WhiteMech
+# Copyright 2021-2025 WhiteMech
 #
 # ------------------------------
 #
