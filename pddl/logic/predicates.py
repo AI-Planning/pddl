@@ -70,10 +70,6 @@ class Predicate(Atomic):
     def __call__(self, *terms: Term):
         """Replace terms."""
         assert_(len(terms) == self.arity, "Number of terms not correct.")
-        assert_(
-            all(t1.type_tags == t2.type_tags for t1, t2 in zip(self.terms, terms)),
-            "Types of replacements is not correct.",
-        )
         return Predicate(self.name, *terms)
 
     def __str__(self) -> str:
