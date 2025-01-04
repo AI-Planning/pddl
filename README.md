@@ -226,7 +226,7 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 `pddl` is released under the MIT License.
 
-Copyright (c) 2021-2023 WhiteMech
+Copyright (c) 2021-2025 WhiteMech
 
 ## Acknowledgements
 
