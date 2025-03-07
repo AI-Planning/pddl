@@ -113,7 +113,7 @@ objects:   LPAR OBJECTS typed_list_name RPAR
 
 init:                  LPAR INIT init_el* RPAR
 init_el:               literal_name
-       |               LPAR EQUAL_OP basic_function_term NUMBER RPAR
+       |               LPAR EQUAL_OP basic_function_term num_literal RPAR
 
 literal_name:          atomic_formula_name
             |          LPAR NOT atomic_formula_name RPAR
