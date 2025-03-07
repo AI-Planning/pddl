@@ -251,7 +251,8 @@ class DomainTransformer(Transformer[Any, Domain]):
 
     def num_literal(self, args):
         """Process the 'num_literal' rule."""
-        return float(args[0])
+        n = args[0]
+        return float(n) if "." in n else int(n)
 
     def emptyor_effect(self, args):
         """Process the 'emptyor_effect' rule."""
