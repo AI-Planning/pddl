@@ -16,7 +16,7 @@ from textwrap import dedent
 import lark
 import pytest
 
-from pddl.logic.functions import BinaryFunction, Increase, NumericFunction
+from pddl.logic.functions import BinaryFunction, Increase, NumericFunction, NumericValue
 from pddl.logic.predicates import Predicate
 from pddl.logic.terms import Variable
 from pddl.parser.domain import DomainParser
@@ -376,3 +376,35 @@ def test_variable_types_in_numeric_action_definition() -> None:
     assert isinstance(action.effect, Increase)
     assert isinstance(action.effect.operands[0], NumericFunction)
     assert action.effect.operands[0].terms == (x, y)
+
+
+def test_number_parsing() -> None:
+    """Check parsing of numbers in  action preconditions and effects."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :numeric-fluents)
+        (:functions (f ?x ?y))
+        (:action a
+            :parameters (?x ?y)
+            :precondition (<= 10 (f ?x ?y))
+            :effect (increase (f ?x ?y) 1.5)
+        )
+    )
+    """
+    )
+    domain = DomainParser()(domain_str)
+    action = next(iter(domain.actions))
+    x = Variable("x")
+    y = Variable("y")
+    assert action.parameters == (x, y)
+    f_precond = action.precondition
+    assert type(f_precond.operands[0]) is NumericValue
+    assert type(f_precond.operands[0].value) is float
+    assert f_precond.operands[0] == NumericValue(10)
+    assert f_precond.operands[1].terms == (x, y)
+    f_effect = action.effect
+    assert f_effect.operands[0].terms == (x, y)
+    assert type(f_effect.operands[1]) is NumericValue
+    assert type(f_effect.operands[1].value) is float
+    assert f_effect.operands[1] == NumericValue(1.5)
