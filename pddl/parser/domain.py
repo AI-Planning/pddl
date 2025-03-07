@@ -306,27 +306,24 @@ class DomainTransformer(Transformer[Any, Domain]):
         else:
             raise PDDLParsingError(f"Unrecognized assign operator: {args[1]}")
 
+    def _constant_or_variable(self, t):
+        """Get the constant or variable with the given name."""
+        # Case where the term is a free variable (bug) or comes from a parent quantifier
+        if not isinstance(t, Constant) and t not in self._current_parameters_by_name:
+            return Variable(str(t), {})
+        return t if isinstance(t, Constant) else self._current_parameters_by_name[t]
+
     def atomic_formula_term(self, args):
         """Process the 'atomic_formula_term' rule."""
-
-        def constant_or_variable(t):
-            # Case where the term is a free variable (bug) or comes from a parent quantifier
-            if (
-                not isinstance(t, Constant)
-                and t not in self._current_parameters_by_name
-            ):
-                return Variable(str(t), {})
-            return t if isinstance(t, Constant) else self._current_parameters_by_name[t]
-
         if args[1] == Symbols.EQUAL.value:
             if not bool({Requirements.EQUALITY} & self._extended_requirements):
                 raise PDDLMissingRequirementError(Requirements.EQUALITY)
-            left = constant_or_variable(args[2])
-            right = constant_or_variable(args[3])
+            left = self._constant_or_variable(args[2])
+            right = self._constant_or_variable(args[3])
             return EqualTo(left, right)
         else:
             predicate_name = args[1]
-            terms = list(map(constant_or_variable, args[2:-1]))
+            terms = list(map(self._constant_or_variable, args[2:-1]))
             return Predicate(predicate_name, *terms)
 
     def constant(self, args):
@@ -387,7 +384,7 @@ class DomainTransformer(Transformer[Any, Domain]):
         if len(args) == 1:
             return NumericFunction(args[0])
         function_name = args[1]
-        variables = [Variable(x, {}) for x in args[2:-1]]
+        variables = list(map(self._constant_or_variable, args[2:-1]))
         return NumericFunction(function_name, *variables)
 
     def typed_list_name(self, args) -> Dict[name, Optional[name]]:
