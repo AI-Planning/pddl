@@ -16,6 +16,9 @@ from textwrap import dedent
 import lark
 import pytest
 
+from pddl.logic.functions import BinaryFunction, Increase, NumericFunction
+from pddl.logic.predicates import Predicate
+from pddl.logic.terms import Variable
 from pddl.parser.domain import DomainParser
 from pddl.parser.symbols import Symbols
 from tests.conftest import TEXT_SYMBOLS
@@ -317,3 +320,59 @@ def test_check_action_costs_requirement_with_total_cost() -> None:
         match=r"action costs requirement is not specified, but the total-cost function is specified.",
     ):
         DomainParser()(domain_str)
+
+
+def test_variable_types_in_strips_action_definition() -> None:
+    """Check typing for predicate variables in action preconditions and effects."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing)
+        (:types t1 t2)
+        (:predicates (p ?x - t1 ?y - t2))
+        (:action a
+            :parameters (?x - t1 ?y - t2)
+            :precondition (p ?x ?y)
+            :effect (p ?x ?y)
+        )
+    )
+    """
+    )
+    domain = DomainParser()(domain_str)
+    action = next(iter(domain.actions))
+    x = Variable("x", {"t1"})
+    y = Variable("y", {"t2"})
+    assert action.parameters == (x, y)
+    assert isinstance(action.precondition, Predicate)
+    assert action.precondition.terms == (x, y)
+    assert isinstance(action.effect, Predicate)
+    assert action.effect.terms == (x, y)
+
+
+def test_variable_types_in_numeric_action_definition() -> None:
+    """Check typing for function variables in action preconditions and effects."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing :numeric-fluents)
+        (:types t1 t2)
+        (:functions (f ?x - t1 ?y - t2))
+        (:action a
+            :parameters (?x - t1 ?y - t2)
+            :precondition (<= 1 (f ?x ?y))
+            :effect (increase (f ?x ?y) 1)
+        )
+    )
+    """
+    )
+    domain = DomainParser()(domain_str)
+    action = next(iter(domain.actions))
+    x = Variable("x", {"t1"})
+    y = Variable("y", {"t2"})
+    assert action.parameters == (x, y)
+    assert isinstance(action.precondition, BinaryFunction)
+    assert isinstance(action.precondition.operands[1], NumericFunction)
+    assert action.precondition.operands[1].terms == (x, y)
+    assert isinstance(action.effect, Increase)
+    assert isinstance(action.effect.operands[0], NumericFunction)
+    assert action.effect.operands[0].terms == (x, y)
