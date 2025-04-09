@@ -130,25 +130,67 @@ def print_typed_lists(
     """Print typed lists."""
     result = prefix + " "
 
-    # names with no type will be printed at the end
-    names_with_none_types = names_by_obj.pop(None, [])
+    if ":types" in prefix:
+        # first print those types that have no parents
+        subtypes = set()
+        for subs in names_by_obj.values():
+            subtypes |= set(subs)
 
-    # print typed constants, first sorted by type, then by constant name
-    for type_tag, typed_names in sorted(
-        names_by_obj.items(), key=lambda type_and_name: type_and_name[0]  # type: ignore
-    ):
-        result += (
-            " ".join(sorted(to_string(n) for n in typed_names)) + " - " + type_tag + " "  # type: ignore
-        )
+        no_parents = (set(names_by_obj.keys()) - subtypes)
+        no_parents |= set(names_by_obj.get(None, []))
+        no_parents |= set(names_by_obj.get("object", []))
+        no_parents.discard(None)
+        no_parents.discard("object")
 
-    if len(names_with_none_types) == 0:
-        return result.strip() + postfix
+        result += "\n    " + " ".join(sorted(to_string(n) for n in no_parents)) + " - object\n"
 
-    # print constants with no type
-    result += " ".join(sorted(to_string(n) for n in names_with_none_types))
+        # sort the rest of the parent types based on (1) if their subtypes are already defined and (2) their name
+        remaining = sorted(set(names_by_obj.keys()) - set(["object", None]))
+        ind = 0
+        while remaining:
+            # get the first type and its subtypes
+            parent = remaining[ind]
+            subtypes = names_by_obj[parent]
+            assert subtypes
 
-    if result == prefix + " ":
-        result = result[:-1]
+            # check if parent is a subtype of something remaining
+            allsubtypes = set()
+            for k in remaining:
+                allsubtypes |= set(names_by_obj[k])
+            if parent in allsubtypes:
+                ind += 1
+            else:
+                # print the parent and its subtypes
+                result += "    " + (
+                    " ".join(sorted(to_string(n) for n in names_by_obj[parent])) + " - " + to_string(parent) + "\n"
+                )
+                # remove the parent from the remaining list
+                remaining.remove(parent)
+                # reset the index to 0
+                ind = 0
+        assert not remaining
+
+    else:
+        # names with no type will be printed at the end
+        names_with_none_types = names_by_obj.pop(None, [])
+
+        # print typed constants, first sorted by type, then by constant name
+        for type_tag, typed_names in sorted(
+            names_by_obj.items(), key=lambda type_and_name: type_and_name[0]
+        ):
+            result += (
+                " ".join(sorted(to_string(n) for n in typed_names)) + " - " + type_tag + " "
+            )
+
+        if len(names_with_none_types) == 0:
+            return result.strip() + postfix
+
+        # print constants with no type
+        result += " ".join(sorted(to_string(n) for n in names_with_none_types))
+
+        if result == prefix + " ":
+            result = result[:-1]
+
     result += postfix
 
     return result
