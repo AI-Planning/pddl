@@ -131,38 +131,48 @@ def print_typed_lists(
     result = prefix + " "
 
     if ":types" in prefix:
+        # for mypy, convert names_by_obj to a dict with keys being strings (or None) and values list of strings
+        super_to_subs = {
+            str(k) if k is not None else None: v for k, v in names_by_obj.items()
+        }
+
         # first print those types that have no parents
         subtypes = set()
-        for subs in names_by_obj.values():
+        for subs in super_to_subs.values():
             subtypes |= set(subs)
 
-        no_parents = (set(names_by_obj.keys()) - subtypes)
-        no_parents |= set(names_by_obj.get(None, []))
-        no_parents |= set(names_by_obj.get("object", []))
+        no_parents = set(super_to_subs.keys()) - subtypes
+        no_parents |= set(super_to_subs.get(None, []))
+        no_parents |= set(super_to_subs.get("object", []))
         no_parents.discard(None)
         no_parents.discard("object")
 
-        result += "\n    " + " ".join(sorted(to_string(n) for n in no_parents)) + " - object\n"
+        result += (
+            "\n    "
+            + " ".join(sorted(to_string(n) for n in no_parents))
+            + " - object\n"
+        )
 
         # sort the rest of the parent types based on (1) if their subtypes are already defined and (2) their name
-        remaining = sorted(set(names_by_obj.keys()) - set(["object", None]))
+        remaining = sorted(set(super_to_subs.keys()) - set(["object", None]))
         ind = 0
         while remaining:
             # get the first type and its subtypes
             parent = remaining[ind]
-            subtypes = names_by_obj[parent]
-            assert subtypes
 
             # check if parent is a subtype of something remaining
             allsubtypes = set()
             for k in remaining:
-                allsubtypes |= set(names_by_obj[k])
+                allsubtypes |= set(super_to_subs[k])
             if parent in allsubtypes:
                 ind += 1
             else:
                 # print the parent and its subtypes
                 result += "    " + (
-                    " ".join(sorted(to_string(n) for n in names_by_obj[parent])) + " - " + to_string(parent) + "\n"
+                    " ".join(sorted(to_string(n) for n in super_to_subs[parent]))
+                    + " - "
+                    + to_string(parent)
+                    + "\n"
                 )
                 # remove the parent from the remaining list
                 remaining.remove(parent)
