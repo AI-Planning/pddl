@@ -154,7 +154,7 @@ def print_typed_lists(
         )
 
         # sort the rest of the parent types based on (1) if their subtypes are already defined and (2) their name
-        remaining = sorted(set(super_to_subs.keys()) - set(["object", None]))
+        remaining = sorted(str(k) for k in super_to_subs if k not in ("object", None))
         ind = 0
         while remaining:
             # get the first type and its subtypes
@@ -186,10 +186,10 @@ def print_typed_lists(
 
         # print typed constants, first sorted by type, then by constant name
         for type_tag, typed_names in sorted(
-            names_by_obj.items(), key=lambda type_and_name: type_and_name[0]
+            names_by_obj.items(), key=lambda type_and_name: to_string(type_and_name[0])
         ):
             result += (
-                " ".join(sorted(to_string(n) for n in typed_names)) + " - " + type_tag + " "
+                " ".join(sorted(to_string(n) for n in typed_names)) + " - " + to_string(type_tag) + " "
             )
 
         if len(names_with_none_types) == 0:
