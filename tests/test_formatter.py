@@ -40,7 +40,7 @@ def test_domain_formatter(domain_parser, pddl_file: Path):
     expected_domain_obj = domain_parser(pddl_file.read_text())
     actual_domain_str = domain_to_string(expected_domain_obj)
     actual_domain_obj = domain_parser(actual_domain_str)
-    assert actual_domain_obj == expected_domain_obj
+    assert actual_domain_obj == expected_domain_obj, f"Domain mismatch for {str(pddl_file).split('/')[-2]}"
 
 
 @pytest.mark.parametrize("pddl_file", PROBLEM_FILES)
@@ -75,7 +75,10 @@ def test_typed_constants_formatting_in_domain() -> None:
         """\
     (define (domain my_domain)
         (:requirements :typing)
-        (:types type_2 type_3 - type_1 type_1)
+        (:types
+            type_1 - object
+            type_2 type_3 - type_1
+        )
         (:constants a b c - type_1 d e f - type_2 g h i - type_3 j k l)
     )"""
     )

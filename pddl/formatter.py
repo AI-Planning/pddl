@@ -128,7 +128,7 @@ def print_typed_lists(
     to_string: Callable = str,
 ):
     """Print typed lists."""
-    result = prefix + " "
+    result = prefix
 
     if ":types" in prefix:
         # for mypy, convert names_by_obj to a dict with keys being strings (or None) and values list of strings
@@ -181,6 +181,9 @@ def print_typed_lists(
         assert not remaining
 
     else:
+
+        result += " "
+
         # names with no type will be printed at the end
         names_with_none_types = names_by_obj.pop(None, [])
 
