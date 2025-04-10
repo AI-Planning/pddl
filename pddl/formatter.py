@@ -189,7 +189,10 @@ def print_typed_lists(
             names_by_obj.items(), key=lambda type_and_name: to_string(type_and_name[0])
         ):
             result += (
-                " ".join(sorted(to_string(n) for n in typed_names)) + " - " + to_string(type_tag) + " "
+                " ".join(sorted(to_string(n) for n in typed_names))
+                + " - "
+                + to_string(type_tag)
+                + " "
             )
 
         if len(names_with_none_types) == 0:
