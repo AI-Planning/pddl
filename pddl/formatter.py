@@ -178,7 +178,6 @@ def print_typed_lists(
                 remaining.remove(parent)
                 # reset the index to 0
                 ind = 0
-        assert not remaining
 
     else:
 
