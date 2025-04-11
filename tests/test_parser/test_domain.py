@@ -53,9 +53,9 @@ def test_hierarchical_types() -> None:
         "vehicle": "physobj",
         "airport": "place",
         "location": "place",
-        "city": "object",
-        "place": "object",
-        "physobj": "object",
+        "city": None,
+        "place": None,
+        "physobj": None,
     }
 
 
@@ -74,10 +74,10 @@ def test_hierarchical_types_2() -> None:
     )
     domain = DomainParser()(domain_str)
     assert domain.types == {
-        "hoist": "object",
-        "surface": "object",
-        "place": "object",
-        "area": "object",
+        "hoist": None,
+        "surface": None,
+        "place": None,
+        "area": None,
         "container": "place",
         "depot": "place",
         "storearea": "area",
