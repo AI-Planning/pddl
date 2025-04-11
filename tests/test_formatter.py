@@ -40,7 +40,9 @@ def test_domain_formatter(domain_parser, pddl_file: Path):
     expected_domain_obj = domain_parser(pddl_file.read_text())
     actual_domain_str = domain_to_string(expected_domain_obj)
     actual_domain_obj = domain_parser(actual_domain_str)
-    assert actual_domain_obj == expected_domain_obj, f"Domain mismatch for {str(pddl_file).split('/')[-2]}"
+    assert (
+        actual_domain_obj == expected_domain_obj
+    ), f"Domain mismatch for {str(pddl_file).split('/')[-2]}"
 
 
 @pytest.mark.parametrize("pddl_file", PROBLEM_FILES)
