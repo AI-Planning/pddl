@@ -157,6 +157,10 @@ def print_typed_lists(
         remaining = sorted(str(k) for k in super_to_subs if k not in ("object", None))
         ind = 0
         while remaining:
+            # if the index is out of range, we have a cycle in the types
+            if ind >= len(remaining):
+                raise ValueError("Cycle in types")
+
             # get the first type and its subtypes
             parent = remaining[ind]
 
