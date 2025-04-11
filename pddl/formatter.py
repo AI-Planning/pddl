@@ -189,13 +189,10 @@ def print_typed_lists(
 
         # print typed constants, first sorted by type, then by constant name
         for type_tag, typed_names in sorted(
-            names_by_obj.items(), key=lambda type_and_name: to_string(type_and_name[0])
+            names_by_obj.items(), key=lambda type_and_name: type_and_name[0]  # type: ignore
         ):
             result += (
-                " ".join(sorted(to_string(n) for n in typed_names))
-                + " - "
-                + to_string(type_tag)
-                + " "
+                " ".join(sorted(to_string(n) for n in typed_names)) + " - " + type_tag + " "  # type: ignore
             )
 
         if len(names_with_none_types) == 0:

@@ -1,6 +1,8 @@
 (define (domain triangle-tire)
   (:requirements :typing :strips :non-deterministic)
-  (:types location)
+  (:types
+    location - object
+  )
   (:predicates (vehicleat ?loc - location)
 	       (spare-in ?loc - location)
 	       (road ?from - location ?to - location)
@@ -8,7 +10,7 @@
   (:action move-car
     :parameters (?from - location ?to - location)
     :precondition (and (vehicleat ?from) (road ?from ?to) (not-flattire))
-    :effect (and 
+    :effect (and
 		 (oneof (and (vehicleat ?to) (not (vehicleat ?from)))
 			(and (vehicleat ?to) (not (vehicleat ?from)) (not (not-flattire))))))
 

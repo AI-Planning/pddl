@@ -2,6 +2,7 @@
 
 (:requirements :strips :non-deterministic :typing)
   (:types
+    NO_TYPE - object
     rover - NO_TYPE
     waypoint - NO_TYPE
     store - NO_TYPE
@@ -40,7 +41,7 @@
   )
   (:action navigate
     :parameters (?x0 - rover ?x1 - waypoint ?x2 - waypoint)
-    :precondition 
+    :precondition
       (and
         (can_traverse ?x0 ?x1 ?x2)
         (available ?x0)
@@ -49,13 +50,13 @@
     :effect
       (and
         (at ?x0 ?x2)
-        (not 
+        (not
           (at ?x0 ?x1))
       )
     )
   (:action sample_soil
     :parameters (?x0 - rover ?x1 - store ?x2 - waypoint)
-    :precondition 
+    :precondition
       (and
         (at ?x0 ?x2)
         (at_soil_sample ?x2)
@@ -68,15 +69,15 @@
           (and
             (full ?x1)
             (have_soil_analysis ?x0 ?x2)
-            (not 
+            (not
               (empty ?x1))
           )
-          (and 
+          (and
             (when (at_rock_sample ?x2)
               (and
                 (full ?x1)
                 (have_rock_analysis ?x0 ?x2)
-                (not 
+                (not
                   (empty ?x1))
               )
             )
@@ -86,7 +87,7 @@
     )
   (:action sample_rock
     :parameters (?x0 - rover ?x1 - store ?x2 - waypoint)
-    :precondition 
+    :precondition
       (and
         (at ?x0 ?x2)
         (at_rock_sample ?x2)
@@ -97,26 +98,26 @@
       (and
         (full ?x1)
         (have_rock_analysis ?x0 ?x2)
-        (not 
+        (not
           (empty ?x1))
       )
     )
   (:action drop
     :parameters (?x0 - rover ?x1 - store)
-    :precondition 
+    :precondition
       (and
         (store_of ?x1 ?x0)
         (full ?x1))
     :effect
       (and
         (empty ?x1)
-        (not 
+        (not
           (full ?x1))
       )
     )
   (:action calibrate
     :parameters (?x0 - rover ?x1 - camera ?x2 - objective ?x3 - waypoint)
-    :precondition 
+    :precondition
       (and
         (equipped_for_imaging ?x0)
         (calibration_target ?x1 ?x2)
@@ -127,7 +128,7 @@
 (calibrated ?x1 ?x0)    )
   (:action take_image
     :parameters (?x0 - rover ?x1 - waypoint ?x2 - objective ?x3 - camera ?x4 - mode)
-    :precondition 
+    :precondition
       (and
         (calibrated ?x3 ?x0)
         (on_board ?x3 ?x0)
@@ -141,13 +142,13 @@
           (have_image ?x0 ?x2 ?x4)
           (and)
         )
-        (not 
+        (not
           (calibrated ?x3 ?x0))
       )
     )
   (:action communicate_soil_data
     :parameters (?x0 - rover ?x1 - lander ?x2 - waypoint ?x3 - waypoint ?x4 - waypoint)
-    :precondition 
+    :precondition
       (and
         (at ?x0 ?x3)
         (at_lander ?x1 ?x4)
@@ -165,13 +166,13 @@
         (not
           (have_soil_analysis ?x0 ?x2))
         (available ?x0)
-        (not 
+        (not
           (channel_free ?x1))
       )
     )
   (:action communicate_rock_data
     :parameters (?x0 - rover ?x1 - lander ?x2 - waypoint ?x3 - waypoint ?x4 - waypoint)
-    :precondition 
+    :precondition
       (and
         (at ?x0 ?x3)
         (at_lander ?x1 ?x4)
@@ -186,16 +187,16 @@
           (communicatedrockdata ?x2)
           (and)
         )
-        (not 
+        (not
           (have_rock_analysis ?x0 ?x2))
         (available ?x0)
-        (not 
+        (not
           (channel_free ?x1))
       )
     )
   (:action communicate_image_data
     :parameters (?x0 - rover ?x1 - lander ?x2 - objective ?x3 - mode ?x4 - waypoint ?x5 - waypoint)
-    :precondition 
+    :precondition
       (and
         (at ?x0 ?x4)
         (at_lander ?x1 ?x5)
@@ -206,14 +207,14 @@
     :effect
       (and
         (channel_free ?x1)
-        (oneof 
+        (oneof
           (communicatedimagedata ?x2 ?x3)
           (and)
         )
         (not
           (have_image ?x0 ?x2 ?x3))
         (available ?x0)
-        (not 
+        (not
           (channel_free ?x1))
       )
     )
