@@ -1,6 +1,8 @@
 (define (domain tire-truck)
   (:requirements :typing :strips :non-deterministic :negative-preconditions)
-  (:types location tire)
+  (:types
+    location tire - object
+  )
   (:predicates (car-at ?loc - location)
                (truck-at ?loc - location)
                (tire-at ?t - tire ?loc - location)

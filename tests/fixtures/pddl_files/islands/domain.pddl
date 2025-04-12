@@ -2,7 +2,9 @@
 
 (define (domain islands)
   (:requirements :typing :strips :non-deterministic)
-  (:types location monkey)
+  (:types
+    location monkey - object
+  )
   (:predicates (person-at ?loc - location)
                (person-alive)
                (monkey-at ?m - monkey ?loc - location)
@@ -13,13 +15,13 @@
                (bridge-occupied)
                (monkey-on-bridge ?m - monkey)
                (bridge-drop-location ?loc - location))
-               
+
   (:action move-person
     :parameters (?from - location ?to - location)
     :precondition (and (person-at ?from) (road ?from ?to) (person-alive))
     :effect (and (person-at ?to) (not (person-at ?from)))
   )
-  
+
   (:action walk-on-bridge
     :parameters (?from - location ?to - location)
     :precondition (and (person-at ?from) (bridge-road ?from ?to) (bridge-clear) (person-alive))
@@ -30,7 +32,7 @@
     :parameters (?from - location ?to - location)
     :precondition (and (person-at ?from) (swim-road ?from ?to) (person-alive))
     :effect (and (not (person-at ?from)) (oneof (person-at ?to) (not (person-alive))))
-  )  
+  )
 
   (:action move-monkey
     :parameters (?from - location ?to - location ?m - monkey )

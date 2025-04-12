@@ -20,7 +20,7 @@
                 (cocktail-part2 ?c - cocktail ?i - ingredient))
 
 (:functions (total-cost) - number)
-		
+
   (:action grasp
              :parameters (?h - hand ?c - container)
              :precondition (and (ontable ?c) (handempty ?h))
@@ -36,7 +36,7 @@
 	     	     	  (handempty ?h)
 			  (ontable ?c)
 			  (increase (total-cost) 1)))
-  
+
   (:action fill-shot
            :parameters (?s - shot ?i - ingredient ?h1 ?h2 - hand ?d - dispenser)
            :precondition (and (holding ?h1 ?s)
@@ -53,7 +53,7 @@
 
   (:action refill-shot
            :parameters (?s - shot ?i - ingredient ?h1 ?h2 - hand ?d - dispenser)
-           :precondition (and (holding ?h1 ?s)	   		      
+           :precondition (and (holding ?h1 ?s)
                               (handempty ?h2)
 	   		      (dispenses ?d ?i)
                               (empty ?s)
@@ -73,7 +73,7 @@
   (:action clean-shot
   	   :parameters (?s - shot ?b - beverage ?h1 ?h2 - hand)
            :precondition (and (holding ?h1 ?s)
-                              (handempty ?h2)	   		      
+                              (handempty ?h2)
 			      (empty ?s)
                               (used ?s ?b))
            :effect (and (not (used ?s ?b))
@@ -85,7 +85,7 @@
            :precondition (and (holding ?h1 ?s)
 			      (contains ?s ?i)
                               (empty ?d)
-	   		      (clean ?d)                              
+	   		      (clean ?d)
                               (shaker-level ?d ?l)
                               (next ?l ?l1))
            :effect (and (not (contains ?s ?i))
@@ -108,7 +108,7 @@
                               (next ?l ?l1))
            :effect (and (not (contains ?s ?i))
                         (contains ?d ?i)
-	   	   	(empty ?s)     
+	   	   	(empty ?s)
   			(not (shaker-level ?d ?l))
 			(shaker-level ?d ?l1)
 			(increase (total-cost) 1)))
@@ -134,7 +134,7 @@
                               (empty ?s))
            :effect (and (clean ?s)
 			(increase (total-cost) 1)))
-  
+
   (:action shake
   	   :parameters (?b - cocktail ?d1 ?d2 - ingredient ?s - shaker ?h1 ?h2 - hand)
            :precondition (and (holding ?h1 ?s)
@@ -143,7 +143,7 @@
                               (contains ?s ?d2)
                               (cocktail-part1 ?b ?d1)
 			      (cocktail-part2 ?b ?d2)
-			      (unshaked ?s))			      
+			      (unshaked ?s))
            :effect (and (not (unshaked ?s))
 		        (not (contains ?s ?d1))
                         (not (contains ?s ?d2))

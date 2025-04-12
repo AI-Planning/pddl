@@ -5,7 +5,9 @@
 
 (define (domain cave-diving-adl)
   (:requirements :typing :action-costs :adl :numeric-fluents :action-costs)
-  (:types location diver tank quantity)
+  (:types
+       location diver tank quantity - object
+  )
   (:predicates
     (at-tank ?t - tank ?l - location)
     (in-storage ?t - tank)
@@ -34,7 +36,7 @@
   (:action hire-diver
     :parameters (?d1 - diver)
     :precondition (and      (available ?d1)
-                       (not (in-water)) 
+                       (not (in-water))
                   )
     :effect (and (at-surface ?d1)
                  (not (available ?d1))

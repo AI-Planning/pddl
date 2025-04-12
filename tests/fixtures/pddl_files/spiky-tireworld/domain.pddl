@@ -7,7 +7,9 @@
 
 (define (domain sptire)
   (:requirements :typing :strips :non-deterministic)
-  (:types location tire)
+  (:types
+    location tire - object
+  )
   (:predicates (vehicle-at ?loc - location)
                (tire-at ?t - tire ?loc - location)
                (road ?from - location ?to - location)
@@ -16,13 +18,13 @@
                (flattire)
                (hasspare ?t - tire)
                (not-hasspare))
-               
+
   (:action move-car-spiky
     :parameters (?from - location ?to - location)
     :precondition (and (vehicle-at ?from) (spiky-road ?from ?to) (not-flattire))
     :effect (and (vehicle-at ?to) (not (vehicle-at ?from)) (oneof (and) (and (not (not-flattire)) (flattire))))
   )
-  
+
   (:action move-car-normal
     :parameters (?from - location ?to - location)
     :precondition (and (vehicle-at ?from) (road ?from ?to) (not-flattire))

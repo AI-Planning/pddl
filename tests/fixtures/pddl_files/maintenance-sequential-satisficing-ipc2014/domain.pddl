@@ -8,7 +8,9 @@
 
 (define (domain maintenance-scheduling-domain)
  (:requirements :adl :typing :conditional-effects)
- (:types plane day airport)
+ (:types
+    plane day airport - object
+ )
  (:predicates  (done ?p - plane)
   (today ?d - day)
   (at ?p - plane ?d - day ?c - airport)

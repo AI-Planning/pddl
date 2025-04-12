@@ -3,7 +3,9 @@
 
 (define (domain beam-walk)
 	(:requirements :typing :strips :non-deterministic :negative-preconditions)
-	(:types location)
+	(:types
+		location - object
+	)
 	(:predicates
 		(up)
 		(position ?p - location)

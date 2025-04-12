@@ -1,6 +1,8 @@
 (define (domain zenotravel)
   (:requirements :typing :universal-preconditions :non-deterministic)
-  (:types aircraft person city flevel)
+  (:types
+    aircraft person city flevel - object
+  )
   (:predicates (atperson ?p - person ?c - city)
                (at-aircraft ?a - aircraft ?c - city)
 	       (boarding ?p - person ?a - aircraft)

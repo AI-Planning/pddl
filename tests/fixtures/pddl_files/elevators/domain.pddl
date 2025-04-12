@@ -1,6 +1,8 @@
 (define (domain elevators)
   (:requirements :non-deterministic :negative-preconditions :equality :typing)
-  (:types elevator floor pos coin)
+  (:types
+    elevator floor pos coin - object
+  )
   (:constants f1 - floor p1 - pos)
   (:predicates (dec_f ?f ?g - floor) (dec_p ?p ?q - pos) (in ?e - elevator ?f - floor) (at ?f - floor ?p - pos) (shaft ?e - elevator ?p - pos) (inside ?e - elevator) (gate ?f - floor ?p - pos) (coin-at ?c - coin ?f - floor ?p - pos) (have ?c - coin))
   (:action go-up

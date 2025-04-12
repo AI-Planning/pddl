@@ -3,7 +3,9 @@
 
 (define (domain acrobatics)
 	(:requirements :typing :strips :non-deterministic :negative-preconditions)
-	(:types location)
+	(:types
+		location - object
+	)
 	(:predicates
 		(up)
 		(position ?p - location)
@@ -32,7 +34,7 @@
 	(:action walk-right
 		:parameters (?from - location ?to - location)
 		:precondition (and (not (broken-leg)) (not (up)) (position ?from) (next-fwd ?from ?to))
-		:effect (and (position ?to) (not (position ?from)))	
+		:effect (and (position ?to) (not (position ?from)))
 	)
 
 	(:action climb
@@ -42,7 +44,7 @@
 	)
 
 	(:action climb-down
-		:parameters () 
+		:parameters ()
 		:precondition (and (not (broken-leg)) (up))
 		:effect (and (not (up)))
 	)
@@ -54,12 +56,12 @@
 	;; 4) agent falls from the beam, does not break its leg and falls at destination position
 	;; 5) agent falls from the beam, breaks its leg and fall at destination position
 	;; 6) agent falls on the beam at the destination position
-	
+
 	(:action jump-over
 		:parameters ( ?from - location ?middle - location ?to - location )
 		:precondition (and (not (broken-leg)) (up) (position ?from) (next-fwd ?from ?middle) (next-fwd ?middle ?to))
 		:effect (oneof
-				(and (not (up)) (broken-leg)) 
+				(and (not (up)) (broken-leg))
 				(and (not (up)) (broken-leg) (position ?middle) (not (position ?from)))
 				(and (not (up)) (position ?middle) (not (position ?from)))
 				(and (not (up)) (broken-leg) (position ?to) (not (position ?from)))

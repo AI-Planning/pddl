@@ -2,7 +2,9 @@
 
 (define (domain miner)
   (:requirements :typing :strips :non-deterministic)
-  (:types location rock)
+  (:types
+    location rock - object
+  )
   (:predicates (person-at ?loc - location)
                (botton-loc ?loc - location)
                (person-alive)
@@ -22,7 +24,7 @@
     :precondition (and (person-at ?from) (road ?from ?to) (person-alive))
     :effect (and (person-at ?to) (not (person-at ?from)))
   )
-  
+
   (:action pick-rock
     :parameters (?loc - location ?r - rock)
     :precondition (and (person-at ?loc) (rock-at ?r ?loc) (person-alive))

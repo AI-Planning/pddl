@@ -100,6 +100,9 @@ class DomainTransformer(Transformer[Any, Domain]):
         have_type_hierarchy = any(types_definition.values())
         if have_type_hierarchy and not has_typing_requirement:
             raise PDDLMissingRequirementError(Requirements.TYPING)
+        for k in types_definition:
+            if types_definition[k] == Symbols.OBJECT.value:
+                types_definition[k] = None
         return dict(types=types_definition)
 
     def constants(self, args):

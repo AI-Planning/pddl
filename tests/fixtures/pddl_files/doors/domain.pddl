@@ -1,6 +1,8 @@
 (define (domain doors)
   (:requirements :typing :strips :non-deterministic :negative-preconditions)
-  (:types location door)
+  (:types
+    location door - object
+  )
   (:predicates (open ?d - door)
                (closed ?d - door)
                (player-at ?loc - location)
