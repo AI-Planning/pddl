@@ -14,7 +14,7 @@
 import pytest
 
 from pddl.logic.functions import Metric, NumericFunction, NumericValue
-from pddl.logic.helpers import variables, constants
+from pddl.logic.helpers import constants, variables
 from pddl.parser.symbols import Symbols
 
 
