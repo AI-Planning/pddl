@@ -14,7 +14,7 @@
 import pytest
 
 from pddl.logic.functions import Metric, NumericFunction, NumericValue
-from pddl.logic.helpers import variables
+from pddl.logic.helpers import variables, constants
 from pddl.parser.symbols import Symbols
 
 
@@ -24,7 +24,9 @@ class TestNumericFunction:
     def setup_method(self):
         """Set up the tests."""
         self.a, self.b = variables("a b", types=["type1"])
+        self.c = constants("c")[0]
         self.function = NumericFunction("func", self.a, self.b)
+        self.function2 = NumericFunction("func2", self.a, self.c)
 
     def test_name(self):
         """Test name getter."""
@@ -46,6 +48,7 @@ class TestNumericFunction:
     def test_to_str(self):
         """Test to string."""
         assert str(self.function) == f"({self.function.name} {self.a} {self.b})"
+        assert str(self.function2) == f"({self.function2.name} {self.a} {self.c})"
 
     def test_to_repr(self):
         """Test to repr."""

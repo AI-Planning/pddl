@@ -13,7 +13,7 @@
 """This module contains tests for PDDL predicates."""
 from pddl.core import Predicate
 from pddl.logic.base import And
-from pddl.logic.helpers import variables
+from pddl.logic.helpers import variables, constants
 from pddl.logic.predicates import DerivedPredicate, EqualTo
 
 
@@ -23,7 +23,9 @@ class TestPredicateSimpleInitialisation:
     def setup_method(self):
         """Set up the tests."""
         self.a, self.b = variables("a b")
+        self.c = constants("c")[0]
         self.predicate = Predicate("P", self.a, self.b)
+        self.predicate2 = Predicate("P2", self.a, self.c)
 
     def test_name(self):
         """Test name getter."""
@@ -45,6 +47,7 @@ class TestPredicateSimpleInitialisation:
     def test_to_str(self):
         """Test to string."""
         assert str(self.predicate) == f"({self.predicate.name} {self.a} {self.b})"
+        assert str(self.predicate2) == f"({self.predicate2.name} {self.a} {self.c})"
 
     def test_to_repr(self):
         """Test to repr."""
