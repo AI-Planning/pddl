@@ -77,7 +77,6 @@ constant: NAME
 f_exp:      NUMBER
       |     LPAR binary_op f_exp f_exp RPAR
       |     LPAR multi_op f_exp f_exp+ RPAR
-      |     LPAR MINUS f_exp RPAR
       |     f_head
 
 f_head:     NAME
