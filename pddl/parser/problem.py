@@ -18,7 +18,7 @@ from lark import Lark, ParseError, Transformer
 from pddl.core import Problem
 from pddl.exceptions import PDDLParsingError
 from pddl.helpers.base import assert_, call_parser
-from pddl.logic.base import And, Not
+from pddl.logic.base import And, Not, Or
 from pddl.logic.functions import Divide
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
@@ -169,7 +169,7 @@ class ProblemTransformer(Transformer[Any, Problem]):
         elif args[1] == Symbols.AND.value:
             return And(*args[2:-1])
         elif args[1] == Symbols.OR.value:
-            return And(*args[2:-1])
+            return Or(*args[2:-1])
         elif args[1] in BINARY_COMP_SYMBOLS:
             return self.gd_binary_comparison(args)
         else:
