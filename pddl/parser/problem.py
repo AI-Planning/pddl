@@ -168,6 +168,8 @@ class ProblemTransformer(Transformer[Any, Problem]):
             return Not(args[2])
         elif args[1] == Symbols.AND.value:
             return And(*args[2:-1])
+        elif args[1] == Symbols.OR.value:
+            return And(*args[2:-1])
         elif args[1] in BINARY_COMP_SYMBOLS:
             return self.gd_binary_comparison(args)
         else:

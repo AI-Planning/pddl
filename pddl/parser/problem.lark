@@ -24,7 +24,8 @@ atomic_formula_name:   LPAR predicate NAME* RPAR
 goal:  LPAR GOAL gd_name RPAR
 
 gd_name:    atomic_formula_name
-       |    LPAR NOT atomic_formula_name RPAR
+       |    LPAR OR gd_name* RPAR
+       |    LPAR NOT gd_name RPAR
        |    LPAR AND gd_name* RPAR
        |    LPAR binary_comp metric_f_exp metric_f_exp RPAR
 
@@ -71,6 +72,7 @@ GOAL: ":goal"
 %import .common.EFFECT -> EFFECT
 %import .common.OBJECT -> OBJECT
 %import .common.AND -> AND
+%import .common.OR -> OR
 %import .common.NOT -> NOT
 %import .common.EITHER -> EITHER
 %import .common.ONEOF -> ONEOF
