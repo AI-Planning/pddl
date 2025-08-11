@@ -1,5 +1,5 @@
-start: domain
 
+// PDDL DOMAIN
 domain:        LPAR DEFINE domain_def [requirements] [types] [constants] [predicates] [functions] structure_def* RPAR
 domain_def:    LPAR DOMAIN NAME RPAR
 
@@ -100,52 +100,135 @@ type_def:          LPAR EITHER primitive_type+ RPAR
 ?primitive_type:   NAME
                |   OBJECT
 
+
+// PDDL PROBLEM
+problem:           LPAR DEFINE problem_def problem_domain [problem_requirements] [objects] init goal [metric_spec] RPAR
+problem_def:       LPAR PROBLEM NAME RPAR
+problem_domain:    LPAR DOMAIN_P NAME RPAR
+
+problem_requirements: LPAR REQUIREMENTS require_key+ RPAR
+
+
+objects:   LPAR OBJECTS typed_list_name RPAR
+
+init:                  LPAR INIT init_el* RPAR
+init_el:               literal_name
+       |               LPAR EQUAL_OP basic_function_term NUMBER RPAR
+
+literal_name:          atomic_formula_name
+            |          LPAR NOT atomic_formula_name RPAR
+
+basic_function_term:   NAME
+                   |   LPAR NAME NAME* RPAR
+
+atomic_formula_name:   LPAR predicate NAME* RPAR
+
+goal:  LPAR GOAL gd RPAR
+
+metric_spec: LPAR METRIC optimization metric_f_exp RPAR
+
+?optimization: MAXIMIZE
+             | MINIMIZE
+
+metric_f_exp: LPAR binary_op metric_f_exp metric_f_exp RPAR
+            | LPAR multi_op metric_f_exp metric_f_exp+ RPAR
+            | LPAR MINUS metric_f_exp RPAR
+            | basic_function_term
+            | NUMBER
+
+DOMAIN_P: ":domain"
+PROBLEM: "problem"
+OBJECTS: ":objects"
+INIT: ":init"
+GOAL: ":goal"
+
+
+
 %ignore /\s+/
 %ignore COMMENT
 
-%import .common.COMMENT -> COMMENT
-%import .common.require_key -> require_key
-%import .common.NAME -> NAME
-%import .common.DEFINE -> DEFINE
-%import .common.DOMAIN -> DOMAIN
-%import .common.REQUIREMENTS -> REQUIREMENTS
-%import .common.TYPES -> TYPES
-%import .common.CONSTANTS -> CONSTANTS
-%import .common.PREDICATES -> PREDICATES
-%import .common.FUNCTIONS -> FUNCTIONS
-%import .common.ACTION -> ACTION
-%import .common.PARAMETERS -> PARAMETERS
-%import .common.PRECONDITION -> PRECONDITION
-%import .common.EFFECT -> EFFECT
-%import .common.DERIVED -> DERIVED
-%import .common.FORALL -> FORALL
-%import .common.EXISTS -> EXISTS
-%import .common.WHEN -> WHEN
-%import .common.OBJECT -> OBJECT
-%import .common.AND -> AND
-%import .common.OR -> OR
-%import .common.NOT -> NOT
-%import .common.IMPLY -> IMPLY
-%import .common.EITHER -> EITHER
-%import .common.ONEOF -> ONEOF
-%import .common.EQUAL_OP -> EQUAL_OP
-%import .common.GREATER_OP -> GREATER_OP
-%import .common.GREATER_EQUAL_OP -> GREATER_EQUAL_OP
-%import .common.LESSER_OP -> LESSER_OP
-%import .common.LESSER_EQUAL_OP -> LESSER_EQUAL_OP
-%import .common.MINUS -> MINUS
-%import .common.PLUS -> PLUS
-%import .common.TIMES -> TIMES
-%import .common.DIVIDE -> DIVIDE
-%import .common.NUMBER -> NUMBER
-%import .common.ASSIGN -> ASSIGN
-%import .common.SCALE_UP -> SCALE_UP
-%import .common.SCALE_DOWN -> SCALE_DOWN
-%import .common.INCREASE -> INCREASE
-%import .common.DECREASE -> DECREASE
-%import .common.TOTAL_COST -> TOTAL_COST
-%import .common.LPAR -> LPAR
-%import .common.RPAR -> RPAR
-%import .common.TYPE_SEP -> TYPE_SEP
-%import .common.TYPE_NUMBER -> TYPE_NUMBER
 
+NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
+
+?require_key: TYPING
+            | STRIPS
+            | EQUALITY
+            | NON_DETERMINISTIC
+            | NEG_PRECONDITION
+            | DIS_PRECONDITION
+            | EXISTENTIAL_PRECONDITIONS
+            | UNIVERSAL_PRECONDITIONS
+            | QUANTIFIED_PRECONDITIONS
+            | ADL
+            | DERIVED_PREDICATES
+            | CONDITIONAL_EFFECTS
+            | NUMERIC_FLUENTS
+            | FLUENTS
+            | ACTION_COSTS
+
+COMMENT: /;[^\n]*/
+
+DEFINE: "define"
+DOMAIN: "domain"
+REQUIREMENTS: ":requirements"
+TYPES: ":types"
+CONSTANTS: ":constants"
+PREDICATES: ":predicates"
+FUNCTIONS: ":functions"
+ACTION: ":action"
+PARAMETERS: ":parameters"
+PRECONDITION: ":precondition"
+EFFECT: ":effect"
+DERIVED: ":derived"
+FORALL: "forall"
+EXISTS: "exists"
+WHEN: "when"
+OBJECT: "object"
+AND: "and"
+OR: "or"
+NOT: "not"
+IMPLY: "imply"
+EITHER: "either"
+ONEOF: "oneof"
+EQUAL_OP: "="
+GREATER_EQUAL_OP: ">="
+GREATER_OP: ">"
+LESSER_EQUAL_OP: "<="
+LESSER_OP: "<"
+MINUS: "-"
+PLUS: "+"
+TIMES: "*"
+DIVIDE: "/"
+METRIC: ":metric"
+ASSIGN: "assign"
+SCALE_UP: "scale-up"
+SCALE_DOWN: "scale-down"
+INCREASE: "increase"
+DECREASE: "decrease"
+MAXIMIZE: "maximize"
+MINIMIZE: "minimize"
+TOTAL_COST: "total-cost"
+NUMBER: /[0-9]+(\.[0-9]+)*/
+
+// available requirements
+STRIPS: ":strips"
+TYPING: ":typing"
+EQUALITY: ":equality"
+ADL: ":adl"
+NON_DETERMINISTIC: ":non-deterministic"
+NEG_PRECONDITION: ":negative-preconditions"
+DIS_PRECONDITION: ":disjunctive-preconditions"
+DERIVED_PREDICATES: ":derived-predicates"
+CONDITIONAL_EFFECTS: ":conditional-effects"
+EXISTENTIAL_PRECONDITIONS: ":existential-preconditions"
+UNIVERSAL_PRECONDITIONS: ":universal-preconditions"
+QUANTIFIED_PRECONDITIONS: ":quantified-preconditions"
+NUMERIC_FLUENTS: ":numeric-fluents"
+FLUENTS: ":fluents"
+ACTION_COSTS: ":action-costs"
+
+// others
+LPAR : "("
+RPAR : ")"
+TYPE_SEP: "-"
+TYPE_NUMBER: "number"

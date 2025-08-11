@@ -41,7 +41,7 @@ from pddl.logic.functions import (
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
-from pddl.parser import DOMAIN_GRAMMAR_FILE, PARSERS_DIRECTORY
+from pddl.parser import GRAMMAR_FILE, PARSERS_DIRECTORY
 from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols
 from pddl.parser.typed_list_parser import TypedListParser
 from pddl.requirements import Requirements, _extend_domain_requirements
@@ -448,7 +448,7 @@ class DomainTransformer(Transformer[Any, Domain]):
         return requirement in self._extended_requirements
 
 
-_domain_parser_lark = DOMAIN_GRAMMAR_FILE.read_text()
+_parser_lark_grammar = GRAMMAR_FILE.read_text()
 
 
 class DomainParser:
@@ -457,8 +457,12 @@ class DomainParser:
     def __init__(self):
         """Initialize."""
         self._transformer = DomainTransformer()
+        lark_grammar = _parser_lark_grammar
         self._parser = Lark(
-            _domain_parser_lark, parser="lalr", import_paths=[PARSERS_DIRECTORY]
+            lark_grammar,
+            parser="lalr",
+            import_paths=[PARSERS_DIRECTORY],
+            start="domain",
         )
 
     def __call__(self, text: str) -> Domain:
