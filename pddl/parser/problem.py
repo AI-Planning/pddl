@@ -13,11 +13,11 @@
 """Implementation of the PDDL problem parser."""
 from typing import Any, Dict
 
-from lark import Lark, ParseError, Transformer
+from lark import ParseError, Transformer
 
 from pddl.core import Problem
 from pddl.exceptions import PDDLParsingError
-from pddl.helpers.base import assert_, call_parser
+from pddl.helpers.base import assert_
 from pddl.logic.base import Not
 from pddl.logic.functions import Divide
 from pddl.logic.functions import EqualTo as FunctionEqualTo
@@ -31,7 +31,7 @@ from pddl.logic.functions import (
 )
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant
-from pddl.parser import GRAMMAR_FILE, PARSERS_DIRECTORY
+from pddl.parser.base import BaseParser
 from pddl.parser.domain import DomainTransformer
 from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements
@@ -210,20 +210,8 @@ class ProblemTransformer(Transformer[Any, Problem]):
         return Constant(args[0])
 
 
-class ProblemParser:
+class ProblemParser(BaseParser[Problem]):
     """PDDL problem parser class."""
 
-    def __init__(self):
-        """Initialize."""
-        self._transformer = ProblemTransformer()
-        lark_grammar = GRAMMAR_FILE.read_text()
-        self._parser = Lark(
-            lark_grammar,
-            parser="lalr",
-            import_paths=[PARSERS_DIRECTORY],
-            start="problem",
-        )
-
-    def __call__(self, text: str) -> Problem:
-        """Call."""
-        return call_parser(text, self._parser, self._transformer)
+    start_symbol = "problem"
+    transformer_cls = ProblemTransformer
