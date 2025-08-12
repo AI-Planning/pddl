@@ -68,7 +68,7 @@ class ProblemTransformer(Transformer[Any, Problem]):
         """Process the 'problem_domain' rule."""
         return "domain_name", args[2]
 
-    def problem_requirements(self, args):
+    def requirements(self, args):
         """Process the 'requirements' rule."""
         return "requirements", {Requirements(r[1:]) for r in args[2:-1]}
 

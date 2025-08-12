@@ -102,11 +102,9 @@ type_def:          LPAR EITHER primitive_type+ RPAR
 
 
 // PDDL PROBLEM
-problem:           LPAR DEFINE problem_def problem_domain [problem_requirements] [objects] init goal [metric_spec] RPAR
+problem:           LPAR DEFINE problem_def problem_domain [requirements] [objects] init goal [metric_spec] RPAR
 problem_def:       LPAR PROBLEM NAME RPAR
 problem_domain:    LPAR DOMAIN_P NAME RPAR
-
-problem_requirements: LPAR REQUIREMENTS require_key+ RPAR
 
 
 objects:   LPAR OBJECTS typed_list_name RPAR
