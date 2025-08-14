@@ -13,19 +13,15 @@
 """Implementation of the PDDL problem parser."""
 from typing import Any, Dict
 
-from lark import Lark, ParseError, Transformer
+from lark import ParseError, Transformer
 
 from pddl.core import Problem
 from pddl.exceptions import PDDLParsingError
-from pddl.helpers.base import assert_, call_parser
-from pddl.logic.base import And, Not, Or
+from pddl.helpers.base import assert_
+from pddl.logic.base import Not
 from pddl.logic.functions import Divide
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
-    GreaterEqualThan,
-    GreaterThan,
-    LesserEqualThan,
-    LesserThan,
     Metric,
     Minus,
     NumericFunction,
@@ -35,9 +31,9 @@ from pddl.logic.functions import (
 )
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant
-from pddl.parser import PARSERS_DIRECTORY, PROBLEM_GRAMMAR_FILE
+from pddl.parser.base import BaseParser
 from pddl.parser.domain import DomainTransformer
-from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols
+from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements
 
 
@@ -72,7 +68,7 @@ class ProblemTransformer(Transformer[Any, Problem]):
         """Process the 'problem_domain' rule."""
         return "domain_name", args[2]
 
-    def problem_requirements(self, args):
+    def requirements(self, args):
         """Process the 'requirements' rule."""
         return "requirements", {Requirements(r[1:]) for r in args[2:-1]}
 
@@ -143,37 +139,10 @@ class ProblemTransformer(Transformer[Any, Problem]):
         """Process the 'goal' rule."""
         return "goal", args[2]
 
-    def gd_binary_comparison(self, args):
-        """Process the 'gd' comparison rule."""
-        left = args[2]
-        right = args[3]
-        if args[1] == Symbols.GREATER_EQUAL.value:
-            return GreaterEqualThan(left, right)
-        elif args[1] == Symbols.GREATER.value:
-            return GreaterThan(left, right)
-        elif args[1] == Symbols.LESSER_EQUAL.value:
-            return LesserEqualThan(left, right)
-        elif args[1] == Symbols.LESSER.value:
-            return LesserThan(left, right)
-        elif args[1] == Symbols.EQUAL.value:
-            return FunctionEqualTo(left, right)
-        else:
-            raise PDDLParsingError(f"Unknown comparison operator: {args[1]}")
-
-    def gd_name(self, args):
+    def gd(self, args):
         """Process the 'gd_name' rule."""
-        if len(args) == 1:
-            return args[0]
-        elif args[1] == Symbols.NOT.value:
-            return Not(args[2])
-        elif args[1] == Symbols.AND.value:
-            return And(*args[2:-1])
-        elif args[1] == Symbols.OR.value:
-            return Or(*args[2:-1])
-        elif args[1] in BINARY_COMP_SYMBOLS:
-            return self.gd_binary_comparison(args)
-        else:
-            raise ParseError
+        result = self._domain_transformer.gd(args)
+        return result
 
     def atomic_formula_name(self, args):
         """Process the 'atomic_formula_name' rule."""
@@ -231,20 +200,18 @@ class ProblemTransformer(Transformer[Any, Problem]):
             else PDDLParsingError("Operator not recognized")
         )
 
+    def atomic_formula_term(self, args):
+        """Parse an atomic formula term."""
+        return self._domain_transformer.atomic_formula_term(args)
 
-_problem_parser_lark = PROBLEM_GRAMMAR_FILE.read_text()
+    def constant(self, args):
+        """Process the 'constant' rule."""
+        assert_(len(args) == 1, "Unexpected parsing error.")
+        return Constant(args[0])
 
 
-class ProblemParser:
+class ProblemParser(BaseParser[Problem]):
     """PDDL problem parser class."""
 
-    def __init__(self):
-        """Initialize."""
-        self._transformer = ProblemTransformer()
-        self._parser = Lark(
-            _problem_parser_lark, parser="lalr", import_paths=[PARSERS_DIRECTORY]
-        )
-
-    def __call__(self, text: str) -> Problem:
-        """Call."""
-        return call_parser(text, self._parser, self._transformer)
+    start_symbol = "problem"
+    transformer_cls = ProblemTransformer
