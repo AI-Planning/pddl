@@ -249,6 +249,11 @@ class DomainTransformer(Transformer[Any, Domain]):
         elif args[1] in BINARY_COMP_SYMBOLS:
             return self.gd_comparison(args)
 
+    def num_literal(self, args):
+        """Process the 'num_literal' rule."""
+        n = args[0]
+        return float(n) if "." in n else int(n)
+
     def emptyor_effect(self, args):
         """Process the 'emptyor_effect' rule."""
         if len(args) == 2:

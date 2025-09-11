@@ -162,6 +162,10 @@ class ProblemTransformer(Transformer[Any, Problem]):
             ]
             return Predicate(name, *terms)
 
+    def num_literal(self, args):
+        """Process the 'num_literal' rule."""
+        return self._domain_transformer.num_literal(args)
+
     def f_exp(self, args):
         """Process the 'f_exp' rule."""
         return self._domain_transformer.f_exp(args)
