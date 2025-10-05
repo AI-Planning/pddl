@@ -41,6 +41,7 @@ from pddl.logic.functions import (
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
+from pddl.parser._update_type_tags import update_type_tags
 from pddl.parser.base import BaseParser
 from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols
 from pddl.parser.typed_list_parser import TypedListParser
@@ -140,7 +141,14 @@ class DomainTransformer(Transformer[Any, Domain]):
         """Process the 'derived_predicates' rule."""
         predicate = args[2]
         condition = args[3]
-        return DerivedPredicate(predicate, condition)
+        # we need to make sure the variables in the condition of the derived predicate
+        # have the same type tags of the variables with the same name and scope in the predicate definition
+        current_var_to_types = {}
+        for term in predicate.terms:
+            if isinstance(term, Variable):
+                current_var_to_types[term.name] = term.type_tags
+        new_condition = update_type_tags(condition, current_var_to_types)
+        return DerivedPredicate(predicate, new_condition)
 
     def action_parameters(self, args):
         """Process the 'action_parameters' rule."""
