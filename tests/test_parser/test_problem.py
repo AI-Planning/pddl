@@ -16,6 +16,15 @@ from textwrap import dedent
 import lark
 import pytest
 
+from pddl.logic.base import And
+from pddl.logic.functions import (
+    EqualTo,
+    GreaterEqualThan,
+    GreaterThan,
+    NumericFunction,
+    NumericValue,
+)
+from pddl.logic.terms import Constant
 from pddl.parser.problem import ProblemParser
 from pddl.requirements import Requirements
 
@@ -131,7 +140,11 @@ def test_numeric_comparison_in_goal() -> None:
     )
     """
     )
-    ProblemParser()(problem_str)
+    problem = ProblemParser()(problem_str)
+    assert problem.init == {
+        EqualTo(NumericFunction("hello_counter", Constant("jimmy")), NumericValue(0))
+    }
+    assert problem.goal == GreaterThan(NumericValue(5), NumericValue(3))
 
 
 def test_numeric_function_comparison_in_goal() -> None:
@@ -152,7 +165,13 @@ def test_numeric_function_comparison_in_goal() -> None:
     )
     """
     )
-    ProblemParser()(problem_str)
+    problem = ProblemParser()(problem_str)
+    assert problem.init == {
+        EqualTo(NumericFunction("hello_counter", Constant("jimmy")), NumericValue(0))
+    }
+    assert problem.goal == GreaterEqualThan(
+        NumericFunction("hello_counter", Constant("jimmy")), NumericValue(3)
+    )
 
 
 def test_numeric_function_equality_in_goal() -> None:
@@ -177,4 +196,12 @@ def test_numeric_function_equality_in_goal() -> None:
     )
     """
     )
-    ProblemParser()(problem_str)
+    problem = ProblemParser()(problem_str)
+    assert problem.init == {
+        EqualTo(NumericFunction("hello_counter", Constant("jimmy")), NumericValue(0)),
+        EqualTo(NumericFunction("hello_counter", Constant("jammy")), NumericValue(0)),
+    }
+    assert problem.goal == And(
+        EqualTo(NumericValue(3), NumericFunction("hello_counter", Constant("jimmy"))),
+        EqualTo(NumericFunction("hello_counter", Constant("jammy")), NumericValue(5)),
+    )

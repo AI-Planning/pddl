@@ -16,7 +16,8 @@ from textwrap import dedent
 import lark
 import pytest
 
-from pddl.logic.functions import BinaryFunction, Increase, NumericFunction
+from pddl.logic.base import And
+from pddl.logic.functions import BinaryFunction, Increase, NumericFunction, NumericValue
 from pddl.logic.predicates import Predicate
 from pddl.logic.terms import Variable
 from pddl.parser.domain import DomainParser
@@ -376,3 +377,58 @@ def test_variable_types_in_numeric_action_definition() -> None:
     assert isinstance(action.effect, Increase)
     assert isinstance(action.effect.operands[0], NumericFunction)
     assert action.effect.operands[0].terms == (x, y)
+
+
+def test_number_parsing() -> None:
+    """Check parsing of numbers in  action preconditions and effects."""
+    domain_str = dedent(
+        """
+    (define (domain test)
+        (:requirements :typing :numeric-fluents)
+        (:types t1 t2)
+        (:functions (f ?x - t1 ?y - t2) (g ?x - t2))
+        (:action a
+            :parameters (?x - t1 ?y - t2)
+            :precondition (and (<= 10 (f ?x ?y)) (> (g ?y) 2.5))
+            :effect (and (decrease (f ?x ?y) 42) (increase (g ?y) 0.5))
+        )
+    )
+    """
+    )
+    domain = DomainParser()(domain_str)
+    action = next(iter(domain.actions))
+    x = Variable("x", {"t1"})
+    y = Variable("y", {"t2"})
+    assert action.parameters == (x, y)
+    assert isinstance(action.precondition, And)
+    f_precond = action.precondition.operands[0]
+    assert isinstance(f_precond, BinaryFunction)
+    g_precond = action.precondition.operands[1]
+    assert isinstance(g_precond, BinaryFunction)
+    assert type(f_precond.operands[0]) is NumericValue
+    assert type(f_precond.operands[0].value) is int
+    assert f_precond.operands[0] == NumericValue(10)
+    assert isinstance(f_precond.operands[1], NumericFunction)
+    assert f_precond.operands[1].terms == (x, y)
+    assert type(g_precond.operands[1]) is NumericValue
+    assert type(g_precond.operands[1].value) is float
+    assert g_precond.operands[1] == NumericValue(2.5)
+    assert isinstance(g_precond.operands[0], NumericFunction)
+    assert g_precond.operands[0].terms == (y,)
+    assert isinstance(action.effect, And)
+    f_effect = action.effect.operands[0]
+    assert isinstance(f_effect, BinaryFunction)
+    assert isinstance(f_effect.operands[0], NumericFunction)
+    assert isinstance(f_effect.operands[1], NumericValue)
+    g_effect = action.effect.operands[1]
+    assert isinstance(g_effect, BinaryFunction)
+    assert isinstance(g_effect.operands[0], NumericFunction)
+    assert isinstance(g_effect.operands[1], NumericValue)
+    assert f_effect.operands[0].terms == (x, y)
+    assert type(f_effect.operands[1]) is NumericValue
+    assert type(f_effect.operands[1].value) is int
+    assert f_effect.operands[1] == NumericValue(42)
+    assert g_effect.operands[0].terms == (y,)
+    assert type(g_effect.operands[1]) is NumericValue
+    assert type(g_effect.operands[1].value) is float
+    assert g_effect.operands[1] == NumericValue(0.5)
