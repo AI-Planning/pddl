@@ -299,6 +299,175 @@ def test_variables_repetition_allowed_if_same_type() -> None:
     DomainParser()(domain_str)
 
 
+def test_action_parameter_type_propagation_in_precondition_and_effect() -> None:
+    """Test that the type tags of vars in single action parameters propagate correctly in precondition/effect terms."""
+    # single param ?v - mytype; ensure propagation to precondition and effect
+    domain_str = dedent(
+        """
+    (define (domain action_type_propagation)
+        (:requirements :typing)
+        (:types mytype - object)
+        (:predicates
+           (P ?x - mytype)
+           (Q ?x)                ; untyped here on purpose
+        )
+        (:action use_v
+          :parameters (?v - mytype)
+          :precondition (Q ?v)
+          :effect (P ?v))
+    )
+    """
+    )
+    domain = DomainParser()(domain_str)
+
+    action = next(iter(domain.actions))
+    assert action.name == "use_v"
+
+    param_v = action.parameters[0]
+    assert param_v.type_tags == {"mytype"}
+
+    v_in_pre = action.precondition.terms[0]
+    v_in_eff = action.effect.terms[0]
+
+    # type should be propagated to both occurrences within the action's scope
+    assert v_in_pre.type_tags == {"mytype"}
+    assert v_in_eff.type_tags == {"mytype"}
+
+    # and the variables should be "the same variable" within the same scope
+    assert param_v == v_in_pre
+    assert param_v == v_in_eff
+    assert v_in_pre == v_in_eff
+
+
+def test_action_multiple_parameters_each_propagates_independently() -> None:
+    """Test that the type tags of vars in many actions parameters propagate correctly in precondition/effect terms."""
+    # two params ?x - mytype1 and ?y - mytype2; ensure each keeps its own types
+    domain_str = dedent(
+        """
+    (define (domain action_two_params)
+        (:requirements :typing)
+        (:types mytype1 mytype2)
+        (:predicates
+           (R ?x - mytype1 ?y - mytype2)
+           (Q ?x)  ; untyped, to check propagation from parameters
+           (S ?y)  ; untyped, to check propagation from parameters
+        )
+        (:action use_xy
+          :parameters (?x - mytype1 ?y - mytype2)
+          :precondition (Q ?x)
+          :effect (R ?x ?y))
+        (:action use_yx
+          :parameters (?x - mytype1 ?y - mytype2)
+          :precondition (S ?y)
+          :effect (R ?x ?y))
+    )
+    """
+    )
+    domain = DomainParser()(domain_str)
+
+    # ---- Check variable types in predicate *definitions* ----
+    preds = {p.name: p for p in domain.predicates}
+    pred_R = preds["R"]
+    pred_Q = preds["Q"]
+    pred_S = preds["S"]
+
+    x_in_R_def = pred_R.terms[0]
+    y_in_R_def = pred_R.terms[1]
+    assert x_in_R_def.type_tags == {"mytype1"}
+    assert y_in_R_def.type_tags == {"mytype2"}
+
+    x_in_Q_def = pred_Q.terms[0]
+    y_in_S_def = pred_S.terms[0]
+    assert x_in_Q_def.type_tags == set()
+    assert y_in_S_def.type_tags == set()
+    # ---------------------------------------------------------
+
+    # Sort for deterministic order
+    actions = sorted(domain.actions, key=lambda a: a.name)
+    action1 = actions[0]  # use_xy
+    action2 = actions[1]  # use_yx
+    assert action1.name == "use_xy"
+    assert action2.name == "use_yx"
+
+    # ---------- Action 1: use_xy ----------
+    x_param1, y_param1 = action1.parameters
+    assert x_param1.type_tags == {"mytype1"}
+    assert y_param1.type_tags == {"mytype2"}
+
+    # Precondition uses only ?x
+    x_in_pre1 = action1.precondition.terms[0]
+    assert x_in_pre1.type_tags == {"mytype1"}
+    assert x_in_pre1 == x_param1
+
+    # Effect uses both ?x and ?y, in order
+    x_in_eff1 = action1.effect.terms[0]
+    y_in_eff1 = action1.effect.terms[1]
+    assert x_in_eff1.type_tags == {"mytype1"}
+    assert y_in_eff1.type_tags == {"mytype2"}
+
+    # Identity preserved per variable
+    assert x_in_eff1 == x_param1
+    assert y_in_eff1 == y_param1
+    assert x_in_eff1 != y_in_eff1
+
+    # ---------- Action 2: use_yx ----------
+    x_param2, y_param2 = action2.parameters
+    assert x_param2.type_tags == {"mytype1"}
+    assert y_param2.type_tags == {"mytype2"}
+
+    # Precondition uses only ?y
+    y_in_pre2 = action2.precondition.terms[0]
+    assert y_in_pre2.type_tags == {"mytype2"}
+    assert y_in_pre2 == y_param2
+
+    # Effect uses both ?x and ?y, in order
+    x_in_eff2 = action2.effect.terms[0]
+    y_in_eff2 = action2.effect.terms[1]
+    assert x_in_eff2.type_tags == {"mytype1"}
+    assert y_in_eff2.type_tags == {"mytype2"}
+
+    # Identity preserved per variable
+    assert x_in_eff2 == x_param2
+    assert y_in_eff2 == y_param2
+    assert x_in_eff2 != y_in_eff2
+
+
+def test_variables_types_propagated_in_derived_predicate() -> None:
+    """Test that variables occurring in definition of derived predicate propagated in its condition."""
+    domain_str = dedent(
+        """
+    (define (domain samevariabledifferent)
+        (:requirements :typing)
+        (:types mytype)
+        (:predicates
+           (P ?v - mytype)
+           (Q ?v)
+        )
+        (:derived (P ?v - mytype)
+          (Q ?v))
+        )
+    """
+    )
+    domain = DomainParser()(domain_str)
+
+    # check that type of variable ?v in predicates is parsed correctly
+    _predicates_sorted_by_name = sorted(domain.predicates, key=lambda p: p.name)
+    predicate_p = _predicates_sorted_by_name[0]
+    predicate_q = _predicates_sorted_by_name[1]
+    var_v_in_pred_p = predicate_p.terms[0]
+    var_v_in_pred_q = predicate_q.terms[0]
+    assert var_v_in_pred_p.type_tags == {"mytype"}
+    assert var_v_in_pred_q.type_tags == set()
+    assert var_v_in_pred_p != var_v_in_pred_q
+
+    # check that type of variable ?v in derived predicate is propagated even if type does not occur
+    axiom = next(iter(domain.derived_predicates))
+    var1 = axiom.predicate.terms[0]
+    var2 = axiom.condition.terms[0]
+    assert var1.type_tags == var2.type_tags
+    assert var1 == var2
+
+
 def test_check_action_costs_requirement_with_total_cost() -> None:
     """Check action costs requirement when total-cost is specified."""
     domain_str = dedent(
