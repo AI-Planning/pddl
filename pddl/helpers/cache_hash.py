@@ -89,7 +89,7 @@ def _setstate(fn):
     def __setstate__(self, state):
         fn(self, state)
         if hasattr(self, "__hash"):
-            delattr(self, "__hash")
+            del self.__hash
 
     return __setstate__
 
