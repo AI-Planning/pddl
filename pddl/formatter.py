@@ -220,3 +220,8 @@ def domain_to_string(domain) -> str:
 def problem_to_string(problem) -> str:
     """Print a PDDL problem object."""
     return str(problem)
+
+
+def plan_to_string(plan) -> str:
+    """Print a PDDL plan object."""
+    return str(plan)

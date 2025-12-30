@@ -40,9 +40,7 @@ HEADER_REGEX = r"""(#!/usr/bin/env python3
 """
 
 
-IGNORE_FILES = {
-    Path("scripts", "whitelist.py")
-}
+IGNORE_FILES = {Path("scripts", "whitelist.py")}
 
 
 def check_copyright(file: Path) -> bool:
@@ -80,9 +78,7 @@ if __name__ == "__main__":
 
     python_files = filter(lambda p: p not in IGNORE_FILES, python_files)
 
-    bad_files = [
-        filepath for filepath in python_files if not check_copyright(filepath)
-    ]
+    bad_files = [filepath for filepath in python_files if not check_copyright(filepath)]
 
     if len(bad_files) > 0:
         print("The following files are not well formatted:")

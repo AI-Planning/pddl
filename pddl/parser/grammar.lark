@@ -143,6 +143,11 @@ INIT: ":init"
 GOAL: ":goal"
 
 
+// PDDL PLAN
+plan:  ground_action*
+ground_action: LPAR predicate NAME* RPAR
+
+
 
 %ignore /\s+/
 %ignore COMMENT

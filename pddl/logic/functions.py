@@ -12,19 +12,24 @@
 
 """This class implements PDDL functions."""
 import functools
-from typing import Sequence
+from abc import abstractmethod
+from typing import Dict, Sequence
 
 from pddl.custom_types import namelike, parse_function
 from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
-from pddl.logic.base import Atomic, BinaryOpMetaclass
-from pddl.logic.terms import Term
+from pddl.logic.base import Atomic, BinaryOpMetaclass, Formula
+from pddl.logic.terms import Term, Variable
 from pddl.parser.symbols import Symbols
 
 
 @cache_hash
 class FunctionExpression(Atomic):
     """A class for all the function expressions."""
+
+    @abstractmethod
+    def instantiate(self, mapping: Dict[Variable, Term]) -> Formula:
+        raise NotImplementedError()
 
 
 @cache_hash
@@ -51,6 +56,11 @@ class NumericFunction(FunctionExpression):
     def arity(self) -> int:
         """Get the arity of the function."""
         return len(self.terms)
+
+    def instantiate(self, mapping: Dict[Variable, Term]) -> "NumericFunction":
+        """Instantiate the function with a mapping from variables to terms."""
+        instantiated_terms = tuple(mapping.get(term, term) for term in self.terms)
+        return NumericFunction(self.name, *instantiated_terms)
 
     def __call__(self, *terms: Term):
         """Replace terms."""
@@ -105,6 +115,10 @@ class NumericValue(FunctionExpression):
         """Get the value."""
         return self._value
 
+    def instantiate(self, mapping: Dict[Variable, Term]) -> "NumericValue":
+        """Instantiate the value with a mapping from variables to terms."""
+        return self
+
     def __eq__(self, other):
         """Compare with another object."""
         return isinstance(other, NumericValue) and self.value == other.value
@@ -141,6 +155,10 @@ class BinaryFunction(FunctionExpression):
     def operands(self) -> Sequence[FunctionExpression]:
         """Get the operands."""
         return tuple(self._operands)
+
+    def instantiate(self, mapping: Dict[Variable, Term]) -> "FunctionExpression":
+        """Instantiate the formula with a mapping from variables to terms."""
+        return type(self)(*(op.instantiate(mapping) for op in self.operands))
 
     def __str__(self) -> str:
         """Get the string representation."""
@@ -185,6 +203,11 @@ class Metric(Atomic):
     def optimization(self) -> str:
         """Get the optimization."""
         return self._optimization
+
+    def instantiate(self, mapping: Dict[Variable, Term]) -> "Metric":
+        """Instantiate the metric with a mapping from variables to terms."""
+        # TODO: metric should never be instantiated?
+        return Metric(self.expression.instantiate(mapping), self.optimization)
 
     def _validate(self):
         """Validate the metric."""

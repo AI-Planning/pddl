@@ -18,7 +18,7 @@ from pddl.custom_types import name, namelike, parse_name
 from pddl.helpers.base import assert_, check
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, Formula
-from pddl.logic.terms import Term, _print_tag_set
+from pddl.logic.terms import Term, Variable, _print_tag_set
 from pddl.parser.symbols import Symbols
 
 
@@ -66,6 +66,11 @@ class Predicate(Atomic):
     def arity(self) -> int:
         """Get the arity of the predicate."""
         return len(self.terms)
+
+    def instantiate(self, mapping: Dict[Variable, Term]) -> "Predicate":
+        """Instantiate the formula with a mapping from variables to terms."""
+        instantiated_terms = tuple(mapping.get(term, term) for term in self.terms)
+        return Predicate(self.name, *instantiated_terms)
 
     def __call__(self, *terms: Term):
         """Replace terms."""
@@ -126,6 +131,10 @@ class EqualTo(Atomic):
         """Get the right operand."""
         return self._right
 
+    def instantiate(self, mapping: Dict[Variable, Term]) -> "EqualTo":
+        """Instantiate the formula with a mapping from variables to terms."""
+        return EqualTo(self.left.instantiate(mapping), self.right.instantiate(mapping))
+
     def __eq__(self, other) -> bool:
         """Compare with another object."""
         return (
@@ -171,6 +180,13 @@ class DerivedPredicate(Atomic):
     def condition(self) -> Formula:
         """Get the condition."""
         return self._condition
+
+    def instantiate(self, mapping: Dict[Variable, Term]) -> "DerivedPredicate":
+        """Instantiate the formula with a mapping from variables to terms."""
+        return DerivedPredicate(
+            self.predicate.instantiate(mapping),
+            self.condition.instantiate(mapping),
+        )
 
     def __hash__(self) -> int:
         """Get the hash."""
