@@ -1,5 +1,5 @@
 #
-# Author: Dillon Z. Chen
+# Copyright 2021-2025 WhiteMech
 #
 # ------------------------------
 #

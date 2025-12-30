@@ -69,7 +69,12 @@ class Predicate(Atomic):
 
     def instantiate(self, mapping: Dict[Variable, Term]) -> "Predicate":
         """Instantiate the formula with a mapping from variables to terms."""
-        instantiated_terms = tuple(mapping.get(term, term) for term in self.terms)
+        instantiated_terms = []
+        for term in self.terms:
+            if isinstance(term, Variable) and term in mapping:
+                instantiated_terms.append(mapping[term])
+            else:
+                instantiated_terms.append(term)
         return Predicate(self.name, *instantiated_terms)
 
     def __call__(self, *terms: Term):
@@ -133,7 +138,7 @@ class EqualTo(Atomic):
 
     def instantiate(self, mapping: Dict[Variable, Term]) -> "EqualTo":
         """Instantiate the formula with a mapping from variables to terms."""
-        return EqualTo(self.left.instantiate(mapping), self.right.instantiate(mapping))
+        return self
 
     def __eq__(self, other) -> bool:
         """Compare with another object."""

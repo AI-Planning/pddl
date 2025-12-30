@@ -1,5 +1,5 @@
 #
-# Author: Dillon Z. Chen
+# Copyright 2021-2025 WhiteMech
 #
 # ------------------------------
 #
@@ -22,7 +22,7 @@ from tests.conftest import PLAN_FILES
 
 @pytest.mark.parametrize("plan_file", PLAN_FILES)
 def test_parse_instantiate_plans(plan_file):
-    print(plan_file)
+    """Test parsing and instantiating plans from PDDL files."""
     domain_file = os.path.dirname(plan_file) + "/domain.pddl"
     problem_name = os.path.basename(plan_file).split(".")[0]
     problem_file = os.path.dirname(plan_file) + f"/{problem_name}.pddl"
@@ -37,4 +37,4 @@ def test_parse_instantiate_plans(plan_file):
 
     for action in plan.instantiate(domain):
         assert isinstance(action, Action)
-        assert "?" not in action.name
+        assert "?" not in str(action)

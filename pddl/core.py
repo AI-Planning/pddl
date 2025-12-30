@@ -397,7 +397,7 @@ class Plan:
 
         :param actions: the actions of the plan.
         """
-        self._actions: list[Action] = actions
+        self._actions: list[Tuple[namelike, List["Constant"]]] = actions
 
     @property
     def actions(self) -> List[Tuple[namelike, List["Constant"]]]:

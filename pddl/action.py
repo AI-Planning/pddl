@@ -11,7 +11,7 @@
 #
 
 """This module contains the definition of the PDDL action class."""
-from typing import List, Optional, Sequence
+from typing import Optional, Sequence
 
 from pddl.custom_types import namelike, parse_name
 from pddl.helpers.base import _typed_parameters, ensure_sequence
@@ -26,7 +26,7 @@ class Action:
     def __init__(
         self,
         name: namelike,
-        parameters: Sequence[Variable],
+        parameters: Sequence[Term],
         precondition: Optional[Formula] = None,
         effect: Optional[Formula] = None,
     ):
@@ -68,7 +68,7 @@ class Action:
         """Get the effect."""
         return self._effect
 
-    def instantiate(self, mapping: List[Term]) -> "Action":
+    def instantiate(self, mapping: Sequence[Term]) -> "Action":
         """
         Instantiate the action by replacing its parameters according to the given mapping.
 

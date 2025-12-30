@@ -13,7 +13,7 @@
 """This class implements PDDL functions."""
 import functools
 from abc import abstractmethod
-from typing import Dict, Sequence
+from typing import Dict, Sequence, cast
 
 from pddl.custom_types import namelike, parse_function
 from pddl.helpers.base import assert_
@@ -29,6 +29,7 @@ class FunctionExpression(Atomic):
 
     @abstractmethod
     def instantiate(self, mapping: Dict[Variable, Term]) -> Formula:
+        """Instantiate the formula with a mapping from variables to terms."""
         raise NotImplementedError()
 
 
@@ -59,7 +60,12 @@ class NumericFunction(FunctionExpression):
 
     def instantiate(self, mapping: Dict[Variable, Term]) -> "NumericFunction":
         """Instantiate the function with a mapping from variables to terms."""
-        instantiated_terms = tuple(mapping.get(term, term) for term in self.terms)
+        instantiated_terms = []
+        for term in self.terms:
+            if isinstance(term, Variable) and term in mapping:
+                instantiated_terms.append(mapping[term])
+            else:
+                instantiated_terms.append(term)
         return NumericFunction(self.name, *instantiated_terms)
 
     def __call__(self, *terms: Term):
@@ -158,7 +164,9 @@ class BinaryFunction(FunctionExpression):
 
     def instantiate(self, mapping: Dict[Variable, Term]) -> "FunctionExpression":
         """Instantiate the formula with a mapping from variables to terms."""
-        return type(self)(*(op.instantiate(mapping) for op in self.operands))
+        return type(self)(
+            *(cast(FunctionExpression, op.instantiate(mapping)) for op in self.operands)
+        )
 
     def __str__(self) -> str:
         """Get the string representation."""
@@ -206,8 +214,8 @@ class Metric(Atomic):
 
     def instantiate(self, mapping: Dict[Variable, Term]) -> "Metric":
         """Instantiate the metric with a mapping from variables to terms."""
-        # TODO: metric should never be instantiated?
-        return Metric(self.expression.instantiate(mapping), self.optimization)
+        # metric should never be instantiated
+        return self
 
     def _validate(self):
         """Validate the metric."""
