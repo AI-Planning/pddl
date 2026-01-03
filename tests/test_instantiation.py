@@ -11,6 +11,7 @@
 #
 
 """This module contains tests for action instantiation."""
+from calendar import c
 import os
 
 import pytest
@@ -18,7 +19,7 @@ import pytest
 from pddl import parse_domain, parse_plan, parse_problem
 from pddl.action import Action
 from pddl.logic.base import ExistsCondition
-from pddl.logic.functions import NumericFunction
+from pddl.logic.functions import Metric, NumericFunction, Times
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from tests.conftest import PLAN_FILES
@@ -167,3 +168,15 @@ def test_bad_action_instantiation_parameters():
 
     with pytest.raises(ValueError):
         action.instantiate([a, b, c])  # One extra parameter
+
+
+def test_instantiate_metric():
+    """Test instantiating a metric."""
+    a, b, c = constants("a b c")
+    expression = Times(NumericFunction("distance", a, b), NumericFunction("cost", c))
+    metric = Metric(expression)
+
+    mapping = {}
+    metric_instantiated = metric.instantiate(mapping)
+
+    assert metric_instantiated == metric
