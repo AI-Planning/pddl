@@ -17,6 +17,9 @@ import pytest
 
 from pddl import parse_domain, parse_plan, parse_problem
 from pddl.action import Action
+from pddl.logic.base import ExistsCondition
+from pddl.logic.helpers import constants, variables
+from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from tests.conftest import PLAN_FILES
 
 
@@ -38,3 +41,110 @@ def test_parse_instantiate_plans(plan_file):
     for action in plan.instantiate(domain):
         assert isinstance(action, Action)
         assert "?" not in str(action)
+
+
+def test_partially_instantiate_predicate():
+    """Test partially instantiating a predicate."""
+    a, b = constants("a b")
+    x, y, z = variables("x y z")
+    p = Predicate("on", x, y, z)
+    mapping = {x: a, z: b}
+    p_instantiated = p.instantiate(mapping)
+
+    p_expected = Predicate("on", a, y, b)
+    assert p_instantiated == p_expected
+
+
+def test_instantiate_partially_instantiated_predicate():
+    """Test instantiating a partially instantiated predicate."""
+    a, b = constants("a b")
+    x, y = variables("x y")
+    p = Predicate("on", x, y)
+    mapping1 = {x: a}
+    p_partially_instantiated = p.instantiate(mapping1)
+
+    mapping2 = {y: b}
+    p_fully_instantiated = p_partially_instantiated.instantiate(mapping2)
+
+    p_expected = Predicate("on", a, b)
+    assert p_fully_instantiated == p_expected
+
+
+def test_partially_instantiate_function():
+    """Test partially instantiating a function."""
+    a, b = constants("a b")
+    x, y, z = variables("x y z")
+    f = Predicate("distance", x, y, z)
+    mapping = {x: a}
+    f_instantiated = f.instantiate(mapping)
+
+    f_expected = Predicate("distance", a, y, z)
+    assert f_instantiated == f_expected
+
+
+def test_instantiate_partially_instantiated_function():
+    """Test instantiating a partially instantiated function."""
+    a, b = constants("a b")
+    x, y = variables("x y")
+    f = Predicate("distance", x, y)
+    mapping1 = {x: a}
+    f_partially_instantiated = f.instantiate(mapping1)
+
+    mapping2 = {y: b}
+    f_fully_instantiated = f_partially_instantiated.instantiate(mapping2)
+
+    f_expected = Predicate("distance", a, b)
+    assert f_fully_instantiated == f_expected
+
+
+def test_instantiate_equalto_predicate():
+    """Test instantiating an EqualTo predicate."""
+    x, y = variables("x y")
+    a, b = constants("a b")
+    eq = EqualTo(x, y)
+    mapping = {x: a, y: b}
+    eq_instantiated = eq.instantiate(mapping)
+
+    eq_expected = EqualTo(a, b)
+    assert eq_instantiated == eq_expected
+
+
+def test_instantiate_derived_predicate():
+    """Test instantiating a derived predicate."""
+    a, b = constants("a b")
+    x, y, z = variables("x y z")
+
+    p = Predicate("above", x, y)
+    condition = ExistsCondition(
+        variables={z}, cond=Predicate("above", x, z) & Predicate("above", z, y)
+    )
+    dp = DerivedPredicate(predicate=p, condition=condition)
+
+    mapping = {x: a, y: b}
+    dp_instantiated = dp.instantiate(mapping)
+
+    p_expected = Predicate("above", a, b)
+    condition_expected = ExistsCondition(
+        variables={z}, cond=Predicate("above", a, z) & Predicate("above", z, b)
+    )
+    dp_expected = DerivedPredicate(predicate=p_expected, condition=condition_expected)
+
+    assert dp_instantiated == dp_expected
+
+
+def test_bad_action_instantiation_parameters():
+    """Test action instantiation error handling."""
+    a, b, c = constants("a b c")
+    x, y = variables("x y")
+    action = Action(
+        name="move",
+        parameters=[x, y],
+        precondition=Predicate("at", x),
+        effect=Predicate("at", y),
+    )
+
+    with pytest.raises(ValueError):
+        action.instantiate([a])  # Missing one parameter
+
+    with pytest.raises(ValueError):
+        action.instantiate([a, b, c])  # One extra parameter

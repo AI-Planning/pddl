@@ -1,0 +1,5 @@
+(make_sandwich_no_gluten sandw1 bread2 content1)
+(put_on_tray sandw1 tray1)
+(move_tray tray1 kitchen table2)
+(serve_sandwich_no_gluten sandw1 child1 tray1 table2)
+; cost = 4 (unit cost)

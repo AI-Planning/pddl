@@ -13,7 +13,7 @@
 """Base classes for PDDL logic formulas."""
 import functools
 from abc import abstractmethod
-from typing import AbstractSet, Any, Collection, Dict, List, Optional, Sequence
+from typing import AbstractSet, Any, Collection, List, Mapping, Optional, Sequence
 
 from pddl.helpers.base import ensure_set
 from pddl.helpers.cache_hash import cache_hash
@@ -26,7 +26,7 @@ class Formula:
     """Base class for all the formulas."""
 
     @abstractmethod
-    def instantiate(self, mapping: Dict[Variable, Term]) -> "Formula":
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "Formula":
         """Instantiate the formula with a mapping from variables to terms."""
         raise NotImplementedError()
 
@@ -65,7 +65,7 @@ class BinaryOp(Formula):
         """Get the operands."""
         return tuple(self._operands)
 
-    def instantiate(self, mapping: Dict[Variable, Term]) -> "Formula":
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "Formula":
         """Instantiate the formula with a mapping from variables to terms."""
         return type(self)(*(op.instantiate(mapping) for op in self.operands))
 
@@ -104,7 +104,7 @@ class UnaryOp(Formula):
         """Get the argument."""
         return self._arg
 
-    def instantiate(self, mapping: Dict[Variable, Term]) -> "Formula":
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "Formula":
         """Instantiate the formula with a mapping from variables to terms."""
         return type(self)(self.argument.instantiate(mapping))
 
@@ -129,7 +129,7 @@ class Atomic(Formula):
     """Atomic formula."""
 
     @abstractmethod
-    def instantiate(self, mapping: Dict[Variable, Term]) -> "Formula":
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "Formula":
         """Instantiate the formula with a mapping from variables to terms."""
         raise NotImplementedError()
 
@@ -209,7 +209,7 @@ class QuantifiedCondition(Formula):
         """Get the variables."""
         return self._variables
 
-    def instantiate(self, mapping: Dict[Variable, Term]) -> "Formula":
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "Formula":
         """Instantiate the formula with a mapping from variables to terms."""
         return type(self)(self.condition.instantiate(mapping), self.variables)
 

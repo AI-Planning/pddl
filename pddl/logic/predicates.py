@@ -12,7 +12,7 @@
 
 """This class implements PDDL predicates."""
 import functools
-from typing import Dict, Sequence, Set
+from typing import Dict, Mapping, Sequence, Set
 
 from pddl.custom_types import name, namelike, parse_name
 from pddl.helpers.base import assert_, check
@@ -67,13 +67,15 @@ class Predicate(Atomic):
         """Get the arity of the predicate."""
         return len(self.terms)
 
-    def instantiate(self, mapping: Dict[Variable, Term]) -> "Predicate":
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "Predicate":
         """Instantiate the formula with a mapping from variables to terms."""
         instantiated_terms = []
         for term in self.terms:
             if isinstance(term, Variable) and term in mapping:
+                # Instantiate the variable
                 instantiated_terms.append(mapping[term])
             else:
+                # The predicate is already partially instantiated or mapping is a partial instantiation
                 instantiated_terms.append(term)
         return Predicate(self.name, *instantiated_terms)
 
@@ -136,8 +138,12 @@ class EqualTo(Atomic):
         """Get the right operand."""
         return self._right
 
-    def instantiate(self, mapping: Dict[Variable, Term]) -> "EqualTo":
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "EqualTo":
         """Instantiate the formula with a mapping from variables to terms."""
+        if isinstance(self._left, Variable) and self._left in mapping:
+            self._left = mapping[self._left]
+        if isinstance(self._right, Variable) and self._right in mapping:
+            self._right = mapping[self._right]
         return self
 
     def __eq__(self, other) -> bool:
@@ -186,7 +192,7 @@ class DerivedPredicate(Atomic):
         """Get the condition."""
         return self._condition
 
-    def instantiate(self, mapping: Dict[Variable, Term]) -> "DerivedPredicate":
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "DerivedPredicate":
         """Instantiate the formula with a mapping from variables to terms."""
         return DerivedPredicate(
             self.predicate.instantiate(mapping),
