@@ -12,17 +12,23 @@
 
 """Base classes for PDDL logic formulas."""
 import functools
-from typing import AbstractSet, Any, Collection, List, Optional, Sequence
+from abc import abstractmethod
+from typing import AbstractSet, Any, Collection, List, Mapping, Optional, Sequence
 
 from pddl.helpers.base import ensure_set
 from pddl.helpers.cache_hash import cache_hash
-from pddl.logic.terms import Variable
+from pddl.logic.terms import Term, Variable
 from pddl.parser.symbols import Symbols
 
 
 @cache_hash
 class Formula:
     """Base class for all the formulas."""
+
+    @abstractmethod
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "Formula":
+        """Instantiate the formula with a mapping from variables to terms."""
+        raise NotImplementedError()
 
     def __invert__(self) -> "Formula":
         """Negate the formula."""
@@ -59,6 +65,10 @@ class BinaryOp(Formula):
         """Get the operands."""
         return tuple(self._operands)
 
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "Formula":
+        """Instantiate the formula with a mapping from variables to terms."""
+        return type(self)(*(op.instantiate(mapping) for op in self.operands))
+
     def __str__(self) -> str:
         """Get the string representation."""
         return f"({self.SYMBOL} {' '.join(map(str, self.operands))})"
@@ -94,6 +104,10 @@ class UnaryOp(Formula):
         """Get the argument."""
         return self._arg
 
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "Formula":
+        """Instantiate the formula with a mapping from variables to terms."""
+        return type(self)(self.argument.instantiate(mapping))
+
     def __str__(self) -> str:
         """Get the string representation."""
         return f"({self.SYMBOL} {self.argument})"
@@ -113,6 +127,11 @@ class UnaryOp(Formula):
 
 class Atomic(Formula):
     """Atomic formula."""
+
+    @abstractmethod
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "Formula":
+        """Instantiate the formula with a mapping from variables to terms."""
+        raise NotImplementedError()
 
 
 class BinaryOpMetaclass(type):
@@ -189,6 +208,10 @@ class QuantifiedCondition(Formula):
     def variables(self) -> AbstractSet[Variable]:
         """Get the variables."""
         return self._variables
+
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "Formula":
+        """Instantiate the formula with a mapping from variables to terms."""
+        return type(self)(self.condition.instantiate(mapping), self.variables)
 
     def __str__(self) -> str:
         """Get the string representation."""

@@ -42,3 +42,11 @@ def parse_problem(fn):
     with open(fn, "r") as f:
         ptext = f.read()
     return ProblemParser()(ptext)
+
+
+def parse_plan(fn):
+    from pddl.parser.plan import PlanParser
+
+    with open(fn, "r") as f:
+        plantext = f.read()
+    return PlanParser()(plantext)

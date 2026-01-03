@@ -48,6 +48,7 @@ DOMAIN_NAMES = [
     "cave-diving-sequential-optimal",
     # "depots-numeric-automatic",
     "doors",
+    "drone",
     "earth_observation",
     "elevators",
     # "faults-ipc08",
@@ -71,6 +72,15 @@ PROBLEM_FILES = list(
     itertools.chain(
         *[
             (FIXTURES_PDDL_FILES / domain_name).rglob("p*.pddl")
+            for domain_name in DOMAIN_NAMES
+        ]
+    )
+)
+
+PLAN_FILES = list(
+    itertools.chain(
+        *[
+            (FIXTURES_PDDL_FILES / domain_name).rglob("p*.plan")
             for domain_name in DOMAIN_NAMES
         ]
     )

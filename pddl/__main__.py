@@ -16,8 +16,8 @@ import sys
 
 import click
 
-from pddl import parse_domain, parse_problem
-from pddl.formatter import domain_to_string, problem_to_string
+from pddl import parse_domain, parse_plan, parse_problem
+from pddl.formatter import domain_to_string, plan_to_string, problem_to_string
 
 
 @click.group()
@@ -46,6 +46,16 @@ def problem(problem_file, quiet):
     if quiet:
         sys.stdout = open(os.devnull, "a")
     print(problem_to_string(parse_problem(problem_file)))
+
+
+@cli.command()
+@click.argument("plan_file", type=click.Path(exists=True, dir_okay=False))
+@quiet_option
+def plan(plan_file, quiet):
+    """Check a PDDL plan file is correct."""
+    if quiet:
+        sys.stdout = open(os.devnull, "a")
+    print(plan_to_string(parse_plan(plan_file)))
 
 
 if __name__ == "__main__":

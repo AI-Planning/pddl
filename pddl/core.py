@@ -15,7 +15,7 @@ Core module of the package.
 It contains the class definitions to build and modify PDDL domains or problems.
 """
 from textwrap import indent
-from typing import AbstractSet, Collection, Dict, Optional, Tuple, cast
+from typing import AbstractSet, Collection, Dict, List, Optional, Tuple, cast
 
 from pddl._validation import (
     Functions,
@@ -386,3 +386,45 @@ class Problem:
         result = result + "\n" + indent(body, indentation) + "\n)"
         result = remove_empty_lines(result)
         return result
+
+
+class Plan:
+    """A class for a PDDL plan."""
+
+    def __init__(self, actions: List[Tuple[namelike, List["Constant"]]]):
+        """
+        Initialize the PDDL plan.
+
+        :param actions: the actions of the plan.
+        """
+        self._actions: list[Tuple[namelike, List["Constant"]]] = actions
+
+    @property
+    def actions(self) -> List[Tuple[namelike, List["Constant"]]]:
+        """Get the actions."""
+        return self._actions
+
+    def instantiate(self, domain: Domain) -> List[Action]:
+        """Instantiate the actions in the plan."""
+        name_to_schema = {action.name: action for action in domain.actions}
+        ret = []
+        for action_name, parameters in self._actions:
+            if action_name not in name_to_schema:
+                raise ValueError(f"Action {action_name} not found in domain.")
+            action_schema = name_to_schema[action_name]
+            instantiated_action = action_schema.instantiate(parameters)
+            ret.append(instantiated_action)
+        return ret
+
+    def __eq__(self, other):
+        """Compare with another object."""
+        return isinstance(other, Plan) and self._actions == other._actions
+
+    def __str__(self) -> str:
+        """Print a PDDL plan object."""
+        a_strs = []
+        for action_name, parameters in self._actions:
+            params = " ".join(str(param) for param in parameters)
+            a_str = f"({action_name} {params})"
+            a_strs.append(a_str)
+        return "\n".join(a_strs)

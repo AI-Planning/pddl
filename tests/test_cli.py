@@ -17,7 +17,7 @@ import pytest
 from click.testing import CliRunner
 
 from pddl.__main__ import cli
-from tests.conftest import DOMAIN_FILES, PROBLEM_FILES
+from tests.conftest import DOMAIN_FILES, PLAN_FILES, PROBLEM_FILES
 
 
 @pytest.mark.parametrize("pddl_file", DOMAIN_FILES)
@@ -36,5 +36,15 @@ def test_pddl_problem_cli(pddl_file):
     logging.debug(f"Parsing problem file: {pddl_file}")
     result = CliRunner().invoke(
         cli, args=["problem", str(pddl_file)], catch_exceptions=False
+    )
+    assert result.exit_code == 0
+
+
+@pytest.mark.parametrize("pddl_file", PLAN_FILES)
+def test_pddl_plan_cli(pddl_file):
+    """Test PDDL plan cli."""
+    logging.debug(f"Parsing plan file: {pddl_file}")
+    result = CliRunner().invoke(
+        cli, args=["plan", str(pddl_file)], catch_exceptions=False
     )
     assert result.exit_code == 0

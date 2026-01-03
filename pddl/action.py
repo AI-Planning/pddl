@@ -26,7 +26,7 @@ class Action:
     def __init__(
         self,
         name: namelike,
-        parameters: Sequence[Variable],
+        parameters: Sequence[Term],
         precondition: Optional[Formula] = None,
         effect: Optional[Formula] = None,
     ):
@@ -67,6 +67,31 @@ class Action:
     def effect(self) -> Optional[Formula]:
         """Get the effect."""
         return self._effect
+
+    def instantiate(self, mapping: Sequence[Term]) -> "Action":
+        """
+        Instantiate the action by replacing its parameters according to the given mapping.
+
+        :param mapping: a list of terms to replace the parameters.
+        :return: the instantiated action.
+        """
+        if len(mapping) != len(self.parameters):
+            raise ValueError(
+                f"Mapping length {len(mapping)} does not match number of parameters {len(self.parameters)}."
+            )
+
+        instantiation = {param: const for param, const in zip(self.parameters, mapping)}
+
+        return Action(
+            name=self.name,
+            parameters=mapping,
+            precondition=(
+                self.precondition.instantiate(instantiation)
+                if self.precondition
+                else None
+            ),
+            effect=self.effect.instantiate(instantiation) if self.effect else None,
+        )
 
     def __str__(self):
         """Get the string."""
