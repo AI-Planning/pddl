@@ -11,8 +11,8 @@
 #
 
 """This module contains tests for action instantiation."""
-from calendar import c
 import os
+from calendar import c
 
 import pytest
 
