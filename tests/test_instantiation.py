@@ -18,6 +18,7 @@ import pytest
 from pddl import parse_domain, parse_plan, parse_problem
 from pddl.action import Action
 from pddl.logic.base import ExistsCondition
+from pddl.logic.functions import NumericFunction
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from tests.conftest import PLAN_FILES
@@ -74,11 +75,11 @@ def test_partially_instantiate_function():
     """Test partially instantiating a function."""
     a, b = constants("a b")
     x, y, z = variables("x y z")
-    f = Predicate("distance", x, y, z)
+    f = NumericFunction("distance", x, y, z)
     mapping = {x: a}
     f_instantiated = f.instantiate(mapping)
 
-    f_expected = Predicate("distance", a, y, z)
+    f_expected = NumericFunction("distance", a, y, z)
     assert f_instantiated == f_expected
 
 
@@ -86,14 +87,14 @@ def test_instantiate_partially_instantiated_function():
     """Test instantiating a partially instantiated function."""
     a, b = constants("a b")
     x, y = variables("x y")
-    f = Predicate("distance", x, y)
+    f = NumericFunction("distance", x, y)
     mapping1 = {x: a}
     f_partially_instantiated = f.instantiate(mapping1)
 
     mapping2 = {y: b}
     f_fully_instantiated = f_partially_instantiated.instantiate(mapping2)
 
-    f_expected = Predicate("distance", a, b)
+    f_expected = NumericFunction("distance", a, b)
     assert f_fully_instantiated == f_expected
 
 
@@ -107,6 +108,24 @@ def test_instantiate_equalto_predicate():
 
     eq_expected = EqualTo(a, b)
     assert eq_instantiated == eq_expected
+
+
+def test_partially_instantiate_equalto_predicate():
+    """Test instantiating an EqualTo predicate."""
+    x, y = variables("x y")
+    a, b = constants("a b")
+    eq = EqualTo(x, y)
+    mapping = {x: a}
+    eq_instantiated = eq.instantiate(mapping)
+
+    eq_expected = EqualTo(a, y)
+    assert eq_instantiated == eq_expected
+
+    mapping2 = {y: b}
+    eq_fully_instantiated = eq_instantiated.instantiate(mapping2)
+
+    eq_expected = EqualTo(a, b)
+    assert eq_fully_instantiated == eq_expected
 
 
 def test_instantiate_derived_predicate():
