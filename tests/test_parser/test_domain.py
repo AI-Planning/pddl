@@ -12,6 +12,7 @@
 
 """This module contains the tests for the domain parser."""
 from textwrap import dedent
+from typing import cast
 
 import lark
 import pytest
@@ -456,7 +457,7 @@ def test_variables_types_propagated_in_derived_predicate() -> None:
            (P ?v - mytype)
            (Q ?v)
         )
-        (:derived (P ?v - mytype)
+        (:derived (P ?v)
           (Q ?v))
         )
     """
@@ -479,11 +480,11 @@ def test_variables_types_propagated_in_derived_predicate() -> None:
     var1 = axiom.predicate.terms[0]
     assert type(axiom.condition) is Predicate
     var2 = axiom.condition.terms[0]
-    assert var1.type_tags == var2.type_tags
+    assert var1.type_tags == var2.type_tags == {"mytype"}
     assert var1 == var2
 
 
-def test_variables_types_propagated_in_derived_predicate_compelx_condition() -> None:
+def test_variables_types_propagated_in_derived_predicate_complex_condition() -> None:
     """Test that variables occurring in definition of derived predicate propagated in its complex condition."""
     domain_str = dedent(
         """
@@ -495,7 +496,7 @@ def test_variables_types_propagated_in_derived_predicate_compelx_condition() -> 
            (Q ?v)
            (R ?v)
         )
-        (:derived (P ?v - mytype)
+        (:derived (P ?v)
           (and
             (Q ?v)
             (not (R ?v))
@@ -526,7 +527,7 @@ def test_variables_types_propagated_in_derived_predicate_compelx_condition() -> 
     assert var_v_in_pred_r.type_tags == set()
     assert var_v_in_pred_p != var_v_in_pred_q
 
-    # # check that type of variable ?v in derived predicate is propagated even if type does not occur
+    # check that type of variable ?v in derived predicate is propagated even if type does not occur
     axiom = next(iter(domain.derived_predicates))
     assert type(axiom.predicate) is Predicate
     var1 = axiom.predicate.terms[0]
@@ -569,6 +570,39 @@ def test_variables_types_propagated_in_derived_predicate_compelx_condition() -> 
     assert var1 == eq_v2
 
     assert type(ge_pred_1_0) is GreaterEqualThan
+
+
+def test_variables_types_propagated_in_derived_predicate_complex_hierarchy() -> None:
+    """Test that variables occurring in definition of derived predicate propagated in its condition."""
+    domain_str = dedent(
+        """
+    (define (domain samevariabledifferent)
+        (:requirements :typing)
+        (:types child1 - root_type
+                child2 - child1
+                child3 - root_type)
+        (:predicates
+           (P ?v - root_type)
+           (Q ?v)
+           (R ?v)
+        )
+        (:derived (P ?v - child1) (Q ?v))
+        (:derived (P ?v - child3) (R ?v))
+    )
+    """
+    )
+    domain = DomainParser()(domain_str)
+    axioms = sorted(
+        domain.derived_predicates, key=lambda dp: cast(Predicate, dp.condition).name
+    )
+    axiom_pq = axioms[0]
+    axiom_pr = axioms[1]
+
+    assert axiom_pq.predicate.terms[0].type_tags == {"child1"}
+    assert cast(Predicate, axiom_pq.condition).terms[0].type_tags == {"child1"}
+
+    assert axiom_pr.predicate.terms[0].type_tags == {"child3"}
+    assert cast(Predicate, axiom_pr.condition).terms[0].type_tags == {"child3"}
 
 
 def test_check_action_costs_requirement_with_total_cost() -> None:
