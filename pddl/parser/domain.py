@@ -523,7 +523,7 @@ class DomainTransformer(Transformer[Any, Domain]):
             # 'object' type includes everything
             return
 
-        # for each lef type, navigate the type hierarchy until we find a type in the right set, or fail
+        # for each left type, navigate the type hierarchy until we find a type in the right set, or fail
         for left_type in type_tags_left:
             current_type = left_type
             parent_type: Optional[name] = left_type
