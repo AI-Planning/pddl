@@ -15,7 +15,7 @@ from textwrap import dedent
 
 import pytest
 
-from pddl.exceptions import PDDLValidationError, PDDLParsingError
+from pddl.exceptions import PDDLParsingError, PDDLValidationError
 from pddl.logic.base import And
 from pddl.logic.functions import BinaryFunction, Increase, NumericFunction, NumericValue
 from pddl.logic.predicates import Predicate
