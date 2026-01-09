@@ -13,7 +13,7 @@
 """Base classes for PDDL parsers."""
 import sys
 from abc import ABC
-from typing import Any, Type, TypeVar
+from typing import Any, Type, TypeVar, cast
 
 from lark import Lark, Transformer
 
@@ -60,7 +60,7 @@ class BaseParser(Transformer[Any, T], ABC):
         old_tracebacklimit = getattr(sys, "tracebacklimit", None)
         try:
             sys.tracebacklimit = 0  # noqa
-            result = parser.parse(text)
+            result = cast(T, parser.parse(text))
             sys.tracebacklimit = None  # type: ignore
         finally:
             if old_tracebacklimit is not None:
