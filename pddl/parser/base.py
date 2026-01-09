@@ -37,16 +37,15 @@ class BaseParser(Transformer[Any, T], ABC):
             parser="lalr",
             import_paths=[PARSERS_DIRECTORY],
             start=self.start_symbol,
+            transformer=self._transformer,
         )
 
     def __call__(self, text: str) -> T:
         """Call."""
-        return self._call_parser(text, self._parser, self._transformer)
+        return self._call_parser(text, self._parser)
 
     @classmethod
-    def _call_parser(
-        cls, text: str, parser: Lark, transformer: Transformer[Any, T]
-    ) -> T:
+    def _call_parser(cls, text: str, parser: Lark) -> T:
         """
         Parse a text with a Lark parser and transformer.
 
@@ -61,9 +60,8 @@ class BaseParser(Transformer[Any, T], ABC):
         old_tracebacklimit = getattr(sys, "tracebacklimit", None)
         try:
             sys.tracebacklimit = 0  # noqa
-            tree = parser.parse(text)
+            result = parser.parse(text)
             sys.tracebacklimit = None  # type: ignore
-            result = transformer.transform(tree)
         finally:
             if old_tracebacklimit is not None:
                 sys.tracebacklimit = old_tracebacklimit

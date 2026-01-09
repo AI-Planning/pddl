@@ -13,9 +13,9 @@
 """This module contains the tests for the domain parser."""
 from textwrap import dedent
 
-import lark
 import pytest
 
+from pddl.exceptions import PDDLParsingError
 from pddl.logic.base import And
 from pddl.logic.functions import (
     EqualTo,
@@ -61,7 +61,7 @@ def test_problem_objects_repetition_in_simple_typed_lists_not_allowed() -> None:
     )
 
     with pytest.raises(
-        lark.exceptions.VisitError,
+        PDDLParsingError,
         match=".*error while parsing tokens \\['a', 'b', 'c', 'a'\\]: "
         "duplicate name 'a' in typed list already present",
     ):
@@ -83,7 +83,7 @@ def test_problem_objects_repetition_in_typed_lists_not_allowed() -> None:
     )
 
     with pytest.raises(
-        lark.exceptions.VisitError,
+        PDDLParsingError,
         match=r".*error while parsing tokens \['a', '-', 't1', 'b', '-', 't2', 'c', '-', 't3', 'a', '-', 't4'\]: "
         r"duplicate name 'a' in typed list already inherits from types \['t1'\]",
     ):
