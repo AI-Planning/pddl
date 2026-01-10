@@ -490,7 +490,7 @@ def test_variables_types_propagated_in_derived_predicate_complex_condition() -> 
         """
     (define (domain samevariabledifferent)
         (:requirements :typing :equality :quantified-preconditions)
-        (:types mytype)
+        (:types mytype mytype2 mytype3)
         (:predicates
            (P ?v - mytype)
            (Q ?v)
