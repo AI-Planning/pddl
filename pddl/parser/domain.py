@@ -11,7 +11,18 @@
 #
 
 """Implementation of the PDDL domain parser."""
-from typing import AbstractSet, Any, Dict, List, Mapping, Optional, Sequence, Set, Tuple
+from typing import (
+    AbstractSet,
+    Any,
+    Dict,
+    FrozenSet,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+)
 
 from lark import ParseError, Transformer
 
@@ -171,7 +182,7 @@ class DomainTransformer(Transformer[Any, Domain]):
 
         # this is the mapping we will use to update the type tags of the variables occurrences
         # in the condition of the derived predicate
-        current_var_to_types = {}
+        current_var_to_types: Dict[str, FrozenSet[str]] = {}
         for idx, term in enumerate(dp_predicate.terms):
             assert_(
                 isinstance(term, Variable),
@@ -184,10 +195,12 @@ class DomainTransformer(Transformer[Any, Domain]):
                 # this has the effect of updating the type tags of the variable occurrence in both the dp_predicate
                 # and the dp_condition.
                 if len(predicate_def.terms[idx].type_tags) != 0:
-                    current_var_to_types[term.name] = predicate_def.terms[idx].type_tags
+                    current_var_to_types[term.name] = frozenset(
+                        predicate_def.terms[idx].type_tags
+                    )
             else:
                 # otherwise, we use the type tags from the definition of the derived predicate
-                current_var_to_types[term.name] = term.type_tags
+                current_var_to_types[term.name] = frozenset(term.type_tags)
 
                 # however, in this case, we also need to make sure that the type tags in the condition of the
                 # derived predicate are consistent with the type tags in the predicate definition
