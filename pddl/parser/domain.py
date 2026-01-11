@@ -11,7 +11,18 @@
 #
 
 """Implementation of the PDDL domain parser."""
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
+from typing import (
+    AbstractSet,
+    Any,
+    Dict,
+    FrozenSet,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+)
 
 from lark import ParseError, Transformer
 
@@ -41,6 +52,7 @@ from pddl.logic.functions import (
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
+from pddl.parser._update_type_tags import update_type_tags
 from pddl.parser.base import BaseParser
 from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols
 from pddl.parser.typed_list_parser import TypedListParser
@@ -60,6 +72,14 @@ class DomainTransformer(Transformer[Any, Domain]):
         self._current_parameters_by_name: Dict[str, Variable] = {}
         self._requirements: Set[Requirements] = set()
         self._extended_requirements: Set[Requirements] = set()
+        self._types: Optional[Mapping[name, Optional[name]]] = None
+
+    @property
+    def types_hierarchy(self) -> Mapping[name, Optional[name]]:
+        """Return the read-only types hierarchy."""
+        if self._types is None:
+            raise RuntimeError("Types hierarchy is not available yet.")
+        return self._types
 
     def start(self, args):
         """Entry point."""
@@ -80,6 +100,7 @@ class DomainTransformer(Transformer[Any, Domain]):
                 assert_(isinstance(arg, dict))
                 kwargs.update(arg)
         kwargs.update(actions=actions, derived_predicates=derived_predicates)
+        self._types = None
         return Domain(**kwargs)
 
     def domain_def(self, args):
@@ -103,6 +124,12 @@ class DomainTransformer(Transformer[Any, Domain]):
         for k in types_definition:
             if types_definition[k] == Symbols.OBJECT.value:
                 types_definition[k] = None
+
+        # record types hierarchy for later use during the parsing
+        # safety check: make sure self._types is not set
+        assert_(self._types is None, "parser is in an unexpected state")
+        self._types = types_definition
+
         return dict(types=types_definition)
 
     def constants(self, args):
@@ -138,9 +165,58 @@ class DomainTransformer(Transformer[Any, Domain]):
 
     def derived_predicates(self, args):
         """Process the 'derived_predicates' rule."""
-        predicate = args[2]
-        condition = args[3]
-        return DerivedPredicate(predicate, condition)
+        dp_predicate = args[2]
+        dp_condition = args[3]
+
+        # we need to make sure the variables in the condition of the derived predicate
+        # have type tags compatible with the variables in the corresponding predicate definition
+        # to do so, we read the type tags of the predicate arguments from the predicate definition in (:predicates ...)
+        if dp_predicate.name not in self._predicates_by_name:
+            raise ParseError(f"Predicate '{dp_predicate.name}' not defined.")
+        predicate_def = self._predicates_by_name[dp_predicate.name]
+        if len(predicate_def.terms) != len(dp_predicate.terms):
+            raise ParseError(
+                f"Derived predicate '{dp_predicate.name}' has {len(dp_predicate.terms)} arguments, "
+                f"but predicate definition has {len(predicate_def.terms)} arguments."
+            )
+
+        # this is the mapping we will use to update the type tags of the variables occurrences
+        # in the condition of the derived predicate
+        current_var_to_types: Dict[str, FrozenSet[str]] = {}
+        for idx, term in enumerate(dp_predicate.terms):
+            assert_(
+                isinstance(term, Variable),
+                f"Expected Variable, got {type(term).__name__}",
+            )
+
+            # if the term has no type tags, we try to use the type tags from the predicate definition
+            if len(term.type_tags) == 0:
+                # if the predicate definition specifies type tags for this argument, we use it.
+                # this has the effect of updating the type tags of the variable occurrence in both the dp_predicate
+                # and the dp_condition.
+                if len(predicate_def.terms[idx].type_tags) != 0:
+                    current_var_to_types[term.name] = frozenset(
+                        predicate_def.terms[idx].type_tags
+                    )
+            else:
+                # otherwise, we use the type tags from the definition of the derived predicate
+                current_var_to_types[term.name] = frozenset(term.type_tags)
+
+                # however, in this case, we also need to make sure that the type tags in the condition of the
+                # derived predicate are consistent with the type tags in the predicate definition
+                try:
+                    self._check_subtypes(
+                        term.type_tags, predicate_def.terms[idx].type_tags
+                    )
+                except PDDLParsingError as e:
+                    raise PDDLParsingError(
+                        f"Type tags in condition and predicate definition do not match "
+                        f"for variable '{term.name}' (position {idx}) in predicate '{dp_predicate.name}': {e}"
+                    )
+
+        new_predicate = update_type_tags(dp_predicate, current_var_to_types)
+        new_condition = update_type_tags(dp_condition, current_var_to_types)
+        return DerivedPredicate(new_predicate, new_condition)
 
     def action_parameters(self, args):
         """Process the 'action_parameters' rule."""
@@ -451,6 +527,26 @@ class DomainTransformer(Transformer[Any, Domain]):
     def _has_requirement(self, requirement: Requirements) -> bool:
         """Check whether a requirement is satisfied by the current state of the domain parsing."""
         return requirement in self._extended_requirements
+
+    def _check_subtypes(
+        self, type_tags_left: AbstractSet[name], type_tags_right: AbstractSet[name]
+    ):
+        """Check that each type tag in the left set is a subtype of (one of) the type tags of the right."""
+        if len(type_tags_right) == 0:
+            # 'object' type includes everything
+            return
+
+        # for each left type, navigate the type hierarchy until we find a type in the right set, or fail
+        for left_type in type_tags_left:
+            current_type = left_type
+            parent_type: Optional[name] = left_type
+            while parent_type is not None and parent_type not in type_tags_right:
+                parent_type = self.types_hierarchy.get(current_type, None)
+
+            if parent_type is None:
+                raise PDDLParsingError(
+                    f"Type '{left_type}' not found in types: '{type_tags_right}'."
+                )
 
 
 class DomainParser(BaseParser[Domain]):
