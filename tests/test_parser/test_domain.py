@@ -14,9 +14,9 @@
 from textwrap import dedent
 from typing import cast
 
-import lark
 import pytest
 
+from pddl.exceptions import PDDLParsingError, PDDLValidationError
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Not
 from pddl.logic.functions import (
     BinaryFunction,
@@ -106,7 +106,7 @@ def test_types_repetition_in_simple_typed_lists_not_allowed() -> None:
     )
 
     with pytest.raises(
-        lark.exceptions.VisitError,
+        PDDLParsingError,
         match=r".*error while parsing tokens \['a', 'b', 'c', 'a'\]: "
         "duplicate name 'a' in typed list already present",
     ):
@@ -125,7 +125,7 @@ def test_types_repetition_in_typed_lists_not_allowed() -> None:
     )
 
     with pytest.raises(
-        lark.exceptions.VisitError,
+        PDDLParsingError,
         match=r".*error while parsing tokens \['a', '-', 't1', 'b', 'c', '-', 't2', 'a', '-', 't3'\]: "
         r"duplicate name 'a' in typed list already inherits from types \['t1'\]",
     ):
@@ -169,7 +169,7 @@ def test_keyword_usage_not_allowed_as_name(keyword) -> None:
     )
 
     with pytest.raises(
-        lark.exceptions.VisitError,
+        PDDLValidationError,
         match=f".*invalid name '{keyword}': it is a keyword",
     ):
         DomainParser()(domain_str)
@@ -188,7 +188,7 @@ def test_keyword_usage_not_allowed_as_type(keyword) -> None:
     )
 
     with pytest.raises(
-        lark.exceptions.VisitError,
+        PDDLValidationError,
         match=f".*invalid type '{keyword}': it is a keyword",
     ):
         DomainParser()(domain_str)
@@ -207,7 +207,7 @@ def test_constants_repetition_in_simple_typed_lists_not_allowed() -> None:
     )
 
     with pytest.raises(
-        lark.exceptions.VisitError,
+        PDDLParsingError,
         match=".*error while parsing tokens \\['c1', 'c2', 'c3', 'c1'\\]: "
         "duplicate name 'c1' in typed list already present",
     ):
@@ -227,7 +227,7 @@ def test_constants_repetition_in_typed_lists_not_allowed() -> None:
     )
 
     with pytest.raises(
-        lark.exceptions.VisitError,
+        PDDLParsingError,
         match=".*error while parsing tokens \\['c1', '-', 't1', 'c1', '-', 't2'\\]: "
         "duplicate name 'c1' in typed list already inherits from types \\['t1'\\]",
     ):
@@ -261,7 +261,7 @@ def test_variables_repetition_in_typed_lists_not_allowed() -> None:
     )
 
     with pytest.raises(
-        lark.exceptions.VisitError,
+        PDDLParsingError,
         match=r".*error while parsing tokens \['x', '-', \['t1', 't2'\], 'x', '-', \['t3'\]\]: "
         r"invalid types for item \'x\': previous known tags were \['t1', 't2'\], got \['t3'\]",
     ):
@@ -281,7 +281,7 @@ def test_variables_typed_with_not_available_types() -> None:
     )
 
     with pytest.raises(
-        lark.exceptions.VisitError,
+        PDDLValidationError,
         match=r"types \['t2'\] of term Variable\(x\) are not in available types \{'t1'\}",
     ):
         DomainParser()(domain_str)
@@ -623,7 +623,7 @@ def test_check_action_costs_requirement_with_total_cost() -> None:
     """
     )
     with pytest.raises(
-        lark.exceptions.VisitError,
+        PDDLValidationError,
         match=r"action costs requirement is not specified, but the total-cost function is specified.",
     ):
         DomainParser()(domain_str)
