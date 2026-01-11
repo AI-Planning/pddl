@@ -40,6 +40,7 @@ from pddl.logic.base import And, Formula, is_literal
 from pddl.logic.functions import FunctionExpression, Metric, NumericFunction
 from pddl.logic.predicates import DerivedPredicate, Predicate
 from pddl.logic.terms import Constant
+from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements
 
 
@@ -174,7 +175,9 @@ class Domain:
             "",
             self.derived_predicates,
             "",
-            to_string=lambda obj: str(obj) + "\n",
+            to_string=lambda obj: f"({Symbols.DERIVED.value} "
+            f"{print_predicates_with_types([obj.predicate])} "
+            f"{obj.condition})\n",
         )
         body += sort_and_print_collection(
             "",
