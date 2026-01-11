@@ -58,6 +58,7 @@ DOMAIN_NAMES = [
     "miner",
     "rovers-numeric-automatic",
     "rovers_fond",
+    "social-planning",
     "sokoban-sequential-optimal",
     "spiky-tireworld",
     "storage",
