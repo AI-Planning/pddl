@@ -140,3 +140,7 @@ class Variable(Term):
     def __hash__(self) -> int:
         """Get the hash."""
         return hash((Variable, self._name))
+
+    def with_type_tags(self, type_tags: Optional[Collection[namelike]]) -> "Variable":
+        """Return a new variable with the given type tags."""
+        return Variable(self._name, type_tags=type_tags)
