@@ -65,13 +65,11 @@ class Term:
 
     def __lt__(self, other):
         """Compare with another term."""
-        if isinstance(other, Constant):
-            return (self.name, sorted(self.type_tags)) < (
-                other.name,
-                sorted(other.type_tags),
-            )
-        else:
+        if not isinstance(other, Term):
             return super().__lt__(other)
+        lhs = (type(self).__name__, self.name, sorted(self.type_tags))
+        rhs = (type(other).__name__, other.name, sorted(other.type_tags))
+        return lhs < rhs
 
 
 # TODO check correctness
