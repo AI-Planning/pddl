@@ -220,7 +220,7 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 ## Authors
 
-- [Marco Favorito](https://marcofavorito.me)
+- [Marco Favorito](https://scholar.google.com/citations?user=tJhhDGEAAAAJ&hl=en)
 - [Francesco Fuggitti](https://francescofuggitti.github.io)
 - [Christian Muise](http://www.haz.ca/)
 
