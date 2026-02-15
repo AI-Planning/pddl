@@ -35,7 +35,8 @@ from tests.conftest import TEXT_SYMBOLS
 
 def test_hierarchical_types() -> None:
     """Test correct parsing of hierarchical types (see https://github.com/AI-Planning/pddl/issues/70)."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain logistics)
         (:requirements :strips :typing)
         (:types truck airplane - vehicle
@@ -50,7 +51,8 @@ def test_hierarchical_types() -> None:
             :precondition (and (at ?truck ?loc) (at ?pkg ?loc))
             :effect       (and (not (at ?pkg ?loc)) (in ?pkg ?truck)))
     )
-    """)
+    """
+    )
     domain = DomainParser()(domain_str)
 
     assert domain.types == {
@@ -68,7 +70,8 @@ def test_hierarchical_types() -> None:
 
 def test_hierarchical_types_2() -> None:
     """Test correct parsing of hierarchical types, Storage domain."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain logistics)
         (:requirements :strips :typing)
         (:types hoist surface place area - object
@@ -76,7 +79,8 @@ def test_hierarchical_types_2() -> None:
             storearea transitarea - area
             crate - surface)
     )
-    """)
+    """
+    )
     domain = DomainParser()(domain_str)
     assert domain.types == {
         "hoist": None,
@@ -93,12 +97,14 @@ def test_hierarchical_types_2() -> None:
 
 def test_types_repetition_in_simple_typed_lists_not_allowed() -> None:
     """Check types repetition in simple typed lists is detected and a parsing error is raised."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain test)
         (:requirements :typing)
         (:types a b c a)
     )
-    """)
+    """
+    )
 
     with pytest.raises(
         PDDLParsingError,
@@ -110,12 +116,14 @@ def test_types_repetition_in_simple_typed_lists_not_allowed() -> None:
 
 def test_types_repetition_in_typed_lists_not_allowed() -> None:
     """Check types repetition in typed lists is detected and a parsing error is raised."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain test)
         (:requirements :typing)
         (:types a - t1 b c - t2 a - t3)
     )
-    """)
+    """
+    )
 
     with pytest.raises(
         PDDLParsingError,
@@ -127,7 +135,8 @@ def test_types_repetition_in_typed_lists_not_allowed() -> None:
 
 def test_typing_requirement_under_other_domain_requirements() -> None:
     """Check :typing requirement does not throw error if other domain requirements that includes it are detected."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
 (define (domain test)
   (:requirements :adl)
   (:types a b c)
@@ -137,7 +146,8 @@ def test_typing_requirement_under_other_domain_requirements() -> None:
     (predicate3 ?x - c)
     )
   )
-    """)
+    """
+    )
 
     domain = DomainParser()(domain_str)
     assert domain.types == {
@@ -150,12 +160,14 @@ def test_typing_requirement_under_other_domain_requirements() -> None:
 @pytest.mark.parametrize("keyword", TEXT_SYMBOLS - {Symbols.OBJECT.value})
 def test_keyword_usage_not_allowed_as_name(keyword) -> None:
     """Check keywords usage as names is detected and a parsing error is raised."""
-    domain_str = dedent(f"""
+    domain_str = dedent(
+        f"""
     (define (domain test)
         (:requirements :typing)
         (:types {keyword})
     )
-    """)
+    """
+    )
 
     with pytest.raises(
         PDDLValidationError,
@@ -167,12 +179,14 @@ def test_keyword_usage_not_allowed_as_name(keyword) -> None:
 @pytest.mark.parametrize("keyword", TEXT_SYMBOLS - {Symbols.OBJECT.value})
 def test_keyword_usage_not_allowed_as_type(keyword) -> None:
     """Check keywords usage as types is detected and a parsing error is raised."""
-    domain_str = dedent(f"""
+    domain_str = dedent(
+        f"""
     (define (domain test)
         (:requirements :typing)
         (:types t1 - {keyword})
     )
-    """)
+    """
+    )
 
     with pytest.raises(
         PDDLValidationError,
@@ -183,13 +197,15 @@ def test_keyword_usage_not_allowed_as_type(keyword) -> None:
 
 def test_constants_repetition_in_simple_typed_lists_not_allowed() -> None:
     """Check constants repetition in simple typed lists is detected and a parsing error is raised."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain test)
         (:requirements :typing)
         (:types t1)
         (:constants c1 c2 c3 c1)
     )
-    """)
+    """
+    )
 
     with pytest.raises(
         PDDLParsingError,
@@ -201,13 +217,15 @@ def test_constants_repetition_in_simple_typed_lists_not_allowed() -> None:
 
 def test_constants_repetition_in_typed_lists_not_allowed() -> None:
     """Check constants repetition in typed lists is detected and a parsing error is raised."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain test)
         (:requirements :typing)
         (:types t1 t2)
         (:constants c1 - t1 c1 - t2)
     )
-    """)
+    """
+    )
 
     with pytest.raises(
         PDDLParsingError,
@@ -219,25 +237,29 @@ def test_constants_repetition_in_typed_lists_not_allowed() -> None:
 
 def test_variables_repetition_in_simple_typed_lists_allowed() -> None:
     """Check variables repetition in simple typed lists is allowed."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain test)
         (:requirements :typing)
         (:predicates (p ?x ?y ?z ?x))
     )
-    """)
+    """
+    )
 
     DomainParser()(domain_str)
 
 
 def test_variables_repetition_in_typed_lists_not_allowed() -> None:
     """Check variables repetition in typed lists is detected and a parsing error is raised."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain test)
         (:requirements :typing)
         (:types t1 t2)
         (:predicates (p ?x - (either t1 t2) ?x - t3))
     )
-    """)
+    """
+    )
 
     with pytest.raises(
         PDDLParsingError,
@@ -249,13 +271,15 @@ def test_variables_repetition_in_typed_lists_not_allowed() -> None:
 
 def test_variables_typed_with_not_available_types() -> None:
     """Check variables with non-available types raises a parsing error."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain test)
         (:requirements :typing)
         (:types t1)
         (:predicates (p ?x - t2))
     )
-    """)
+    """
+    )
 
     with pytest.raises(
         PDDLValidationError,
@@ -266,7 +290,8 @@ def test_variables_typed_with_not_available_types() -> None:
 
 def test_variables_repetition_allowed_if_same_type() -> None:
     """Check variables repetition in typed lists is allowed."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain test)
         (:requirements :typing :existential-preconditions :universal-preconditions)
         (:types t1 t2)
@@ -277,14 +302,16 @@ def test_variables_repetition_allowed_if_same_type() -> None:
             :effect (p ?x ?x)
         )
     )
-    """)
+    """
+    )
     DomainParser()(domain_str)
 
 
 def test_action_parameter_type_propagation_in_precondition_and_effect() -> None:
     """Test that the type tags of vars in single action parameters propagate correctly in precondition/effect terms."""
     # single param ?v - mytype; ensure propagation to precondition and effect
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain action_type_propagation)
         (:requirements :typing)
         (:types mytype - object)
@@ -297,7 +324,8 @@ def test_action_parameter_type_propagation_in_precondition_and_effect() -> None:
           :precondition (Q ?v)
           :effect (P ?v))
     )
-    """)
+    """
+    )
     domain = DomainParser()(domain_str)
 
     action = next(iter(domain.actions))
@@ -325,7 +353,8 @@ def test_action_parameter_type_propagation_in_precondition_and_effect() -> None:
 def test_action_multiple_parameters_each_propagates_independently() -> None:
     """Test that the type tags of vars in many actions parameters propagate correctly in precondition/effect terms."""
     # two params ?x - mytype1 and ?y - mytype2; ensure each keeps its own types
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain action_two_params)
         (:requirements :typing)
         (:types mytype1 mytype2)
@@ -343,7 +372,8 @@ def test_action_multiple_parameters_each_propagates_independently() -> None:
           :precondition (S ?y)
           :effect (R ?x ?y))
     )
-    """)
+    """
+    )
     domain = DomainParser()(domain_str)
 
     # ---- Check variable types in predicate *definitions* ----
@@ -419,7 +449,8 @@ def test_action_multiple_parameters_each_propagates_independently() -> None:
 
 def test_variables_types_propagated_in_derived_predicate() -> None:
     """Test that variables occurring in definition of derived predicate propagated in its condition."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain samevariabledifferent)
         (:requirements :typing)
         (:types mytype)
@@ -430,7 +461,8 @@ def test_variables_types_propagated_in_derived_predicate() -> None:
         (:derived (P ?v)
           (Q ?v))
         )
-    """)
+    """
+    )
     domain = DomainParser()(domain_str)
 
     # check that type of variable ?v in predicates is parsed correctly
@@ -455,7 +487,8 @@ def test_variables_types_propagated_in_derived_predicate() -> None:
 
 def test_variables_types_propagated_in_derived_predicate_complex_condition() -> None:
     """Test that variables occurring in definition of derived predicate propagated in its complex condition."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain samevariabledifferent)
         (:requirements :typing :equality :quantified-preconditions)
         (:types mytype mytype2 mytype3)
@@ -475,7 +508,8 @@ def test_variables_types_propagated_in_derived_predicate_complex_condition() -> 
           )
         )
     )
-    """)
+    """
+    )
     domain = DomainParser()(domain_str)
 
     # check that type of variable ?v in predicates is parsed correctly
@@ -541,7 +575,8 @@ def test_variables_types_propagated_in_derived_predicate_complex_condition() -> 
 
 def test_variables_types_propagated_in_derived_predicate_complex_hierarchy() -> None:
     """Test that variables occurring in definition of derived predicate propagated in its condition."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain samevariabledifferent)
         (:requirements :typing)
         (:types child1 - root_type
@@ -555,7 +590,8 @@ def test_variables_types_propagated_in_derived_predicate_complex_hierarchy() -> 
         (:derived (P ?v - child1) (Q ?v))
         (:derived (P ?v - child3) (R ?v))
     )
-    """)
+    """
+    )
     domain = DomainParser()(domain_str)
     axioms = sorted(
         domain.derived_predicates, key=lambda dp: cast(Predicate, dp.condition).name
@@ -572,7 +608,8 @@ def test_variables_types_propagated_in_derived_predicate_complex_hierarchy() -> 
 
 def test_check_action_costs_requirement_with_total_cost() -> None:
     """Check action costs requirement when total-cost is specified."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain test)
         (:requirements :typing)
         (:types t1 t2)
@@ -584,7 +621,8 @@ def test_check_action_costs_requirement_with_total_cost() -> None:
             :effect (and (p ?x ?x) (increase (total-cost) 1))
         )
     )
-    """)
+    """
+    )
     with pytest.raises(
         PDDLValidationError,
         match=r"action costs requirement is not specified, but the total-cost function is specified.",
@@ -594,7 +632,8 @@ def test_check_action_costs_requirement_with_total_cost() -> None:
 
 def test_variable_types_in_strips_action_definition() -> None:
     """Check typing for predicate variables in action preconditions and effects."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain test)
         (:requirements :typing)
         (:types t1 t2)
@@ -605,7 +644,8 @@ def test_variable_types_in_strips_action_definition() -> None:
             :effect (p ?x ?y)
         )
     )
-    """)
+    """
+    )
     domain = DomainParser()(domain_str)
     action = next(iter(domain.actions))
     x = Variable("x", {"t1"})
@@ -619,7 +659,8 @@ def test_variable_types_in_strips_action_definition() -> None:
 
 def test_variable_types_in_numeric_action_definition() -> None:
     """Check typing for function variables in action preconditions and effects."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain test)
         (:requirements :typing :numeric-fluents)
         (:types t1 t2)
@@ -630,7 +671,8 @@ def test_variable_types_in_numeric_action_definition() -> None:
             :effect (increase (f ?x ?y) 1)
         )
     )
-    """)
+    """
+    )
     domain = DomainParser()(domain_str)
     action = next(iter(domain.actions))
     x = Variable("x", {"t1"})
@@ -646,7 +688,8 @@ def test_variable_types_in_numeric_action_definition() -> None:
 
 def test_number_parsing() -> None:
     """Check parsing of numbers in  action preconditions and effects."""
-    domain_str = dedent("""
+    domain_str = dedent(
+        """
     (define (domain test)
         (:requirements :typing :numeric-fluents)
         (:types t1 t2)
@@ -657,7 +700,8 @@ def test_number_parsing() -> None:
             :effect (and (decrease (f ?x ?y) 42) (increase (g ?y) 0.5))
         )
     )
-    """)
+    """
+    )
     domain = DomainParser()(domain_str)
     action = next(iter(domain.actions))
     x = Variable("x", {"t1"})
