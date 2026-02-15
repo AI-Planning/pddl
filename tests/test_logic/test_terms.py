@@ -11,6 +11,7 @@
 #
 
 """Test pddl.logic.terms module."""
+
 import pytest
 
 from pddl.logic.terms import Constant, Variable

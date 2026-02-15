@@ -11,6 +11,7 @@
 #
 
 """This class implements PDDL functions."""
+
 import functools
 from abc import abstractmethod
 from collections.abc import Mapping

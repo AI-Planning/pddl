@@ -11,6 +11,7 @@
 #
 
 """Utility to handle typed lists."""
+
 import itertools
 from typing import Any, Dict, Generic, List, Optional, Set, Tuple, TypeVar, Union
 

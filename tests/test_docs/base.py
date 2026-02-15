@@ -11,6 +11,7 @@
 #
 
 """Utilities for docs tests."""
+
 import traceback
 from functools import partial
 from pathlib import Path

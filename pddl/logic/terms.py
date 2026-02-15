@@ -11,6 +11,7 @@
 #
 
 """This modules implements PDDL terms."""
+
 import functools
 from typing import AbstractSet, Any, Collection, Optional
 

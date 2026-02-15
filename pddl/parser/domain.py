@@ -11,6 +11,7 @@
 #
 
 """Implementation of the PDDL domain parser."""
+
 from typing import (
     AbstractSet,
     Any,

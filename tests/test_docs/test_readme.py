@@ -11,6 +11,7 @@
 #
 
 """Test introduction documentation page."""
+
 import logging
 from io import StringIO
 from unittest.mock import patch

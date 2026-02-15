@@ -11,6 +11,7 @@
 #
 
 """Base classes for PDDL parsers."""
+
 import sys
 from abc import ABC
 from typing import Any, Type, TypeVar, cast

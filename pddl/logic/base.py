@@ -11,6 +11,7 @@
 #
 
 """Base classes for PDDL logic formulas."""
+
 import functools
 from abc import abstractmethod
 from typing import AbstractSet, Any, Collection, List, Mapping, Optional, Sequence

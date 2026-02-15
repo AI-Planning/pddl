@@ -14,6 +14,7 @@ Core module of the package.
 
 It contains the class definitions to build and modify PDDL domains or problems.
 """
+
 from textwrap import indent
 from typing import AbstractSet, Collection, Dict, List, Optional, Tuple, cast
 

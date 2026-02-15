@@ -11,6 +11,7 @@
 #
 
 """This module contains the definition of the PDDL requirements."""
+
 import functools
 from enum import Enum
 from typing import AbstractSet, Set

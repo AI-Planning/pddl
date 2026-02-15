@@ -11,6 +11,7 @@
 #
 
 """This module contains tests for the CLI tool."""
+
 import logging
 
 import pytest

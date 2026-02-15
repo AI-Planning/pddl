@@ -11,6 +11,7 @@
 #
 
 """This module contains tests for a PDDL problem."""
+
 import copy
 import pickle  # nosec
 

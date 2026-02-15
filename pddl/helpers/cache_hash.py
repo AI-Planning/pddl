@@ -11,6 +11,7 @@
 #
 
 """Base classes for pylogics logic formulas."""
+
 from functools import wraps
 from typing import Any, Callable, cast
 

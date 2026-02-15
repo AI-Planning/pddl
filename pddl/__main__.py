@@ -11,6 +11,7 @@
 #
 
 """Main entrypoint for the PDDL parser CLI tool."""
+
 import os
 import sys
 

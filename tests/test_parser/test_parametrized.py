@@ -11,10 +11,11 @@
 #
 
 """This module contains parametrized tests for both domains and problems parsers."""
+
 from pathlib import Path
 
 import pytest
-from pytest_lazy_fixtures import lf as lazy_fixture  # type:ignore  # noqa
+from pytest_lazy_fixtures import lf as lazy_fixture  # type: ignore  # noqa
 
 from pddl.core import Domain, Problem
 from tests.conftest import (
@@ -39,11 +40,11 @@ def test_problem_parser(domain_parser, problem_parser, pddl_file: Path):
     [
         (
             BLOCKSWORLD_FILES / "p01.pddl",
-            lazy_fixture("blocksworld_problem_01"),  # type:ignore
+            lazy_fixture("blocksworld_problem_01"),  # type: ignore
         ),
         (
             BLOCKSWORLD_FOND_FILES / "p01.pddl",
-            lazy_fixture("blocksworld_fond_01"),  # type:ignore
+            lazy_fixture("blocksworld_fond_01"),  # type: ignore
         ),
     ],
 )
@@ -60,15 +61,15 @@ def test_check_problem_parser_output(problem_parser, pddl_file: Path, expected_p
     [
         (
             BLOCKSWORLD_FILES / "domain.pddl",
-            lazy_fixture("blocksworld_domain"),  # type:ignore
+            lazy_fixture("blocksworld_domain"),  # type: ignore
         ),
         (
             TRIANGLE_FILES / "domain.pddl",
-            lazy_fixture("triangle_tireworld_domain"),  # type:ignore
+            lazy_fixture("triangle_tireworld_domain"),  # type: ignore
         ),
         (
             BLOCKSWORLD_FOND_FILES / "domain.pddl",
-            lazy_fixture("blocksworld_fond_domain"),  # type:ignore
+            lazy_fixture("blocksworld_fond_domain"),  # type: ignore
         ),
     ],
 )

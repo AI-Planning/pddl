@@ -11,6 +11,7 @@
 #
 
 """This module contains the configurations for the tests."""
+
 import inspect
 import itertools
 from pathlib import Path
@@ -122,14 +123,14 @@ from tests.fixtures.code_objects.triangle_tireworld import (  # noqa: E402, F401
 )
 
 pddl_objects_domains = [
-    lf("blocksworld_domain"),  # type:ignore
-    lf("triangle_tireworld_domain"),  # type:ignore
-    lf("blocksworld_fond_domain"),  # type:ignore
+    lf("blocksworld_domain"),  # type: ignore
+    lf("triangle_tireworld_domain"),  # type: ignore
+    lf("blocksworld_fond_domain"),  # type: ignore
 ]
 pddl_objects_problems = [
-    lf("blocksworld_fond_01"),  # type:ignore
-    lf("blocksworld_problem_01"),  # type:ignore
-    lf("triangle_tireworld_problem_01"),  # type:ignore
+    lf("blocksworld_fond_01"),  # type: ignore
+    lf("blocksworld_problem_01"),  # type: ignore
+    lf("triangle_tireworld_problem_01"),  # type: ignore
 ]
 
 #################################################

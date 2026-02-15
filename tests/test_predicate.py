@@ -11,6 +11,7 @@
 #
 
 """This module contains tests for PDDL predicates."""
+
 from pddl.core import Predicate
 from pddl.logic.base import And
 from pddl.logic.helpers import constants, variables

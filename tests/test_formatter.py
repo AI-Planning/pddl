@@ -12,6 +12,7 @@
 #
 
 """This module contains tests verifying that the formatter outputs are syntactically valid and semantically faithful."""
+
 from pathlib import Path
 from textwrap import dedent
 
@@ -73,8 +74,7 @@ def test_typed_constants_formatting_in_domain() -> None:
 
     domain_str = domain_to_string(domain)
 
-    assert domain_str == dedent(
-        """\
+    assert domain_str == dedent("""\
     (define (domain my_domain)
         (:requirements :typing)
         (:types
@@ -82,8 +82,7 @@ def test_typed_constants_formatting_in_domain() -> None:
             type_2 type_3 - type_1
         )
         (:constants a b c - type_1 d e f - type_2 g h i - type_3 j k l)
-    )"""
-    )
+    )""")
 
 
 def test_typed_objects_formatting_in_problem() -> None:
@@ -103,16 +102,14 @@ def test_typed_objects_formatting_in_problem() -> None:
     )
     problem_str = problem_to_string(problem)
 
-    assert problem_str == dedent(
-        """\
+    assert problem_str == dedent("""\
     (define (problem problem-1)
         (:domain my_domain)
         (:requirements :typing)
         (:objects a b c - type_1 d e f - type_2 g h i - type_3 j k l)
         (:init )
         (:goal (and ))
-    )"""
-    )
+    )""")
 
 
 def test_numerical_hello_world_domain_formatter():

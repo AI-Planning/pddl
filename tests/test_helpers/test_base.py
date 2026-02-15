@@ -11,6 +11,7 @@
 #
 
 """Test the base helpers."""
+
 from pddl.helpers.base import find_cycle
 
 
