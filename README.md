@@ -201,7 +201,7 @@ If you want to contribute, here's how to set up your development environment.
 
 - Install [Pipenv](https://pipenv-fork.readthedocs.io/en/latest/)
 - Clone the repository: `git clone https://github.com/AI-Planning/pddl.git && cd pddl`
-- Install development dependencies: `pipenv shell --python 3.9 && pipenv install --dev`
+- Install development dependencies: `pipenv shell --python 3.10 && pipenv install --dev`
 
 ## Tests
 
