@@ -11,6 +11,7 @@
 #
 
 """This module contains tests for a PDDL plan."""
+
 import pytest
 
 from pddl import parse_domain

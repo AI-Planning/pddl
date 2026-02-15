@@ -11,6 +11,7 @@
 #
 
 """This class implements PDDL predicates."""
+
 import functools
 from typing import Dict, Mapping, Sequence, Set
 

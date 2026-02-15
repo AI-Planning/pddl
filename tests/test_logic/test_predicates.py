@@ -11,6 +11,7 @@
 #
 
 """Test pddl.logic.predicates module."""
+
 import pytest
 
 from pddl.logic import Predicate

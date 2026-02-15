@@ -11,6 +11,7 @@
 #
 
 """This modules implements PDDL effects."""
+
 import functools
 from typing import AbstractSet, Collection, Optional, Union
 

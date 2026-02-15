@@ -11,6 +11,7 @@
 #
 
 """This test module contains the fixtures for 'blocksworld-ipc08' domain and problem."""
+
 import pytest
 
 from pddl.action import Action

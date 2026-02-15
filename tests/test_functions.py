@@ -11,6 +11,7 @@
 #
 
 """This module contains tests for PDDL functions."""
+
 import pytest
 
 from pddl.logic.functions import Metric, NumericFunction, NumericValue

@@ -11,6 +11,7 @@
 #
 
 """This module contains a utility function to propagate type tags of variables correctly along the formula."""
+
 import copy
 from functools import singledispatch
 from typing import FrozenSet, Mapping, Optional

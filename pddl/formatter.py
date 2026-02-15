@@ -11,6 +11,7 @@
 #
 
 """Formatting utilities for PDDL domains and problems."""
+
 from typing import Callable, Collection, Dict, List, Optional, TypeVar
 
 from pddl.custom_types import name

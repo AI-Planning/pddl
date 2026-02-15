@@ -11,6 +11,7 @@
 #
 
 """This module contains tests for a PDDL domain."""
+
 import copy
 import pickle  # nosec
 import re

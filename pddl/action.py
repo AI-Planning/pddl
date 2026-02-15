@@ -11,6 +11,7 @@
 #
 
 """This module contains the definition of the PDDL action class."""
+
 from typing import Optional, Sequence
 
 from pddl.custom_types import namelike, parse_name

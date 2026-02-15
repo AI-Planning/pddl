@@ -10,6 +10,7 @@
 # https://opensource.org/licenses/MIT.
 #
 """This module contains tests for PDDL function operators."""
+
 from pddl.logic import variables
 from pddl.logic.functions import (
     EqualTo,

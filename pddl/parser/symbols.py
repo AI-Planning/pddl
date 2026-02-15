@@ -11,6 +11,7 @@
 #
 
 """This module contains the definition to deal with symbols."""
+
 from enum import Enum
 from typing import Set
 

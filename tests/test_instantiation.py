@@ -11,6 +11,7 @@
 #
 
 """This module contains tests for action instantiation."""
+
 import os
 
 import pytest
