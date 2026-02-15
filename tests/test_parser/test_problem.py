@@ -32,16 +32,14 @@ from pddl.requirements import Requirements
 
 def test_problem_requirements_section_parsed() -> None:
     """Check that the requirements section is parsed correctly."""
-    problem_str = dedent(
-        """
+    problem_str = dedent("""
         (define (problem test-problem)
             (:domain test-domain)
             (:requirements :typing)
             (:objects a b c)
             (:init (p b b b))
             (:goal (g a a a))
-        )"""
-    )
+        )""")
     problem = ProblemParser()(problem_str)
 
     assert problem.requirements == {Requirements.TYPING}
@@ -49,8 +47,7 @@ def test_problem_requirements_section_parsed() -> None:
 
 def test_problem_objects_repetition_in_simple_typed_lists_not_allowed() -> None:
     """Check objects repetition in simple typed lists is detected and a parsing error is raised."""
-    problem_str = dedent(
-        """
+    problem_str = dedent("""
     (define (problem test-problem)
         (:domain test-domain)
         (:requirements :typing)
@@ -58,8 +55,7 @@ def test_problem_objects_repetition_in_simple_typed_lists_not_allowed() -> None:
         (:init )
         (:goal (and ))
     )
-    """
-    )
+    """)
 
     with pytest.raises(
         PDDLParsingError,
@@ -71,8 +67,7 @@ def test_problem_objects_repetition_in_simple_typed_lists_not_allowed() -> None:
 
 def test_problem_objects_repetition_in_typed_lists_not_allowed() -> None:
     """Check objects repetition in typed lists is detected and a parsing error is raised."""
-    problem_str = dedent(
-        """
+    problem_str = dedent("""
     (define (problem test-problem)
         (:domain test-domain)
         (:requirements :typing)
@@ -80,8 +75,7 @@ def test_problem_objects_repetition_in_typed_lists_not_allowed() -> None:
         (:init )
         (:goal (and ))
     )
-    """
-    )
+    """)
 
     with pytest.raises(
         PDDLParsingError,
@@ -93,8 +87,7 @@ def test_problem_objects_repetition_in_typed_lists_not_allowed() -> None:
 
 def test_problem_init_predicate_arg_repetition_allowed() -> None:
     """Check argument repetition in predicate list is allowed."""
-    problem_str = dedent(
-        """
+    problem_str = dedent("""
     (define (problem test-problem)
         (:domain test-domain)
         (:requirements :typing)
@@ -102,15 +95,13 @@ def test_problem_init_predicate_arg_repetition_allowed() -> None:
         (:init (p a a))
         (:goal (and ))
     )
-    """
-    )
+    """)
     ProblemParser()(problem_str)
 
 
 def test_problem_init_predicate_repetition_name_allowed() -> None:
     """Check predicate repetition in init condition is allowed."""
-    problem_str = dedent(
-        """
+    problem_str = dedent("""
     (define (problem test-problem)
         (:domain test-domain)
         (:requirements :typing)
@@ -118,15 +109,13 @@ def test_problem_init_predicate_repetition_name_allowed() -> None:
         (:init (p a a) (p a a))
         (:goal (and ))
     )
-    """
-    )
+    """)
     ProblemParser()(problem_str)
 
 
 def test_numeric_comparison_in_goal() -> None:
     """Try to parse a goal with a numeric condition."""
-    problem_str = dedent(
-        """
+    problem_str = dedent("""
     (define (problem hello-3-times)
         (:domain hello-world-functions)
 
@@ -139,8 +128,7 @@ def test_numeric_comparison_in_goal() -> None:
             (> 5 3)
         )
     )
-    """
-    )
+    """)
     problem = ProblemParser()(problem_str)
     assert problem.init == {
         EqualTo(NumericFunction("hello_counter", Constant("jimmy")), NumericValue(0))
@@ -150,8 +138,7 @@ def test_numeric_comparison_in_goal() -> None:
 
 def test_numeric_function_comparison_in_goal() -> None:
     """Try to parse a goal with a numeric condition and function."""
-    problem_str = dedent(
-        """
+    problem_str = dedent("""
     (define (problem hello-3-times)
         (:domain hello-world-functions)
 
@@ -164,8 +151,7 @@ def test_numeric_function_comparison_in_goal() -> None:
             (>= (hello_counter jimmy) 3)
         )
     )
-    """
-    )
+    """)
     problem = ProblemParser()(problem_str)
     assert problem.init == {
         EqualTo(NumericFunction("hello_counter", Constant("jimmy")), NumericValue(0))
@@ -177,8 +163,7 @@ def test_numeric_function_comparison_in_goal() -> None:
 
 def test_numeric_function_equality_in_goal() -> None:
     """Try to parse a goal with a numeric condition and function."""
-    problem_str = dedent(
-        """
+    problem_str = dedent("""
     (define (problem hello-3-times)
         (:domain hello-world-functions)
 
@@ -195,8 +180,7 @@ def test_numeric_function_equality_in_goal() -> None:
             )
         )
     )
-    """
-    )
+    """)
     problem = ProblemParser()(problem_str)
     assert problem.init == {
         EqualTo(NumericFunction("hello_counter", Constant("jimmy")), NumericValue(0)),
