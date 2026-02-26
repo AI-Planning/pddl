@@ -164,10 +164,10 @@ plan = parse_plan("p.plan")
 ### As CLI tool
 
 The package can also be used as a CLI tool.
-Supported commands are:
-- `pddl domain FILE`: validate a PDDL domain file, and print it formatted.
-- `pddl problem FILE`: validate a PDDL problem file, and print it formatted.
-- `pddl plan FILE`: validate a PDDL plan file, and print it formatted.
+Supported invocations are:
+- `pddl DOMAIN_FILE`: validate a PDDL domain file, and print it formatted.
+- `pddl DOMAIN_FILE PROBLEM_FILE`: validate both files, check the problem against the domain, and print both formatted.
+- `pddl DOMAIN_FILE PROBLEM_FILE PLAN_FILE`: validate all three files, instantiate the plan against the domain, and print all formatted.
 
 ## Features
 
