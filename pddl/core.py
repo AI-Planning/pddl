@@ -292,7 +292,7 @@ class Problem:
     def check(self, domain: Domain) -> None:
         """Check the problem definition against a domain definition."""
         validate(
-            self.domain_name == domain.name,
+            self.domain_name.lower() == domain.name.lower(),
             "Domain names don't match.",
         )
         validate(
