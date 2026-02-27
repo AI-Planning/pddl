@@ -420,15 +420,40 @@ class Plan:
             ret.append(instantiated_action)
         return ret
 
+    def check(self, domain: Domain, problem: Problem) -> None:
+        """Check the plan against a domain and a problem."""
+        name_to_schema = {action.name: action for action in domain.actions}
+        domain_actions = {action.name for action in domain.actions}
+        all_objects = problem.objects | domain.constants
+        for action_name, parameters in self._actions:
+            action = self._action_to_string(action_name, parameters)
+            validate(
+                action_name in domain_actions,
+                f"Action schema name of {action} not found in domain.",
+            )
+            validate(
+                len(parameters) == len(name_to_schema[action_name].parameters),
+                f"Number of parameters of {action} does not match with the action schema in the domain.",
+            )
+            validate(
+                all(param in all_objects for param in parameters),
+                f"Some parameters of {action} are not in the problem objects.",
+            )
+
+    def _action_to_string(
+        self, action_name: namelike, parameters: List["Constant"]
+    ) -> str:
+        """Convert an action to a string."""
+        params = " ".join(str(param) for param in parameters)
+        return f"({action_name} {params})"
+
     def __eq__(self, other):
         """Compare with another object."""
         return isinstance(other, Plan) and self._actions == other._actions
 
     def __str__(self) -> str:
         """Print a PDDL plan object."""
-        a_strs = []
+        actions = []
         for action_name, parameters in self._actions:
-            params = " ".join(str(param) for param in parameters)
-            a_str = f"({action_name} {params})"
-            a_strs.append(a_str)
-        return "\n".join(a_strs)
+            actions.append(self._action_to_string(action_name, parameters))
+        return "\n".join(actions)
