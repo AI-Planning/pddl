@@ -29,6 +29,7 @@ jobs:
         pyver=`echo ${{ matrix.python-version }} | tr -d "."`
         tox -e py${{ matrix.python-version }}
     - name: Upload coverage to Codecov
+      if: github.actor != 'dependabot[bot]'
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
