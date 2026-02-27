@@ -17,7 +17,7 @@ import pytest
 from pddl import parse_domain
 from pddl.core import Plan
 from pddl.logic.helpers import constants
-from tests.conftest import DOMAIN_FILES
+from tests.conftest import BLOCKSWORLD_FILES, DOMAIN_FILES
 
 
 class TestPlanEmpty:
@@ -69,3 +69,15 @@ def test_bad_plan_and_domain():
 
     with pytest.raises(ValueError):
         plan.instantiate(domain)
+
+
+def test_plan_instantiation_eq():
+    """Test Issue #176."""
+    domain = parse_domain(BLOCKSWORLD_FILES / "domain.pddl")
+    b1, b2 = constants("badblock1 badblock2")
+    plan = Plan(actions=[("pick-up", [b1, b2])])
+    instantiated_plan = plan.instantiate(domain)
+    assert len(instantiated_plan) == 1
+    assert instantiated_plan[0].name == "pick-up"
+    assert instantiated_plan[0].parameters == (b1, b2)
+    assert "badblock" not in str(domain)
