@@ -20,6 +20,8 @@ from pddl.exceptions import PDDLValidationError
 from pddl.logic.base import Not
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
+from pddl import parse_domain
+from tests.conftest import BLOCKSWORLD_FILES, DOMAIN_FILES
 
 
 class TestPlanEmpty:
@@ -125,3 +127,15 @@ def test_bad_plan_objects():
         match="Some parameters of .* are not in the problem objects.",
     ):
         plan.check(domain, problem)
+
+
+def test_plan_instantiation_eq():
+    """Test Issue #176."""
+    domain = parse_domain(BLOCKSWORLD_FILES / "domain.pddl")
+    b1, b2 = constants("badblock1 badblock2")
+    plan = Plan(actions=[("pick-up", [b1, b2])])
+    instantiated_plan = plan.instantiate(domain)
+    assert len(instantiated_plan) == 1
+    assert instantiated_plan[0].name == "pick-up"
+    assert instantiated_plan[0].parameters == (b1, b2)
+    assert "badblock" not in str(domain)
