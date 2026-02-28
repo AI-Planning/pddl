@@ -167,7 +167,7 @@ The package can also be used as a CLI tool.
 Supported invocations are:
 - `pddl DOMAIN_FILE`: validate a PDDL domain file, and print it formatted.
 - `pddl DOMAIN_FILE PROBLEM_FILE`: validate both files, check the problem against the domain, and print both formatted.
-- `pddl DOMAIN_FILE PROBLEM_FILE PLAN_FILE`: validate all three files, instantiate the plan against the domain, and print all formatted.
+- `pddl DOMAIN_FILE PROBLEM_FILE PLAN_FILE`: validate all three files, check the plan against the domain and problem, and print all formatted.
 
 ## Features
 

@@ -40,14 +40,16 @@ def cli(domain_file, problem_file, plan_file, quiet):
         sys.stdout = open(os.devnull, "a")
     domain = parse_domain(domain_file)
     print(domain_to_string(domain))
-    if problem_file is not None:
-        problem = parse_problem(problem_file)
-        problem.check(domain)
-        print(problem_to_string(problem))
-    if plan_file is not None:
-        plan = parse_plan(plan_file)
-        plan.instantiate(domain)
-        print(plan_to_string(plan))
+    if problem_file is None:
+        return
+    problem = parse_problem(problem_file)
+    problem.check(domain)
+    print(problem_to_string(problem))
+    if plan_file is None:
+        return
+    plan = parse_plan(plan_file)
+    plan.check(domain, problem)
+    print(plan_to_string(plan))
 
 
 if __name__ == "__main__":
