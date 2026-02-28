@@ -21,7 +21,7 @@ from pddl.exceptions import PDDLValidationError
 from pddl.logic.base import Not
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
-from tests.conftest import BLOCKSWORLD_FILES, DOMAIN_FILES
+from tests.conftest import BLOCKSWORLD_FILES
 
 
 class TestPlanEmpty:
