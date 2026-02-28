@@ -14,13 +14,13 @@
 
 import pytest
 
+from pddl import parse_domain
 from pddl.action import Action
 from pddl.core import Domain, Plan, Problem
 from pddl.exceptions import PDDLValidationError
 from pddl.logic.base import Not
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
-from pddl import parse_domain
 from tests.conftest import BLOCKSWORLD_FILES, DOMAIN_FILES
 
 
