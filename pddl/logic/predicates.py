@@ -141,11 +141,13 @@ class EqualTo(Atomic):
 
     def instantiate(self, mapping: Mapping[Variable, Term]) -> "EqualTo":
         """Instantiate the formula with a mapping from variables to terms."""
+        instantiated_left = self._left
+        instantiated_right = self._right
         if isinstance(self._left, Variable) and self._left in mapping:
-            self._left = mapping[self._left]
+            instantiated_left = mapping[self._left]
         if isinstance(self._right, Variable) and self._right in mapping:
-            self._right = mapping[self._right]
-        return self
+            instantiated_right = mapping[self._right]
+        return EqualTo(instantiated_left, instantiated_right)
 
     def __eq__(self, other) -> bool:
         """Compare with another object."""
