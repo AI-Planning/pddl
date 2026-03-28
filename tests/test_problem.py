@@ -18,6 +18,7 @@ import pickle  # nosec
 import pytest
 
 from pddl.core import Domain, Problem
+from pddl.exceptions import PDDLValidationError
 from pddl.logic.base import And, Not
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
@@ -147,3 +148,20 @@ def test_build_problem_with_numeric_goal():
         goal=p & q & GreaterThan(cost1, 3) & LesserThan(cost2, 10),
     )
     assert problem
+
+
+def test_problem_check_domain_name_mismatch() -> None:
+    """Test domain name check fails when names differ beyond case."""
+    domain = Domain("simple_domain")
+    problem = Problem("simple_problem", domain_name="SIMPLE_DOMAIN2")
+
+    with pytest.raises(PDDLValidationError, match="Domain names don't match."):
+        problem.check(domain)
+
+
+def test_problem_check_domain_name_case_insensitive_match() -> None:
+    """Test domain name check accepts names that only differ by case."""
+    domain = Domain("simple_domain")
+    problem = Problem("simple_problem", domain_name="SIMPLE_DOMAIN")
+
+    problem.check(domain)
