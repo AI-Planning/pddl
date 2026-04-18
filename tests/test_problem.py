@@ -170,7 +170,13 @@ def test_problem_check_domain_name_case_insensitive_match() -> None:
 
 def test_problem_check_domain_requirements_match() -> None:
     """Test problem requirements are subset of a domain's requirements."""
-    domain = Domain("simple_domain", requirements=[Requirements.STRIPS, Requirements.EQUALITY])
-    problem = Problem("simple_problem", domain_name="simple_domain", requirements=[Requirements.STRIPS])
+    domain = Domain(
+        "simple_domain", requirements=[Requirements.STRIPS, Requirements.EQUALITY]
+    )
+    problem = Problem(
+        "simple_problem",
+        domain_name="simple_domain",
+        requirements=[Requirements.STRIPS],
+    )
 
     problem.check(domain)
