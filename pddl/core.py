@@ -296,7 +296,7 @@ class Problem:
             "Domain names don't match.",
         )
         validate(
-            self._requirements is None or self._requirements == domain.requirements,
+            self._requirements is None or self._requirements <= domain.requirements,
             "Requirements don't match.",
         )
         types = Types(domain.types, domain.requirements, skip_checks=True)  # type: ignore

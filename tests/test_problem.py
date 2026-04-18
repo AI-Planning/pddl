@@ -32,6 +32,7 @@ from pddl.logic.functions import (
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
 from pddl.parser.symbols import Symbols
+from pddl.requirements import Requirements
 from tests.conftest import pddl_objects_problems
 
 
@@ -163,5 +164,19 @@ def test_problem_check_domain_name_case_insensitive_match() -> None:
     """Test domain name check accepts names that only differ by case."""
     domain = Domain("simple_domain")
     problem = Problem("simple_problem", domain_name="SIMPLE_DOMAIN")
+
+    problem.check(domain)
+
+
+def test_problem_check_domain_requirements_match() -> None:
+    """Test problem requirements are subset of a domain's requirements."""
+    domain = Domain(
+        "simple_domain", requirements=[Requirements.STRIPS, Requirements.EQUALITY]
+    )
+    problem = Problem(
+        "simple_problem",
+        domain_name="simple_domain",
+        requirements=[Requirements.STRIPS],
+    )
 
     problem.check(domain)
