@@ -416,7 +416,17 @@ class Plan:
             if action_name not in name_to_schema:
                 raise ValueError(f"Action {action_name} not found in domain.")
             action_schema = name_to_schema[action_name]
-            instantiated_action = action_schema.instantiate(parameters)
+            typed_parameters = []
+            for untyped_param, action_param in zip(
+                parameters, action_schema.parameters
+            ):
+                type_tag = (
+                    next(iter(action_param.type_tags))
+                    if len(action_param.type_tags) == 1
+                    else None
+                )
+                typed_parameters.append(Constant(untyped_param.name, type_tag))
+            instantiated_action = action_schema.instantiate(typed_parameters)
             ret.append(instantiated_action)
         return ret
 
