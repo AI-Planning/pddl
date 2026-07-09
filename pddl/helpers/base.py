@@ -131,7 +131,7 @@ def _typed_parameters(parameters) -> str:
         if i > 0:
             result += " "
         if p.type_tags:
-            result += f"?{p.name} - {' '.join(map(str, p.type_tags))}"
+            result += f"{str(p)} - {' '.join(map(str, p.type_tags))}"
         else:
             result += str(p)
     return result.strip()
