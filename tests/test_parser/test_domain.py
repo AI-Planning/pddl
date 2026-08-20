@@ -23,8 +23,10 @@ from pddl.logic.functions import (
     BinaryFunction,
     GreaterEqualThan,
     Increase,
+    Minus,
     NumericFunction,
     NumericValue,
+    UnaryMinus,
 )
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Variable
@@ -695,3 +697,144 @@ def test_number_parsing() -> None:
     assert type(g_effect.operands[1]) is NumericValue
     assert type(g_effect.operands[1].value) is float
     assert g_effect.operands[1] == NumericValue(0.5)
+
+
+def test_unary_minus_in_precondition() -> None:
+    """Check parsing of unary minus in a numeric precondition."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :numeric-fluents)
+        (:functions (f))
+        (:action a
+            :parameters ()
+            :precondition (>=0 (- (f)))
+            :effect (and (increase (f) 1))
+        )
+    )
+    """)
+    action = next(iter(DomainParser()(domain_str).actions))
+    precondition = action.precondition
+    assert isinstance(precondition, BinaryFunction)
+    unary_minus = precondition.operands[1]
+    assert isinstance(unary_minus, UnaryMinus)
+    assert isinstance(unary_minus.operand, NumericFunction)
+    assert str(unary_minus) == f"({Symbols.MINUS.value} (f))"
+
+
+def test_unary_minus_in_numeric_effect() -> None:
+    """Check parsing of unary minus in a numeric effect."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :numeric-fluents)
+        (:functions (f))
+        (:action a
+            :parameters ()
+            :precondition (>= (f) 0)
+            :effect (and (increase (f) (- 1)))
+        )
+    )
+    """)
+    action = next(iter(DomainParser()(domain_str).actions))
+    effect = action.effect
+    assert isinstance(effect, BinaryFunction)  # increase
+    unary_minus = effect.operands[1]
+    assert isinstance(unary_minus, UnaryMinus)
+    assert unary_minus.operand == NumericValue(1)
+
+
+def test_binary_minus_in_precondition() -> None:
+    """Check parsing of binary minus in a numeric precondition."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :numeric-fluents)
+        (:functions (f) (g))
+        (:action a
+            :parameters ()
+            :precondition (>= 0 (- (f) (g)))
+            :effect (and (increase (f) 1))
+        )
+    )
+    """)
+    action = next(iter(DomainParser()(domain_str).actions))
+    precondition = action.precondition
+    assert isinstance(precondition, BinaryFunction)
+    binary_minus = precondition.operands[1]
+    assert isinstance(binary_minus, Minus)
+    assert len(binary_minus.operands) == 2
+    assert isinstance(binary_minus.operands[0], NumericFunction)
+    assert isinstance(binary_minus.operands[1], NumericFunction)
+
+
+def test_binary_minus_in_numeric_effect() -> None:
+    """Check parsing of binary minus in a numeric effect."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :numeric-fluents)
+        (:functions (f) (g))
+        (:action a
+            :parameters ()
+            :precondition (>= (f) 0)
+            :effect (and (increase (f) (- (g) 1)))
+        )
+    )
+    """)
+    action = next(iter(DomainParser()(domain_str).actions))
+    effect = action.effect
+    assert isinstance(effect, BinaryFunction)  # increase
+    binary_minus = effect.operands[1]
+    assert isinstance(binary_minus, Minus)
+    assert len(binary_minus.operands) == 2
+    assert isinstance(binary_minus.operands[0], NumericFunction)
+    assert isinstance(binary_minus.operands[1], NumericValue)
+
+
+def test_minus_with_three_operands_not_allowed() -> None:
+    """Check that a minus expression with more than two operands is rejected."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :numeric-fluents)
+        (:functions (f))
+        (:action a
+            :parameters ()
+            :precondition (>= 0 (- 1 2 3))
+            :effect (and (increase (f) 1))
+        )
+    )
+    """)
+    with pytest.raises(PDDLParsingError, match="MINUS symbol used with 3 args"):
+        DomainParser()(domain_str)
+
+
+def test_unary_minus_domain_round_trip() -> None:
+    """Check that a domain with unary minus round-trips through str()."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :numeric-fluents)
+        (:functions (f))
+        (:action a
+            :parameters ()
+            :precondition (>= 0 (- (f)))
+            :effect (and (increase (f) (- 1)))
+        )
+    )
+    """)
+    domain = DomainParser()(domain_str)
+    assert DomainParser()(str(domain)) == domain
+
+
+def test_unary_minus_in_derived_predicate_condition() -> None:
+    """Check parsing of unary minus in a derived predicate condition."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :numeric-fluents)
+        (:predicates (g))
+        (:functions (f))
+        (:derived (g)
+            (>= 0 (- (f)))
+        )
+    )
+    """)
+    axiom = next(iter(DomainParser()(domain_str).derived_predicates))
+    condition = axiom.condition
+    assert isinstance(condition, GreaterEqualThan)
+    assert isinstance(condition.operands[1], UnaryMinus)

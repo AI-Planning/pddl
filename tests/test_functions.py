@@ -14,7 +14,13 @@
 
 import pytest
 
-from pddl.logic.functions import Metric, NumericFunction, NumericValue
+from pddl.logic.functions import (
+    Metric,
+    Minus,
+    NumericFunction,
+    NumericValue,
+    UnaryMinus,
+)
 from pddl.logic.helpers import constants, variables
 from pddl.parser.symbols import Symbols
 
@@ -135,3 +141,49 @@ class TestNumericValue:
     def test_value(self):
         """Test the name getter."""
         assert self.numeric_value.value == 3
+
+
+class TestUnaryMinus:
+    """Test the unary minus operator."""
+
+    def setup_method(self):
+        """Set up the tests."""
+        self.function = NumericFunction("func")
+        self.unary_minus = UnaryMinus(self.function)
+
+    def test_operand(self):
+        """Test the operand getter."""
+        assert self.unary_minus.operand == self.function
+
+    def test_symbol(self):
+        """Test the symbol getter."""
+        assert self.unary_minus.SYMBOL == Symbols.MINUS
+
+    def test_to_equal(self):
+        """Test the equal operator."""
+        other = UnaryMinus(NumericFunction("func"))
+        assert self.unary_minus == other
+
+    def test_not_equal_to_minus(self):
+        """Test that UnaryMinus is distinct from binary Minus."""
+        binary_minus = Minus(self.function, NumericFunction("other"))
+        assert self.unary_minus != binary_minus
+
+    def test_to_str(self):
+        """Test the str operator."""
+        assert str(self.unary_minus) == f"({Symbols.MINUS.value} {self.function})"
+
+    def test_to_repr(self):
+        """Test the repr operator."""
+        assert repr(self.unary_minus) == f"UnaryMinus({repr(self.function)})"
+
+    def test_hash(self):
+        """Test the hash operator."""
+        assert hash(self.unary_minus) == hash(UnaryMinus(NumericFunction("func")))
+
+    def test_instantiate(self):
+        """Test the instantiate method."""
+        x = variables("x")[0]
+        a = constants("a")[0]
+        unary_minus = UnaryMinus(NumericFunction("func", x))
+        assert unary_minus.instantiate({x: a}) == UnaryMinus(NumericFunction("func", a))

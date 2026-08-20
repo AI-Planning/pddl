@@ -31,8 +31,10 @@ from pddl.logic.functions import (
     Increase,
     LesserEqualThan,
     LesserThan,
+    Minus,
     NumericFunction,
     NumericValue,
+    UnaryMinus,
 )
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import DerivedPredicate, Predicate
@@ -287,3 +289,40 @@ def test_derived_predicate_type_not_available() -> None:
         f"available types {{'{my_type}'}}",
     ):
         Domain("test", requirements={Requirements.TYPING}, derived_predicates={dp}, types=type_set)  # type: ignore
+
+
+def test_build_domain_with_unary_minus() -> None:
+    """Test a PDDL domain with unary minus in precondition and effect."""
+    f = NumericFunction("f1")
+    action = Action(
+        "action_1",
+        [],
+        precondition=GreaterEqualThan(NumericValue(0), UnaryMinus(f)),
+        effect=Increase(f, UnaryMinus(NumericValue(1))),
+    )
+    domain = Domain(
+        "domain_with_unary_minus",
+        requirements={Requirements.NUMERIC_FLUENTS},
+        functions={f: None},
+        actions={action},
+    )
+    assert domain
+
+
+def test_build_domain_with_binary_minus() -> None:
+    """Test a PDDL domain with binary minus in precondition and effect."""
+    f1 = NumericFunction("f1")
+    f2 = NumericFunction("f2")
+    action = Action(
+        "action_1",
+        [],
+        precondition=GreaterEqualThan(NumericValue(0), Minus(f1, f2)),
+        effect=Increase(f1, Minus(f2, NumericValue(1))),
+    )
+    domain = Domain(
+        "domain_with_binary_minus",
+        requirements={Requirements.NUMERIC_FLUENTS},
+        functions={f1: None, f2: None},
+        actions={action},
+    )
+    assert domain

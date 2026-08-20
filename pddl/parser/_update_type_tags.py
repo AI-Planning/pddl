@@ -18,7 +18,12 @@ from typing import FrozenSet, Mapping, Optional
 
 from pddl.custom_types import namelike
 from pddl.logic.base import BinaryOp, Formula, QuantifiedCondition, UnaryOp
-from pddl.logic.functions import BinaryFunction, NumericFunction, NumericValue
+from pddl.logic.functions import (
+    BinaryFunction,
+    NumericFunction,
+    NumericValue,
+    UnaryMinus,
+)
 from pddl.logic.predicates import EqualTo as EqualToPredicate
 from pddl.logic.predicates import Predicate
 from pddl.logic.terms import Term, Variable
@@ -117,6 +122,14 @@ def _update_type_tags_binary_function(
         new_operand = _update_type_tags(operand, var_to_types)
         new_operands.append(new_operand)
     return formula.__class__(*new_operands)
+
+
+@_update_type_tags.register
+def _update_type_tags_unary_minus(
+    formula: UnaryMinus, var_to_types: Mapping[str, Optional[FrozenSet[namelike]]]
+):
+    new_operand = _update_type_tags(formula.operand, var_to_types)
+    return formula.__class__(new_operand)
 
 
 def _replace_term_with_type_tags_if_var(

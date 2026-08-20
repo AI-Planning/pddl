@@ -22,8 +22,10 @@ from pddl.logic.functions import (
     EqualTo,
     GreaterEqualThan,
     GreaterThan,
+    Minus,
     NumericFunction,
     NumericValue,
+    UnaryMinus,
 )
 from pddl.logic.terms import Constant
 from pddl.parser.problem import ProblemParser
@@ -190,3 +192,57 @@ def test_numeric_function_equality_in_goal() -> None:
         EqualTo(NumericValue(3), NumericFunction("hello_counter", Constant("jimmy"))),
         EqualTo(NumericFunction("hello_counter", Constant("jammy")), NumericValue(5)),
     )
+
+
+def test_metric_unary_minus() -> None:
+    """Check parsing of a metric with unary minus."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:requirements :numeric-fluents)
+        (:init (= (f) 0))
+        (:goal (>= (f) 0))
+        (:metric minimize (- (f)))
+    )
+    """)
+    problem = ProblemParser()(problem_str)
+    assert problem.metric is not None
+    expression = problem.metric.expression
+    assert isinstance(expression, UnaryMinus)
+    assert isinstance(expression.operand, NumericFunction)
+
+
+def test_metric_binary_minus() -> None:
+    """Check parsing of a metric with binary minus."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:requirements :numeric-fluents)
+        (:init (= (f) 0))
+        (:goal (>= (f) 0))
+        (:metric minimize (- (f) 2))
+    )
+    """)
+    problem = ProblemParser()(problem_str)
+    assert problem.metric is not None
+    expression = problem.metric.expression
+    assert isinstance(expression, Minus)
+    assert len(expression.operands) == 2
+    assert isinstance(expression.operands[0], NumericFunction)
+    assert isinstance(expression.operands[1], NumericValue)
+
+
+def test_metric_with_three_operands_not_allowed() -> None:
+    """Check that a minus expression with more than two operands is rejected."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:requirements :numeric-fluents)
+        (:init (= (f) 0))
+        (:goal (>= (f) 0))
+        (:metric minimize (- (f) 2 3))
+    )
+    """)
+
+    with pytest.raises(PDDLParsingError, match="MINUS symbol used with 3 args"):
+        ProblemParser()(problem_str)

@@ -79,7 +79,7 @@ num_literal: NUMBER
 f_exp:      num_literal
       |     LPAR binary_op f_exp f_exp RPAR
       |     LPAR multi_op f_exp f_exp+ RPAR
-      |     LPAR MINUS f_exp RPAR
+      |     LPAR MINUS f_exp+ RPAR
       |     f_head
 
 f_head:     NAME
@@ -132,7 +132,7 @@ metric_spec: LPAR METRIC optimization metric_f_exp RPAR
 
 metric_f_exp: LPAR binary_op metric_f_exp metric_f_exp RPAR
             | LPAR multi_op metric_f_exp metric_f_exp+ RPAR
-            | LPAR MINUS metric_f_exp RPAR
+            | LPAR MINUS metric_f_exp+ RPAR
             | basic_function_term
             | NUMBER
 
