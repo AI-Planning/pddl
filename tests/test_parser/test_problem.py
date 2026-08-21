@@ -232,6 +232,28 @@ def test_metric_binary_minus() -> None:
     assert isinstance(expression.operands[1], NumericValue)
 
 
+def test_metric_nested_minus() -> None:
+    """Check that a nested binary minus metric keeps its structure."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:requirements :numeric-fluents)
+        (:init (= (f) 0))
+        (:goal (>= (f) 0))
+        (:metric minimize (- (f) (- (f) 2)))
+    )
+    """)
+    problem = ProblemParser()(problem_str)
+    assert problem.metric is not None
+    expression = problem.metric.expression
+    assert isinstance(expression, Minus)
+    assert isinstance(expression.operands[0], NumericFunction)
+    assert isinstance(expression.operands[1], Minus)
+    assert isinstance(expression.operands[1].operands[0], NumericFunction)
+    assert isinstance(expression.operands[1].operands[1], NumericValue)
+    assert str(expression) == "(- (f) (- (f) 2))"
+
+
 def test_metric_with_three_operands_not_allowed() -> None:
     """Check that a minus expression with more than two operands is rejected."""
     problem_str = dedent("""

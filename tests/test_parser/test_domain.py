@@ -788,6 +788,31 @@ def test_binary_minus_in_numeric_effect() -> None:
     assert isinstance(binary_minus.operands[1], NumericValue)
 
 
+def test_nested_minus_in_precondition_preserved() -> None:
+    """Check that a nested binary minus is a precondition keeps its structure."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :numeric-fluents)
+        (:functions (f))
+        (:action a
+            :parameters ()
+            :precondition (= (- (f) (- (f) 2)) 3)
+            :effect (and (increase (f) 1))
+        )
+    )
+    """)
+    action = next(iter(DomainParser()(domain_str).actions))
+    precondition = action.precondition
+    assert isinstance(precondition, BinaryFunction)
+    exp1 = precondition.operands[0]
+    assert str(exp1) == "(- (f) (- (f) 2))"
+    assert isinstance(exp1, Minus)
+    assert isinstance(exp1.operands[0], NumericFunction)
+    assert isinstance(exp1.operands[1], Minus)
+    assert isinstance(exp1.operands[1].operands[0], NumericFunction)
+    assert isinstance(exp1.operands[1].operands[1], NumericValue)
+
+
 def test_minus_with_three_operands_not_allowed() -> None:
     """Check that a minus expression with more than two operands is rejected."""
     domain_str = dedent("""
