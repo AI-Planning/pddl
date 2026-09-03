@@ -17,9 +17,13 @@ from collections.abc import Iterable
 from typing import AbstractSet, Collection, Dict, Optional, Set, Tuple, cast
 
 from pddl.action import Action
+
+# isort: off
 from pddl.custom_types import _check_not_a_keyword  # noqa: F401
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names, to_types  # noqa: F401
+
+# isort: on
 from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import check, ensure, ensure_set, find_cycle
 from pddl.logic import Predicate
