@@ -29,6 +29,7 @@ from pddl.logic.functions import (
     NumericValue,
     Plus,
     Times,
+    UnaryMinus,
 )
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant
@@ -192,7 +193,13 @@ class ProblemTransformer(Transformer[Any, Problem]):
             return args[0]
         op = None
         if args[1] == Symbols.MINUS.value:
-            op = Minus
+            n = len(args[2:-1])
+            if n == 1:
+                op = UnaryMinus
+            elif n == 2:
+                op = Minus
+            else:
+                raise PDDLParsingError(f"MINUS symbol used with {n} args")
         if args[1] == Symbols.PLUS.value:
             op = Plus
         if args[1] == Symbols.TIMES.value:

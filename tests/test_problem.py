@@ -28,6 +28,7 @@ from pddl.logic.functions import (
     LesserThan,
     Metric,
     NumericFunction,
+    UnaryMinus,
 )
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
@@ -180,3 +181,15 @@ def test_problem_check_domain_requirements_match() -> None:
     )
 
     problem.check(domain)
+
+
+def test_build_problem_with_unary_minus_metric() -> None:
+    """Test a PDDL problem with a unary minus metric."""
+    total_cost = NumericFunction(Symbols.TOTAL_COST.value)
+    problem = Problem(
+        "simple_problem",
+        domain_name="simple_domain",
+        metric=Metric(UnaryMinus(total_cost)),
+    )
+    assert problem.metric is not None
+    assert isinstance(problem.metric.expression, UnaryMinus)

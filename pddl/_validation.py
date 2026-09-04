@@ -34,6 +34,7 @@ from pddl.logic.functions import (
     FunctionExpression,
     NumericFunction,
     NumericValue,
+    UnaryMinus,
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo
 from pddl.logic.terms import Term
@@ -259,6 +260,11 @@ class TypeChecker:
     def _(self, binary_function: BinaryFunction) -> None:
         """Check types annotations of a PDDL numeric binary operator."""
         self.check_type(binary_function.operands)
+
+    @check_type.register
+    def _(self, unary_minus: UnaryMinus) -> None:
+        """Check types annotations of a PDDL numeric unary operator."""
+        self.check_type(unary_minus.operand)
 
     @check_type.register
     def _(self, equal_to: EqualTo) -> None:

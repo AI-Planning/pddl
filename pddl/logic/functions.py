@@ -349,6 +349,41 @@ class Decrease(BinaryFunction):
         super().__init__(*operands)
 
 
+class UnaryMinus(FunctionExpression):
+    """Unary Minus operator: (- <f_exp>)."""
+
+    SYMBOL = Symbols.MINUS
+
+    def __init__(self, operand: FunctionExpression):
+        """Initialize UnaryMinus operator with exactly one operand."""
+        self._operand = operand
+
+    @property
+    def operand(self) -> FunctionExpression:
+        """Get the operand."""
+        return self._operand
+
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "UnaryMinus":
+        """Instantiate the formula with a mapping from variables to terms."""
+        return UnaryMinus(cast(FunctionExpression, self.operand.instantiate(mapping)))
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return f"({self.SYMBOL.value} {self.operand})"
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return f"{type(self).__name__}({repr(self.operand)})"
+
+    def __eq__(self, other):
+        """Compare with another object."""
+        return isinstance(other, UnaryMinus) and self.operand == other.operand
+
+    def __hash__(self) -> int:
+        """Compute the hash of the object."""
+        return hash((type(self), self.operand))
+
+
 class Minus(BinaryFunction, metaclass=BinaryOpMetaclass):
     """Minus operator."""
 
