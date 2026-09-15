@@ -194,12 +194,7 @@ class ProblemTransformer(Transformer[Any, Problem]):
         op = None
         if args[1] == Symbols.MINUS.value:
             n = len(args[2:-1])
-            if n == 1:
-                op = UnaryMinus
-            elif n == 2:
-                op = Minus
-            else:
-                raise PDDLParsingError(f"MINUS symbol used with {n} args")
+            op = UnaryMinus if n == 1 else Minus
         if args[1] == Symbols.PLUS.value:
             op = Plus
         if args[1] == Symbols.TIMES.value:

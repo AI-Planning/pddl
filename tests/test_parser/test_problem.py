@@ -15,6 +15,7 @@
 from textwrap import dedent
 
 import pytest
+from lark import ParseError
 
 from pddl.exceptions import PDDLParsingError
 from pddl.logic.base import And
@@ -266,5 +267,5 @@ def test_metric_with_three_operands_not_allowed() -> None:
     )
     """)
 
-    with pytest.raises(PDDLParsingError, match="MINUS symbol used with 3 args"):
+    with pytest.raises(ParseError, match=r"Expected one of:\s*\*\s*RPAR"):
         ProblemParser()(problem_str)

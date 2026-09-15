@@ -16,6 +16,7 @@ from textwrap import dedent
 from typing import cast
 
 import pytest
+from lark import ParseError
 
 from pddl.exceptions import PDDLParsingError, PDDLValidationError
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Not
@@ -826,7 +827,7 @@ def test_minus_with_three_operands_not_allowed() -> None:
         )
     )
     """)
-    with pytest.raises(PDDLParsingError, match="MINUS symbol used with 3 args"):
+    with pytest.raises(ParseError, match=r"Expected one of:\s*\*\s*RPAR"):
         DomainParser()(domain_str)
 
 
