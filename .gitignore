@@ -766,3 +766,6 @@ Sessionx.vim
 .history
 
 # End of https://www.gitignore.io/api/tex,vim,tags,latex,linux,macos,python,textmate,sublimetext,pycharm+all,intellij+all,visualstudiocode
+
+# uv / virtualenv
+.venv/

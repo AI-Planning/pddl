@@ -73,7 +73,6 @@ if __name__ == "__main__":
         Path("pddl").glob("**/*.py"),
         Path("tests").glob("**/*.py"),
         Path("scripts").glob("**/*.py"),
-        [Path("setup.py")],
     )
 
     python_files = filter(lambda p: p not in IGNORE_FILES, python_files)

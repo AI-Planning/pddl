@@ -19,23 +19,25 @@ jobs:
 
     steps:
     - uses: actions/checkout@main
-    - uses: actions/setup-python@main
+    - name: Install uv and set up Python
+      uses: astral-sh/setup-uv@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run:  pip install tox
+        enable-cache: true
+    - name: Install the project
+      run: uv sync --locked --dev
     - name: Code style check
       run: |
-        tox -e black-check
-        tox -e isort-check
-        tox -e flake8
+        uv run tox -e black-check
+        uv run tox -e isort-check
+        uv run tox -e flake8
     - name: Unused code check
-      run: tox -e vulture
+      run: uv run tox -e vulture
     - name: Static type check
-      run: tox -e mypy
+      run: uv run tox -e mypy
     - name: Check copyright
-      run: tox -e check-copyright
+      run: uv run tox -e check-copyright
     - name: Misc checks
       run: |
-        tox -e bandit
-        tox -e safety
+        uv run tox -e bandit
+        uv run tox -e safety

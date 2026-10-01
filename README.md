@@ -199,17 +199,17 @@ requirements:
 
 If you want to contribute, here's how to set up your development environment.
 
-- Install [Pipenv](https://pipenv-fork.readthedocs.io/en/latest/)
+- Install [uv](https://docs.astral.sh/uv/)
 - Clone the repository: `git clone https://github.com/AI-Planning/pddl.git && cd pddl`
-- Install development dependencies: `pipenv shell --python 3.10 && pipenv install --dev`
+- Install development dependencies: `uv sync --dev`
 
 ## Tests
 
-To run tests: `tox`
+To run tests: `uv run tox`
 
-To run only the code tests: `tox -e py37`
+To run only the code tests: `uv run tox -e py310`
 
-To run only the code style checks: `tox -e flake8`
+To run only the code style checks: `uv run tox -e flake8`
 
 ## Docs
 
