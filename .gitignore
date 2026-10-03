@@ -769,3 +769,6 @@ Sessionx.vim
 
 # uv / virtualenv
 .venv/
+
+# ruff
+.ruff_cache/

@@ -12,7 +12,9 @@
 #
 
 """
-This script checks that all the Python files of the repository have:
+This script checks that all the Python files of the repository have the required header.
+
+The checked header includes:
 - (optional) the Python shebang
 - the encoding header;
 - the copyright notice;

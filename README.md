@@ -37,14 +37,11 @@
   </a>
 </p>
 <p align="center">
-  <a href="https://img.shields.io/badge/flake8-checked-blueviolet">
-    <img alt="" src="https://img.shields.io/badge/flake8-checked-blueviolet">
+  <a href="https://img.shields.io/badge/ruff-checked-blueviolet">
+    <img alt="" src="https://img.shields.io/badge/ruff-checked-blueviolet">
   </a>
   <a href="https://img.shields.io/badge/mypy-checked-blue">
     <img alt="" src="https://img.shields.io/badge/mypy-checked-blue">
-  </a>
-  <a href="https://img.shields.io/badge/code%20style-black-black">
-    <img alt="black" src="https://img.shields.io/badge/code%20style-black-black" />
   </a>
   <a href="https://www.mkdocs.org/">
     <img alt="" src="https://img.shields.io/badge/docs-mkdocs-9cf">
@@ -99,17 +96,19 @@ a1 = Action(
     "action-1",
     parameters=[x, y, z],
     precondition=p1(x, y, z) & ~p2(y, z),
-    effect=p2(y, z)
+    effect=p2(y, z),
 )
 
 # define the domain object.
 requirements = [Requirements.STRIPS, Requirements.TYPING]
-domain = Domain("my_domain",
-                requirements=requirements,
-                types={"type_1": None},
-                constants=[a, b, c],
-                predicates=[p1, p2],
-                actions=[a1])
+domain = Domain(
+    "my_domain",
+    requirements=requirements,
+    types={"type_1": None},
+    constants=[a, b, c],
+    predicates=[p1, p2],
+    actions=[a1],
+)
 
 print(domain)
 ```
@@ -137,7 +136,7 @@ problem = Problem(
     requirements=requirements,
     objects=[a, b, c],
     init=[p1(a, b, c), ~p2(b, c)],
-    goal=p2(b, c)
+    goal=p2(b, c),
 )
 print(problem)
 ```
@@ -156,8 +155,9 @@ Output:
 Example parsing:
 ```python
 from pddl import parse_domain, parse_problem, parse_plan
-domain = parse_domain('d.pddl')
-problem = parse_problem('p.pddl')
+
+domain = parse_domain("d.pddl")
+problem = parse_problem("p.pddl")
 plan = parse_plan("p.plan")
 ```
 
@@ -202,6 +202,7 @@ If you want to contribute, here's how to set up your development environment.
 - Install [uv](https://docs.astral.sh/uv/)
 - Clone the repository: `git clone https://github.com/AI-Planning/pddl.git && cd pddl`
 - Install development dependencies: `uv sync --dev`
+- Install the git hooks: `uv run pre-commit install`
 
 ## Tests
 
@@ -209,7 +210,7 @@ To run tests: `uv run tox`
 
 To run only the code tests: `uv run tox -e py310`
 
-To run only the code style checks: `uv run tox -e flake8`
+To run only the code style checks: `uv run ruff check .`
 
 ## Docs
 

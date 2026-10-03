@@ -40,10 +40,24 @@ pddl = "pddl.__main__:cli"
 
 [dependency-groups]
 dev = [
-    "pytest", "pytest-cov", "pytest-randomly", "pytest-lazy-fixtures", "tox",
-    "ipython", "codecov", "black", "mypy", "flake8", "flake8-docstrings", "mkdocs",
-    "markdown-include", "isort", "mistune", "mkdocs-material", "types-click",
-    "vulture", "flake8-bugbear", "pymdown-extensions", "flake8-isort", "safety", "bandit",
+    "pytest",
+    "pytest-cov",
+    "pytest-randomly",
+    "pytest-lazy-fixtures",
+    "tox",
+    "ipython",
+    "codecov",
+    "mypy",
+    "mkdocs",
+    "markdown-include",
+    "mistune",
+    "mkdocs-material",
+    "types-click",
+    "vulture",
+    "pymdown-extensions",
+    "safety",
+    "ruff",
+    "pre-commit"
 ]
 
 [tool.setuptools]
@@ -57,3 +71,42 @@ include = ["pddl*"]
 
 [tool.setuptools.package-data]
 "pddl.parser" = ["grammar.lark"]
+
+[tool.ruff]
+line-length = 88
+extend-exclude = ['tests/fixtures']
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle error
+    "W", # pycodestyle warning
+    "F", # Pyflakes / flake8 error
+    "B", # flake8-bugbear
+    "S", # flake8-bandit
+    "D", # flake8-docstrings
+    "I", # isort
+    "C90", # mccabe
+]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 120
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"pddl/__init__.py" = ["F401", "D103"]
+"pddl/logic/__init__.py" = ["F401"]
+"tests/**" = ["S101", "S102", "S301"]
+"scripts/whitelist.py" = ["ALL"]
+
+[tool.mypy]
+python_version = "3.10"
+strict_optional = true
+
+[[tool.mypy.overrides]]
+module = ["lark", "pytest", "pytest.*", "mistune.*"]
+ignore_missing_imports = true

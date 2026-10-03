@@ -57,28 +57,18 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .mypy_cache
 	rm -fr coverage.xml
 
-lint-all: black isort lint static bandit safety vulture ## run all linters
+lint-all: ruff-check ruff-format static safety vulture ## run all linters
 
-lint: ## check style with flake8
-	flake8 pddl tests
+lint: ruff-check ## check style with ruff
+
+ruff-check: ## check code with ruff
+	ruff check pddl tests scripts
+
+ruff-format: ## check formatting with ruff
+	ruff format --check pddl tests scripts
 
 static: ## static type checking with mypy
 	mypy pddl tests
-
-isort: ## sort import statements with isort
-	isort pddl tests
-
-isort-check: ## check import statements order with isort
-	isort --check-only pddl tests
-
-black: ## apply black formatting
-	black pddl tests
-
-black-check: ## check black formatting
-	black --check --verbose pddl tests
-
-bandit: ## run bandit
-	bandit --configfile .bandit.yml --recursive pddl tests scripts
 
 safety: ## run safety
 	safety check

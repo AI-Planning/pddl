@@ -20,9 +20,8 @@ from pddl.core import Problem
 from pddl.exceptions import PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import Not
-from pddl.logic.functions import Divide
-from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
+    Divide,
     Metric,
     Minus,
     NumericFunction,
@@ -31,6 +30,7 @@ from pddl.logic.functions import (
     Times,
     UnaryMinus,
 )
+from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.predicates import EqualTo, Predicate
 from pddl.logic.terms import Constant
 from pddl.parser.base import BaseParser

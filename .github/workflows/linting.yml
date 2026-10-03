@@ -26,18 +26,15 @@ jobs:
         enable-cache: true
     - name: Install the project
       run: uv sync --locked --dev
-    - name: Code style check
-      run: |
-        uv run tox -e black-check
-        uv run tox -e isort-check
-        uv run tox -e flake8
+    - name: Ruff check
+      run: uv run ruff check .
+    - name: Ruff format check
+      run: uv run ruff format --check .
     - name: Unused code check
       run: uv run tox -e vulture
     - name: Static type check
-      run: uv run tox -e mypy
+      run: uv run mypy pddl tests
     - name: Check copyright
       run: uv run tox -e check-copyright
-    - name: Misc checks
-      run: |
-        uv run tox -e bandit
-        uv run tox -e safety
+    - name: Dependency check
+      run: uv run tox -e safety
