@@ -76,7 +76,10 @@ class NumericFunction(FunctionExpression):
         """Replace terms."""
         assert_(len(terms) == self.arity, "Wrong number of terms.")
         assert_(
-            all(t1.type_tags == t2.type_tags for t1, t2 in zip(self.terms, terms)),
+            all(
+                t1.type_tags == t2.type_tags
+                for t1, t2 in zip(self.terms, terms, strict=False)
+            ),
             "Wrong types of replacements.",
         )
         return NumericFunction(self.name, *terms)

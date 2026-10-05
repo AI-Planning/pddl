@@ -34,9 +34,10 @@ from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
 from pddl.logic.effects import Forall, When
-from pddl.logic.functions import Assign, Decrease, Divide
-from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
+    Assign,
+    Decrease,
+    Divide,
     FunctionExpression,
     GreaterEqualThan,
     GreaterThan,
@@ -52,6 +53,7 @@ from pddl.logic.functions import (
     Times,
     UnaryMinus,
 )
+from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser._update_type_tags import update_type_tags
@@ -214,7 +216,7 @@ class DomainTransformer(Transformer[Any, Domain]):
                     raise PDDLParsingError(
                         f"Type tags in condition and predicate definition do not match "
                         f"for variable '{term.name}' (position {idx}) in predicate '{dp_predicate.name}': {e}"
-                    )
+                    ) from e
 
         new_predicate = update_type_tags(dp_predicate, current_var_to_types)
         new_condition = update_type_tags(dp_condition, current_var_to_types)

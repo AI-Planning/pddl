@@ -19,15 +19,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@main
-    - uses: actions/setup-python@main
+    - name: Install uv and set up Python
+      uses: astral-sh/setup-uv@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run:  pip install "tox>=4.5.1,<4.6.0"
+        enable-cache: true
+    - name: Install the project
+      run: uv sync --locked --dev
     - name: Unit tests and coverage
       run: |
         pyver=`echo ${{ matrix.python-version }} | tr -d "."`
-        tox -e py${{ matrix.python-version }}
+        uv run tox -e py${pyver}
     - name: Upload coverage to Codecov
       if: github.actor != 'dependabot[bot]'
       uses: codecov/codecov-action@v5
@@ -38,4 +40,4 @@ jobs:
         name: codecov-umbrella
         fail_ci_if_error: true
     - name: Generate Documentation
-      run: tox -e docs
+      run: uv run tox -e docs

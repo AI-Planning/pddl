@@ -1,0 +1,112 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pddl"
+dynamic = ["version"]
+description = "PDDL parser"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+authors = [
+    {name = "Marco Favorito", email = "marco.favorito@gmail.com"},
+    {name = "Francesco Fuggitti", email = "francesco.fuggitti@gmail.com"},
+    {name = "Christian Muise", email = "christian.muise@queensu.ca"},
+]
+keywords = ["pddl"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Education",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "lark>=1.1.5,<1.2.0",
+    "click>=8.1.3,<9.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/AI-Planning/pddl.git"
+
+[project.scripts]
+pddl = "pddl.__main__:cli"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "pytest-randomly",
+    "pytest-lazy-fixtures",
+    "tox",
+    "ipython",
+    "codecov",
+    "mypy",
+    "mkdocs",
+    "markdown-include",
+    "mistune",
+    "mkdocs-material",
+    "types-click",
+    "vulture",
+    "pymdown-extensions",
+    "safety",
+    "ruff",
+    "pre-commit"
+]
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.dynamic]
+version = {attr = "pddl.__version__.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["pddl*"]
+
+[tool.setuptools.package-data]
+"pddl.parser" = ["grammar.lark"]
+
+[tool.ruff]
+line-length = 88
+extend-exclude = ['tests/fixtures']
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle error
+    "W", # pycodestyle warning
+    "F", # Pyflakes / flake8 error
+    "B", # flake8-bugbear
+    "S", # flake8-bandit
+    "D", # flake8-docstrings
+    "I", # isort
+    "C90", # mccabe
+]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 120
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"pddl/__init__.py" = ["F401", "D103"]
+"pddl/logic/__init__.py" = ["F401"]
+"tests/**" = ["S101", "S102", "S301"]
+"scripts/whitelist.py" = ["ALL"]
+
+[tool.mypy]
+python_version = "3.10"
+strict_optional = true
+
+[[tool.mypy.overrides]]
+module = ["lark", "pytest", "pytest.*", "mistune.*"]
+ignore_missing_imports = true
