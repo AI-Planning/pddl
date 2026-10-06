@@ -83,6 +83,31 @@ def test_name_case_insensitive_hash():
     assert len({name("Counter"), name("counter")}) == 1
 
 
+def test_name_mixed_case_plain_str_is_not_a_valid_hash_key():
+    """
+    Test the eq/hash contract break for mixed-case plain strs.
+
+    A name and a plain mixed-case str compare equal, but they are not
+    interchangeable as dict/set keys because a plain str's hash is
+    case-sensitive. Only lowercase plain str hashes alike.
+    """
+    a = name("Counter")
+    # equality is symmetric and case-insensitive in both directions
+    assert a == "Counter"
+    assert "Counter" == a
+    # equality does not extend to hash-based lookup
+    assert a not in {"Counter"}
+    assert "Counter" not in {a}
+    with pytest.raises(KeyError):
+        {"Counter": 1}[a]
+    with pytest.raises(KeyError):
+        {a: 1}["Counter"]
+    # lowercase plain str hash the same, lookups work
+    assert a in {"counter"}
+    assert {"counter": 1}[a] == 1
+    assert {a: 1}["counter"] == 1
+
+
 def test_name_case_insensitive_ordering():
     """Test that ordering is consistent with case-insensitive equality."""
     a, b = name("Counter"), name("counter")
