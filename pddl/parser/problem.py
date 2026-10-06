@@ -17,6 +17,7 @@ from typing import Any, Dict
 from lark import ParseError, Transformer
 
 from pddl.core import Problem
+from pddl.custom_types import name
 from pddl.exceptions import PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import Not
@@ -149,20 +150,20 @@ class ProblemTransformer(Transformer[Any, Problem]):
     def atomic_formula_name(self, args):
         """Process the 'atomic_formula_name' rule."""
         if args[1] == Symbols.EQUAL.value:
-            obj1 = self._objects_by_name.get(args[1])
-            obj2 = self._objects_by_name.get(args[2])
+            obj1 = self._objects_by_name.get(name(args[1]))
+            obj2 = self._objects_by_name.get(name(args[2]))
             return EqualTo(obj1, obj2)
         else:
-            name = args[1]
+            p_name = args[1]
             terms = [
                 (
                     Constant(str(_term_name))
-                    if self._objects_by_name.get(str(_term_name)) is None
-                    else self._objects_by_name.get(str(_term_name))
+                    if self._objects_by_name.get(name(_term_name)) is None
+                    else self._objects_by_name.get(name(_term_name))
                 )
                 for _term_name in args[2:-1]
             ]
-            return Predicate(name, *terms)
+            return Predicate(p_name, *terms)
 
     def num_literal(self, args):
         """Process the 'num_literal' rule."""

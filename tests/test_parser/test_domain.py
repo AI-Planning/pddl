@@ -18,6 +18,7 @@ from typing import cast
 import pytest
 from lark import ParseError
 
+from pddl.custom_types import name
 from pddl.exceptions import PDDLParsingError, PDDLValidationError
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Not
 from pddl.logic.functions import (
@@ -351,9 +352,9 @@ def test_action_multiple_parameters_each_propagates_independently() -> None:
 
     # ---- Check variable types in predicate *definitions* ----
     preds = {p.name: p for p in domain.predicates}
-    pred_R = preds["R"]
-    pred_Q = preds["Q"]
-    pred_S = preds["S"]
+    pred_R = preds[name("R")]
+    pred_Q = preds[name("Q")]
+    pred_S = preds[name("S")]
 
     x_in_R_def = pred_R.terms[0]
     y_in_R_def = pred_R.terms[1]
@@ -864,3 +865,22 @@ def test_unary_minus_in_derived_predicate_condition() -> None:
     condition = axiom.condition
     assert isinstance(condition, GreaterEqualThan)
     assert isinstance(condition.operands[1], UnaryMinus)
+
+
+def test_mixed_case_type_identifiers() -> None:
+    """Test that type identifiers are case-insensitive."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :typing :numeric-fluents)
+        (:types Counter - object)
+        (:functions (f))
+        (:action a
+            :parameters (?c - counter)
+            :precondition (and (<= (f) 3))
+            :effect (and (increase (f) 1))
+        )
+    )
+    """)
+    domain = DomainParser()(domain_str)
+    assert name("counter") in domain.types
+    assert domain.types[name("counter")] is None

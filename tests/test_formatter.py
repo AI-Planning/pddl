@@ -174,3 +174,20 @@ def test_numerical_hello_world_problem_formatter():
             ")",
         )
     )
+
+
+def test_mixed_case_types_formatting() -> None:
+    """Test that CamelCase types keep the correct parent hierarchy."""
+    domain = Domain(
+        "my_domain",
+        requirements=[Requirements.TYPING],
+        types={"Counter": None, "SpecialCounter": "Counter"},
+    )
+    assert domain_to_string(domain) == dedent("""\
+    (define (domain my_domain)
+        (:requirements :typing)
+        (:types
+            Counter - object
+            SpecialCounter - Counter
+        )
+    )""")

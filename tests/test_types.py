@@ -67,3 +67,31 @@ def test_type_is_a_keyword(keyword):
 def test_object_is_a_valid_type_name():
     """Test that parse_type with input 'object' does not raise error."""
     parse_type(Symbols.OBJECT.value)
+
+
+def test_name_is_case_insensitive():
+    """Test that names differing only by case are equal."""
+    assert name("Counter") == name("counter")
+    assert name("Counter") == "counter"
+    assert "counter" == name("Counter")
+    assert not (name("Counter") != name("counter"))
+
+
+def test_name_case_insensitive_hash():
+    """Test that case-insensitive names hash equally and deduplicate in sets."""
+    assert hash(name("Counter")) == hash(name("counter"))
+    assert len({name("Counter"), name("counter")}) == 1
+
+
+def test_name_case_insensitive_ordering():
+    """Test that ordering is consistent with case-insensitive equality."""
+    a, b = name("Counter"), name("counter")
+    assert not (a < b)
+    assert not (b < a)
+    assert a <= b
+    assert b <= a
+
+
+def test_name_preserves_original_case():
+    """Test that the original spelling is preserved in output."""
+    assert str(name("Counter")) == "Counter"
