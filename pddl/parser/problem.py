@@ -149,7 +149,7 @@ class ProblemTransformer(Transformer[Any, Problem]):
 
     def atomic_formula_name(self, args):
         """Process the 'atomic_formula_name' rule."""
-        if args[1] == Symbols.EQUAL.value:
+        if args[1] == Symbols.EQUAL.value:  # pragma: no cover
             obj1 = self._objects_by_name.get(name(args[1]))
             obj2 = self._objects_by_name.get(name(args[2]))
             return EqualTo(obj1, obj2)

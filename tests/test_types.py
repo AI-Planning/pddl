@@ -95,3 +95,24 @@ def test_name_case_insensitive_ordering():
 def test_name_preserves_original_case():
     """Test that the original spelling is preserved in output."""
     assert str(name("Counter")) == "Counter"
+
+
+def test_name_comparisons_ignore_case():
+    """Test all comparison operators on names are case-insensitive."""
+    a, b = name("Counter"), name("counter")
+    assert a == b
+    assert not (a != b)
+    assert not (a < b) and not (b < a)
+    assert not (a > b) and not (b > a)
+    assert a <= b and b <= a
+    assert a >= b and b >= a
+
+
+def test_name_comparisons_with_non_strings():
+    """Test comparisons against non-strings (NotImplemented paths)."""
+    a = name("Counter")
+    assert not (a == 1)
+    assert a != 1
+    for op in (lambda: a < 1, lambda: a <= 1, lambda: a > 1, lambda: a >= 1):
+        with pytest.raises(TypeError):
+            op()
