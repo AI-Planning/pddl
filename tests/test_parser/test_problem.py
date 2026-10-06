@@ -29,6 +29,7 @@ from pddl.logic.functions import (
     UnaryMinus,
 )
 from pddl.logic.terms import Constant
+from pddl.parser.domain import DomainParser
 from pddl.parser.problem import ProblemParser
 from pddl.requirements import Requirements
 
@@ -269,3 +270,32 @@ def test_metric_with_three_operands_not_allowed() -> None:
 
     with pytest.raises(ParseError, match=r"Expected one of:\s*\*\s*RPAR"):
         ProblemParser()(problem_str)
+
+
+def test_mixed_case_identifiers_across_domain_and_problem() -> None:
+    """Test that identifiers are case-insensitive across domain and problem."""
+    domain = DomainParser()(
+        dedent("""
+    (define (domain test-domain)
+        (:requirements :strips :typing)
+        (:types Counter - object)
+        (:predicates (Move ?x - Counter))
+        (:action move
+            :parameters (?x - Counter)
+            :precondition (Move ?x)
+            :effect (Move ?x)
+        )
+    )
+    """)
+    )
+    problem = ProblemParser()(
+        dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:objects c1 - counter)
+        (:init (Move c1))
+        (:goal (Move c1))
+    )
+    """)
+    )
+    problem.check(domain)

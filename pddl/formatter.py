@@ -134,7 +134,8 @@ def print_typed_lists(
     if ":types" in prefix:
         # for mypy, convert names_by_obj to a dict with keys being strings (or None) and values list of strings
         super_to_subs = {
-            str(k) if k is not None else None: v for k, v in names_by_obj.items()
+            str(k) if k is not None else None: [str(v) for v in vs]
+            for k, vs in names_by_obj.items()
         }
 
         # first print those types that have no parents

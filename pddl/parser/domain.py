@@ -396,10 +396,15 @@ class DomainTransformer(Transformer[Any, Domain]):
 
     def _constant_or_variable(self, t):
         """Get the constant or variable with the given name."""
+        if isinstance(t, Constant):
+            return t
+        # Normalize raw token/string to a 'name' so lookup is case-insensitive
+        # and hashes consistently with the dictionary keys.
+        key = name(t) if isinstance(t, str) else t
         # Case where the term is a free variable (bug) or comes from a parent quantifier
-        if not isinstance(t, Constant) and t not in self._current_parameters_by_name:
+        if key not in self._current_parameters_by_name:
             return Variable(str(t), {})
-        return t if isinstance(t, Constant) else self._current_parameters_by_name[t]
+        return self._current_parameters_by_name[key]
 
     def atomic_formula_term(self, args):
         """Process the 'atomic_formula_term' rule."""
@@ -417,7 +422,7 @@ class DomainTransformer(Transformer[Any, Domain]):
     def constant(self, args):
         """Process the 'constant' rule."""
         assert_(len(args) == 1, "Unexpected parsing error.")
-        constant = self._constants_by_name.get(args[0], None)
+        constant = self._constants_by_name.get(name(args[0]), None)
         if constant is None:
             raise ParseError(f"Constant '{args[0]}' not defined.")
         return constant

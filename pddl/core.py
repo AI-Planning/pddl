@@ -294,7 +294,7 @@ class Problem:
     def check(self, domain: Domain) -> None:
         """Check the problem definition against a domain definition."""
         validate(
-            self.domain_name.lower() == domain.name.lower(),
+            self.domain_name == domain.name,
             "Domain names don't match.",
         )
         validate(
