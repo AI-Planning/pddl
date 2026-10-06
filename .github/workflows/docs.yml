@@ -6,6 +6,9 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   run:
     runs-on: ${{ matrix.os }}
@@ -28,3 +31,6 @@ jobs:
       run: uv sync --locked --dev
     - name: Generate Documentation
       run: uv run tox -e docs
+    - name: Deploy Documentation
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: uv run mkdocs gh-deploy --force
