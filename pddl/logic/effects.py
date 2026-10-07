@@ -67,6 +67,10 @@ class When:
         """Compute the hash of the object."""
         return hash((type(self), self.condition, self.effect))
 
+    def instantiate(self, mapping) -> "When":
+        """Instantiate the When effect with a mapping from variables to terms."""
+        return When(self._condition.instantiate(mapping), self._effect.instantiate(mapping))
+
     def __lt__(self, other):
         """Compare with another object."""
         if isinstance(other, When):
@@ -115,6 +119,11 @@ class Forall:
     def __hash__(self) -> int:
         """Compute the hash of the object."""
         return hash((type(self), self.variables, self.effect))
+
+    def instantiate(self, mapping) -> "Forall":
+        """Instantiate the Forall effect with a mapping from variables to terms."""
+        restricted = {k: v for k, v in mapping.items() if k not in self._variables}
+        return Forall(self._effect.instantiate(restricted), self._variables)
 
     def __lt__(self, other):
         """Compare with another object."""

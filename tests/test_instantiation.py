@@ -19,6 +19,7 @@ import pytest
 from pddl import parse_domain, parse_plan, parse_problem
 from pddl.action import Action
 from pddl.logic.base import ExistsCondition
+from pddl.logic.effects import Forall, When
 from pddl.logic.functions import Metric, NumericFunction, Times
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
@@ -180,3 +181,62 @@ def test_instantiate_metric():
     metric_instantiated = metric.instantiate(mapping)
 
     assert metric_instantiated == metric
+
+
+def test_instantiate_when_effect():
+    """Test instantiating a When effect."""
+    a, b = constants("a b")
+    x, y = variables("x y")
+    condition = Predicate("on", x, y)
+    effect = Predicate("clear", x)
+    when = When(condition, effect)
+
+    mapping = {x: a, y: b}
+    when_instantiated = when.instantiate(mapping)
+
+    when_expected = When(Predicate("on", a, b), Predicate("clear", a))
+    assert when_instantiated == when_expected
+
+
+def test_partially_instantiate_when_effect():
+    """Test partially instantiating a When effect."""
+    a = constants("a")[0]
+    x, y = variables("x y")
+    condition = Predicate("on", x, y)
+    effect = Predicate("clear", x)
+    when = When(condition, effect)
+
+    mapping = {x: a}
+    when_instantiated = when.instantiate(mapping)
+
+    when_expected = When(Predicate("on", a, y), Predicate("clear", a))
+    assert when_instantiated == when_expected
+
+
+def test_instantiate_forall_effect():
+    """Test instantiating a Forall effect with outer variables."""
+    a = constants("a")[0]
+    x, y = variables("x y")
+    # x is the forall-bound variable; y is an outer variable
+    forall = Forall(Predicate("on", x, y), variables={x})
+
+    mapping = {y: a}
+    forall_instantiated = forall.instantiate(mapping)
+
+    forall_expected = Forall(Predicate("on", x, a), variables={x})
+    assert forall_instantiated == forall_expected
+
+
+def test_instantiate_forall_does_not_substitute_bound_variables():
+    """Test that Forall.instantiate does not substitute its bound variables."""
+    a, b = constants("a b")
+    x, y = variables("x y")
+    # x is bound by forall; mapping tries to substitute both x and y
+    forall = Forall(Predicate("on", x, y), variables={x})
+
+    mapping = {x: a, y: b}
+    forall_instantiated = forall.instantiate(mapping)
+
+    # x must remain a variable (bound by forall), only y gets substituted
+    forall_expected = Forall(Predicate("on", x, b), variables={x})
+    assert forall_instantiated == forall_expected
