@@ -224,7 +224,7 @@ and then go to [http://localhost:8000](http://localhost:8000)
 - [Marco Favorito](https://scholar.google.com/citations?user=tJhhDGEAAAAJ&hl=en)
 - [Francesco Fuggitti](https://francescofuggitti.github.io)
 - [Christian Muise](http://www.haz.ca/)
-- [Marcus Tantakun](https://mulab.ai/member/marcus.tantakoun/)
+- [Marcus Tantakoun](https://mulab.ai/member/marcus.tantakoun/)
 
 ## License
 
