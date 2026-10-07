@@ -18,7 +18,8 @@ __url__ = "https://github.com/AI-Planning/pddl.git"
 __version__ = "0.5.1"
 __author__ = "Marco Favorito, Francesco Fuggitti, Christian Muise, Marcus Tantakoun"
 __author_email__ = (
-    "marco.favorito@gmail.com, francesco.fuggitti@gmail.com, christian.muise@queensu.ca, 20mt1@queensu.ca"
+    "marco.favorito@gmail.com, francesco.fuggitti@gmail.com, "
+    "christian.muise@queensu.ca, 20mt1@queensu.ca"
 )
 __license__ = "MIT License"
 __copyright__ = "2021-2025 WhiteMech"
