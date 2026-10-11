@@ -8,3 +8,4 @@
 ## Contributors
 
 * [Christian Muise](http://www.haz.ca) <[christian.muise@gmail.com](mailto:christian.muise@gmail.com)>
+* [Marcus Tantakoun](https://mulab.ai/member/marcus.tantakoun/) <[20mt1@queensu.ca](mailto:20mt1@queensu.ca)>

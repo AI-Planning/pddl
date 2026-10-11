@@ -35,6 +35,7 @@ jobs:
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        slug: AI-Planning/pddl
         files: ./coverage.xml
         flags: unittests
         name: codecov-umbrella

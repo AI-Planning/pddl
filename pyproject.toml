@@ -14,6 +14,7 @@ authors = [
     {name = "Marco Favorito", email = "marco.favorito@gmail.com"},
     {name = "Francesco Fuggitti", email = "francesco.fuggitti@gmail.com"},
     {name = "Christian Muise", email = "christian.muise@queensu.ca"},
+    {name = "Marcus Tantakoun", email = "20mt1@queensu.ca"},
 ]
 keywords = ["pddl"]
 classifiers = [
