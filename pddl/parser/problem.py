@@ -33,10 +33,11 @@ from pddl.logic.functions import (
 )
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.predicates import EqualTo, Predicate
+from pddl.logic.temporal import TimedInitialLiteral
 from pddl.logic.terms import Constant
 from pddl.parser.base import BaseParser
 from pddl.parser.domain import DomainTransformer
-from pddl.parser.symbols import Symbols
+from pddl.parser.symbols import Symbols, TemporalSymbols
 from pddl.requirements import Requirements
 
 
@@ -112,14 +113,18 @@ class ProblemTransformer(Transformer[Any, Problem]):
         """Process the 'init_el' rule."""
         if len(args) == 1:
             return args[0]
-        elif args[1] == Symbols.EQUAL.value:
+        if args[1] == Symbols.EQUAL.value:
             if isinstance(args[2], list) and len(args[2]) == 1:
                 return FunctionEqualTo(*args[2], NumericValue(args[3]))
             elif not isinstance(args[2], list):
                 return FunctionEqualTo(args[2], NumericValue(args[3]))
             else:
-                funcs = [FunctionEqualTo(x, NumericValue(args[3])) for x in args[2]]
-                return funcs
+                return [FunctionEqualTo(x, NumericValue(args[3])) for x in args[2]]
+        if args[1] == TemporalSymbols.AT.value:
+            number = args[2]
+            time = float(number) if "." in number else int(number)
+            return TimedInitialLiteral(time, args[3])
+        raise ParseError(f"Invalid init element: {args}")
 
     def literal_name(self, args):
         """Process the 'literal_name' rule."""

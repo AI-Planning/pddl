@@ -22,7 +22,7 @@ from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, BinaryOpMetaclass, Formula
 from pddl.logic.terms import Term, Variable
-from pddl.parser.symbols import Symbols
+from pddl.parser.symbols import Symbols, TemporalSymbols
 
 
 @cache_hash
@@ -149,6 +149,38 @@ class NumericValue(FunctionExpression):
     def __str__(self) -> str:
         """Get the string representation."""
         return str(self._value)
+
+
+@cache_hash
+@functools.total_ordering
+class DurationVariable(FunctionExpression):
+    """The special '?duration' variable, used in durative-action numeric expressions."""
+
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "DurationVariable":
+        """Instantiate the value with a mapping from variables to terms."""
+        return self
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return TemporalSymbols.DURATION_VAR.value
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return f"{type(self).__name__}()"
+
+    def __eq__(self, other):
+        """Compare with another object."""
+        return isinstance(other, DurationVariable)
+
+    def __hash__(self) -> int:
+        """Compute the hash of the object."""
+        return hash(DurationVariable)
+
+    def __lt__(self, other):
+        """Compare with another object."""
+        if isinstance(other, DurationVariable):
+            return False
+        return NotImplemented
 
 
 class BinaryFunction(FunctionExpression):

@@ -20,6 +20,7 @@ import pytest
 
 from pddl.action import Action
 from pddl.core import Domain
+from pddl.durative_action import DurativeAction
 from pddl.exceptions import PDDLValidationError
 from pddl.logic import Constant, Variable
 from pddl.logic.base import And, Not
@@ -38,6 +39,13 @@ from pddl.logic.functions import (
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import DerivedPredicate, Predicate
+from pddl.logic.temporal import (
+    Duration,
+    SimpleDurationConstraint,
+    TimedCondition,
+    TimedEffect,
+    TimeSpecifier,
+)
 from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements
 from tests.conftest import pddl_objects_domains
@@ -346,3 +354,50 @@ def test_build_domain_with_binary_minus() -> None:
         actions={action},
     )
     assert domain
+
+
+def test_build_domain_with_durative_actions() -> None:
+    """Test a PDDL domain with durative actions."""
+    x, y = variables("x y")
+    p = Predicate("p", x)
+    q = Predicate("q", y)
+    move = DurativeAction(
+        "move",
+        parameters=(x, y),
+        duration=Duration(
+            SimpleDurationConstraint(Symbols.EQUAL.value, NumericValue(1))
+        ),
+        condition=TimedCondition(TimeSpecifier.START, p),
+        effect=TimedEffect(TimeSpecifier.END, q),
+    )
+    domain = Domain(
+        "domain_with_durative_actions",
+        requirements={Requirements.DURATIVE_ACTIONS},
+        predicates={p, q},
+        durative_actions={move},
+    )
+    assert domain.durative_actions == {move}
+
+
+def test_pickle_and_deepcopy_domain_with_durative_actions() -> None:
+    """Test that a domain with durative actions can be pickled and deepcopied."""
+    x, y = variables("x y")
+    p = Predicate("p", x)
+    q = Predicate("q", y)
+    move = DurativeAction(
+        "move",
+        parameters=(x, y),
+        duration=Duration(
+            SimpleDurationConstraint(Symbols.EQUAL.value, NumericValue(1))
+        ),
+        condition=TimedCondition(TimeSpecifier.START, p),
+        effect=TimedEffect(TimeSpecifier.END, q),
+    )
+    domain = Domain(
+        "domain_with_durative_actions",
+        requirements={Requirements.DURATIVE_ACTIONS},
+        predicates={p, q},
+        durative_actions={move},
+    )
+    assert pickle.loads(pickle.dumps(domain)) == domain  # nosec
+    assert copy.deepcopy(domain) == domain

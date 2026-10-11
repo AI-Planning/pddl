@@ -19,11 +19,41 @@ f_typed_list_atomic_function_skeleton: atomic_function_skeleton+
 
 atomic_function_skeleton:  LPAR NAME typed_list_variable RPAR
 
-?structure_def:    action_def | derived_predicates
+?structure_def:    action_def | derived_predicates | durative_action_def
 action_def:        LPAR ACTION NAME PARAMETERS action_parameters action_body_def RPAR
 action_parameters: LPAR typed_list_variable RPAR
 ?action_body_def:  [PRECONDITION emptyor_pregd] [EFFECT emptyor_effect]
 derived_predicates: LPAR DERIVED atomic_formula_skeleton gd RPAR
+durative_action_def: LPAR DURATIVE_ACTION NAME PARAMETERS action_parameters DURATION duration_constraint CONDITION da_gd EFFECT da_effect RPAR
+
+// durative-actions
+duration_constraint: simple_duration_constraint
+                   | LPAR AND simple_duration_constraint+ RPAR
+                   | LPAR RPAR
+simple_duration_constraint: LPAR d_op DURATION_VAR f_exp RPAR
+                          | LPAR NAME NAME simple_duration_constraint RPAR
+?d_op: GREATER_EQUAL_OP
+     | LESSER_EQUAL_OP
+     | EQUAL_OP
+
+da_gd:             timed_gd
+     |             LPAR AND da_gd* RPAR
+     |             LPAR FORALL LPAR typed_list_variable RPAR da_gd RPAR
+     |             LPAR RPAR
+timed_gd:          LPAR NAME NAME gd RPAR
+
+da_effect:         LPAR AND da_effect* RPAR
+         |         timed_effect
+         |         LPAR RPAR
+         |         LPAR FORALL LPAR typed_list_variable RPAR da_effect RPAR
+         |         LPAR WHEN da_gd timed_effect RPAR
+timed_effect:      LPAR NAME NAME da_cond_effect RPAR
+da_cond_effect:    LPAR AND da_p_effect* RPAR
+              |    da_p_effect
+da_p_effect:       LPAR NOT atomic_formula_term RPAR
+           |       atomic_formula_term
+           |       da_num_effect
+da_num_effect:     LPAR assign_op f_head f_exp_da RPAR
 
 // preconditions
 emptyor_pregd:     LPAR RPAR
@@ -81,6 +111,14 @@ f_exp:      num_literal
       |     LPAR MINUS f_exp RPAR
       |     LPAR MINUS f_exp f_exp RPAR
       |     f_head
+f_exp_da:   num_literal
+        |   LPAR binary_op f_exp_da f_exp_da RPAR
+        |   LPAR multi_op f_exp_da f_exp_da+ RPAR
+        |   LPAR MINUS f_exp_da RPAR
+        |   LPAR MINUS f_exp_da f_exp_da RPAR
+        |   f_head
+        |   f_duration
+f_duration: DURATION_VAR
 
 f_head:     NAME
       |     LPAR NAME term* RPAR
@@ -114,6 +152,7 @@ objects:   LPAR OBJECTS typed_list_name RPAR
 init:                  LPAR INIT init_el* RPAR
 init_el:               literal_name
        |               LPAR EQUAL_OP basic_function_term num_literal RPAR
+       |               LPAR NAME NUMBER literal_name RPAR
 
 literal_name:          atomic_formula_name
             |          LPAR NOT atomic_formula_name RPAR
@@ -171,6 +210,9 @@ NAME: /[a-zA-Z][a-zA-Z0-9-_]*/
             | NUMERIC_FLUENTS
             | FLUENTS
             | ACTION_COSTS
+            | DURATIVE_ACTIONS
+            | DURATION_INEQUALITIES
+            | TIMED_INITIAL_LITERALS
 
 COMMENT: /;[^\n]*/
 
@@ -186,6 +228,10 @@ PARAMETERS: ":parameters"
 PRECONDITION: ":precondition"
 EFFECT: ":effect"
 DERIVED: ":derived"
+DURATIVE_ACTION: ":durative-action"
+DURATION: ":duration"
+CONDITION: ":condition"
+DURATION_VAR: "?duration"
 FORALL: "forall"
 EXISTS: "exists"
 WHEN: "when"
@@ -232,6 +278,9 @@ QUANTIFIED_PRECONDITIONS: ":quantified-preconditions"
 NUMERIC_FLUENTS: ":numeric-fluents"
 FLUENTS: ":fluents"
 ACTION_COSTS: ":action-costs"
+DURATIVE_ACTIONS: ":durative-actions"
+DURATION_INEQUALITIES: ":duration-inequalities"
+TIMED_INITIAL_LITERALS: ":timed-initial-literals"
 
 // others
 LPAR : "("

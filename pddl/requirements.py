@@ -39,6 +39,9 @@ class Requirements(Enum):
     OBJECT_FLUENTS = RS.OBJECT_FLUENTS.strip()
     NUMERIC_FLUENTS = RS.NUMERIC_FLUENTS.strip()
     ACTION_COSTS = RS.ACTION_COSTS.strip()
+    DURATIVE_ACTIONS = RS.DURATIVE_ACTIONS.strip()
+    DURATION_INEQUALITIES = RS.DURATION_INEQUALITIES.strip()
+    TIMED_INITIAL_LITERALS = RS.TIMED_INITIAL_LITERALS.strip()
 
     @classmethod
     def quantified_precondition_requirements(cls) -> Set["Requirements"]:
@@ -97,4 +100,8 @@ def _extend_domain_requirements(
         extended_requirements.update(Requirements.adl_requirements())
     if Requirements.FLUENTS in requirements:
         extended_requirements.update(Requirements.fluents_requirements())
+    if Requirements.DURATION_INEQUALITIES in requirements:
+        extended_requirements.add(Requirements.DURATIVE_ACTIONS)
+    if Requirements.TIMED_INITIAL_LITERALS in requirements:
+        extended_requirements.add(Requirements.DURATIVE_ACTIONS)
     return extended_requirements

@@ -30,6 +30,7 @@ from lark import ParseError, Transformer
 from pddl.action import Action
 from pddl.core import Domain
 from pddl.custom_types import name
+from pddl.durative_action import DurativeAction
 from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
@@ -38,6 +39,7 @@ from pddl.logic.functions import (
     Assign,
     Decrease,
     Divide,
+    DurationVariable,
     FunctionExpression,
     GreaterEqualThan,
     GreaterThan,
@@ -55,10 +57,17 @@ from pddl.logic.functions import (
 )
 from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
+from pddl.logic.temporal import (
+    Duration,
+    SimpleDurationConstraint,
+    TimedCondition,
+    TimedEffect,
+    TimeSpecifier,
+)
 from pddl.logic.terms import Constant, Variable
 from pddl.parser._update_type_tags import update_type_tags
 from pddl.parser.base import BaseParser
-from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols
+from pddl.parser.symbols import BINARY_COMP_SYMBOLS, Symbols, TemporalSymbols
 from pddl.parser.typed_list_parser import TypedListParser
 from pddl.requirements import Requirements, _extend_domain_requirements
 
@@ -94,16 +103,23 @@ class DomainTransformer(Transformer[Any, Domain]):
         args = [arg for arg in args if arg is not None]
         kwargs = {}
         actions = []
+        durative_actions = []
         derived_predicates = []
         for arg in args[2:-1]:
             if isinstance(arg, Action):
                 actions.append(arg)
+            elif isinstance(arg, DurativeAction):
+                durative_actions.append(arg)
             elif isinstance(arg, DerivedPredicate):
                 derived_predicates.append(arg)
             else:
                 assert_(isinstance(arg, dict))
                 kwargs.update(arg)
-        kwargs.update(actions=actions, derived_predicates=derived_predicates)
+        kwargs.update(
+            actions=actions,
+            durative_actions=durative_actions,
+            derived_predicates=derived_predicates,
+        )
         self._types = None
         return Domain(**kwargs)
 
@@ -221,6 +237,134 @@ class DomainTransformer(Transformer[Any, Domain]):
         new_predicate = update_type_tags(dp_predicate, current_var_to_types)
         new_condition = update_type_tags(dp_condition, current_var_to_types)
         return DerivedPredicate(new_predicate, new_condition)
+
+    def durative_action_def(self, args):
+        """Process the 'durative_action_def' rule."""
+        if not self._has_requirement(Requirements.DURATIVE_ACTIONS):
+            raise PDDLMissingRequirementError(Requirements.DURATIVE_ACTIONS)
+        action_name = args[2]
+        variables = args[4]
+        duration = args[6]
+        condition = args[8]
+        effect = args[10]
+        return DurativeAction(action_name, variables, duration, condition, effect)
+
+    def duration_constraint(self, args):
+        """Process the 'duration_constraint' rule."""
+        if len(args) == 1:
+            return Duration(args[0])
+        if len(args) == 2:
+            return Duration()
+        if args[1] == Symbols.AND.value:
+            return Duration(*args[2:-1])
+        raise PDDLParsingError("Invalid duration constraint.")
+
+    def simple_duration_constraint(self, args):
+        """Process the 'simple_duration_constraint' rule."""
+        if len(args) == 5 and str(args[1]) == TemporalSymbols.AT.value:
+            time_specifier = str(args[2])
+            if time_specifier not in {
+                TemporalSymbols.START.value,
+                TemporalSymbols.END.value,
+            }:
+                raise PDDLParsingError(
+                    f"Invalid time specifier in duration constraint: {time_specifier}."
+                )
+            inner = args[3]
+            assert_(isinstance(inner, SimpleDurationConstraint))
+            if inner.time_specifier is not None:
+                raise PDDLParsingError(
+                    "Nested duration time specifiers are not allowed."
+                )
+            return SimpleDurationConstraint(
+                inner.operator,
+                inner.expression,
+                time_specifier=TimeSpecifier(time_specifier),
+            )
+        operator = args[1]
+        if operator in {
+            Symbols.LESSER_EQUAL.value,
+            Symbols.GREATER_EQUAL.value,
+        } and not self._has_requirement(Requirements.DURATION_INEQUALITIES):
+            raise PDDLMissingRequirementError(Requirements.DURATION_INEQUALITIES)
+        return SimpleDurationConstraint(operator, args[3])
+
+    def da_gd(self, args):
+        """Process the 'da_gd' rule."""
+        if len(args) == 1:
+            return args[0]
+        if len(args) == 2:
+            return And()
+        if args[1] == Symbols.AND.value:
+            return And(*args[2:-1])
+        if args[1] == Symbols.FORALL.value:
+            if not bool(
+                {
+                    Requirements.UNIVERSAL_PRECONDITION,
+                    Requirements.QUANTIFIED_PRECONDITION,
+                    Requirements.ADL,
+                }
+                & self._extended_requirements
+            ):
+                raise PDDLMissingRequirementError(Requirements.UNIVERSAL_PRECONDITION)
+            variables = [Variable(var_name, tags) for var_name, tags in args[3]]
+            return ForallCondition(cond=args[5], variables=variables)
+        raise PDDLParsingError("Invalid durative condition.")
+
+    def timed_gd(self, args):
+        """Process the 'timed_gd' rule."""
+        first, second = str(args[1]), str(args[2])
+        if first == TemporalSymbols.AT.value and second in {
+            TemporalSymbols.START.value,
+            TemporalSymbols.END.value,
+        }:
+            time_specifier = TimeSpecifier(second)
+        elif (
+            first == TemporalSymbols.OVER.value and second == TemporalSymbols.ALL.value
+        ):
+            time_specifier = TimeSpecifier.OVER_ALL
+        else:
+            raise PDDLParsingError(
+                f"Invalid timed goal descriptor: ({first} {second} ...)."
+            )
+        return TimedCondition(time_specifier, args[3])
+
+    def da_effect(self, args):
+        """Process the 'da_effect' rule."""
+        if len(args) == 1:
+            return args[0]
+        if len(args) == 2:
+            return And()
+        if args[1] == Symbols.AND.value:
+            return And(*args[2:-1])
+        if args[1] == Symbols.FORALL.value:
+            variables = [Variable(var_name, tags) for var_name, tags in args[3]]
+            return Forall(effect=args[5], variables=variables)
+        if args[1] == Symbols.WHEN.value:
+            return When(args[2], args[3])
+        raise PDDLParsingError("Invalid durative effect.")
+
+    def timed_effect(self, args):
+        """Process the 'timed_effect' rule."""
+        first, second = str(args[1]), str(args[2])
+        if first != TemporalSymbols.AT.value or second not in {
+            TemporalSymbols.START.value,
+            TemporalSymbols.END.value,
+        }:
+            raise PDDLParsingError(f"Invalid timed effect: ({first} {second} ...).")
+        return TimedEffect(TimeSpecifier(second), args[3])
+
+    def da_cond_effect(self, args):
+        """Process the 'da_cond_effect' rule."""
+        return self.cond_effect(args)
+
+    def da_p_effect(self, args):
+        """Process the 'da_p_effect' rule."""
+        return self.p_effect(args)
+
+    def da_num_effect(self, args):
+        """Process the 'da_num_effect' rule."""
+        return self.num_effect(args)
 
     def action_parameters(self, args):
         """Process the 'action_parameters' rule."""
@@ -454,9 +598,9 @@ class DomainTransformer(Transformer[Any, Domain]):
     def f_exp(self, args):
         """Process the 'f_exp' rule."""
         if len(args) == 1:
-            if not isinstance(args[0], NumericFunction):
-                return NumericValue(args[0])
-            return args[0]
+            if isinstance(args[0], FunctionExpression):
+                return args[0]
+            return NumericValue(args[0])
         op = None
         if args[1] == Symbols.MINUS.value:
             n = len(args[2:-1])
@@ -473,6 +617,10 @@ class DomainTransformer(Transformer[Any, Domain]):
             else PDDLParsingError("Operator not recognized")
         )
 
+    def f_exp_da(self, args):
+        """Process the 'f_exp_da' rule."""
+        return self.f_exp(args)
+
     def f_head(self, args):
         """Process the 'f_head' rule."""
         if len(args) == 1:
@@ -480,6 +628,10 @@ class DomainTransformer(Transformer[Any, Domain]):
         function_name = args[1]
         variables = list(map(self._constant_or_variable, args[2:-1]))
         return NumericFunction(function_name, *variables)
+
+    def f_duration(self, args):
+        """Process the 'f_duration' rule."""
+        return DurationVariable()
 
     def typed_list_name(self, args) -> Dict[name, Optional[name]]:
         """Process the 'typed_list_name' rule."""

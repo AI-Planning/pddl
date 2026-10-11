@@ -28,6 +28,7 @@ from pddl._validation import (
 from pddl.action import Action
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, parse_name, to_names, to_types  # noqa: F401
+from pddl.durative_action import DurativeAction
 from pddl.formatter import (
     print_constants,
     print_function_skeleton,
@@ -40,6 +41,7 @@ from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
 from pddl.logic.functions import FunctionExpression, Metric, NumericFunction
 from pddl.logic.predicates import DerivedPredicate, Predicate
+from pddl.logic.temporal import TimedInitialLiteral
 from pddl.logic.terms import Constant
 from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements
@@ -60,6 +62,7 @@ class Domain:
         ] = None,  # TODO cannot be empty
         functions: Optional[Collection[FunctionExpression]] = None,
         actions: Optional[Collection["Action"]] = None,
+        durative_actions: Optional[Collection["DurativeAction"]] = None,
     ):
         """
         Initialize a PDDL domain.
@@ -82,6 +85,7 @@ class Domain:
         self._predicates = ensure_set(predicates)
         self._derived_predicates = ensure_set(derived_predicates)
         self._actions = ensure_set(actions)
+        self._durative_actions = ensure_set(durative_actions)
         self._functions = Functions(functions, self._requirements)
 
         self._check_consistency()
@@ -92,7 +96,9 @@ class Domain:
         type_checker.check_type(self._constants)
         type_checker.check_type(self._predicates)
         type_checker.check_type(self._actions)
+        type_checker.check_type(self._durative_actions)
         _check_types_in_has_terms_objects(self._actions, self._types.all_types)  # type: ignore
+        _check_types_in_has_terms_objects(self._durative_actions, self._types.all_types)  # type: ignore
         self._check_types_in_derived_predicates()
 
     def _check_types_in_derived_predicates(self) -> None:
@@ -140,6 +146,11 @@ class Domain:
         return self._actions
 
     @property
+    def durative_actions(self) -> AbstractSet["DurativeAction"]:
+        """Get the durative actions."""
+        return self._durative_actions
+
+    @property
     def types(self) -> Dict[name_type, Optional[name_type]]:
         """Get the type definitions, if defined. Else, raise error."""
         return self._types.raw
@@ -156,6 +167,7 @@ class Domain:
             and self.functions == other.functions
             and self.derived_predicates == other.derived_predicates
             and self.actions == other.actions
+            and self.durative_actions == other.durative_actions
         )
 
     def __str__(self) -> str:
@@ -185,6 +197,12 @@ class Domain:
         body += sort_and_print_collection(
             "",
             self.actions,
+            "",
+            to_string=lambda obj: str(obj) + "\n",
+        )
+        body += sort_and_print_collection(
+            "",
+            self.durative_actions,
             "",
             to_string=lambda obj: str(obj) + "\n",
         )
@@ -233,8 +251,11 @@ class Problem:
         self._goal: Formula = ensure(goal, And())
         self._metric: Optional[Metric] = metric
         validate(
-            all(map(is_literal, self.init)),
-            "Not all formulas of initial condition are literals!",
+            all(
+                is_literal(formula) or isinstance(formula, TimedInitialLiteral)
+                for formula in self.init
+            ),
+            "Not all formulas of initial condition are literals or timed initial literals!",
         )
 
         self._check_consistency()
@@ -306,6 +327,11 @@ class Problem:
         type_checker.check_type(self.objects)
         type_checker.check_type(self.init)
         type_checker.check_type(self.goal)
+        if any(isinstance(f, TimedInitialLiteral) for f in self.init):
+            validate(
+                Requirements.TIMED_INITIAL_LITERALS in domain.requirements,
+                "timed-initial-literals requirement is not specified, but timed initial literals were used.",
+            )
 
     @property
     def name(self) -> name_type:
