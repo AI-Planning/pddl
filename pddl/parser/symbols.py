@@ -83,12 +83,14 @@ BINARY_COMP_SYMBOLS: Set[str] = {
 class TemporalSymbols(Enum):
     """A set of temporal symbols that can be used in PDDL."""
 
+    # 'at' / 'over' combine with 'start' / 'end' / 'all' to form timed descriptors.
+
     AT = "at"
     OVER = "over"
     ALL = "all"
     START = "start"
     END = "end"
-    DURATION_VAR = "?duration"
+    DURATION_VAR = "?duration"  # '?duration' is the duration token.
 
 
 class RequirementSymbols(Enum):

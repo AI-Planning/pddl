@@ -298,10 +298,7 @@ def test_duration_ordering() -> None:
 
 def test_timed_initial_literal_repr() -> None:
     """Test the repr of a timed initial literal."""
-    assert (
-        repr(TimedInitialLiteral(5, Predicate("p")))
-        == "TimedInitialLiteral(5, (p))"
-    )
+    assert repr(TimedInitialLiteral(5, Predicate("p"))) == "TimedInitialLiteral(5, (p))"
 
 
 def test_timed_initial_literal_ordering() -> None:

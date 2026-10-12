@@ -100,6 +100,7 @@ def _extend_domain_requirements(
         extended_requirements.update(Requirements.adl_requirements())
     if Requirements.FLUENTS in requirements:
         extended_requirements.update(Requirements.fluents_requirements())
+    # Both duration inequalities and timed initial literals imply :durative-actions.
     if Requirements.DURATION_INEQUALITIES in requirements:
         extended_requirements.add(Requirements.DURATIVE_ACTIONS)
     if Requirements.TIMED_INITIAL_LITERALS in requirements:

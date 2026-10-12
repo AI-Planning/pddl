@@ -64,6 +64,7 @@ class TimedCondition(Formula):
         """Get the string representation."""
         if self.time_specifier is TimeSpecifier.OVER_ALL:
             return f"({TemporalSymbols.OVER.value} {TemporalSymbols.ALL.value} {self.condition})"
+        # 'over all' stands alone; start/end are wrapped as '(at start/end ...)'
         return f"({TemporalSymbols.AT.value} {self.time_specifier} {self.condition})"
 
     def __repr__(self) -> str:
@@ -156,6 +157,7 @@ class SimpleDurationConstraint(Formula):
         time_specifier: Optional[TimeSpecifier] = None,
     ) -> None:
         """Initialize a simple duration constraint."""
+        # PDDL 3.1 permits only these three comparison ops.
         assert_(
             operator
             in {
@@ -165,6 +167,7 @@ class SimpleDurationConstraint(Formula):
             },
             f"Invalid duration constraint operator: {operator}",
         )
+        # Optional specifier binds constraint at 'at start/end'; 'over all' not permitted.
         assert_(
             time_specifier is None
             or time_specifier in {TimeSpecifier.START, TimeSpecifier.END},

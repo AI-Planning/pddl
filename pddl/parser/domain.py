@@ -255,14 +255,17 @@ class DomainTransformer(Transformer[Any, Domain]):
             return Duration(args[0])
         if len(args) == 2:
             return Duration()
+        # '(and c1 c2 ...)' groups several simple duration constraints
         if args[1] == Symbols.AND.value:
             return Duration(*args[2:-1])
         raise PDDLParsingError("Invalid duration constraint.")
 
     def simple_duration_constraint(self, args):
         """Process the 'simple_duration_constraint' rule."""
+        # Handle the '(at start/end <constraint>)' form.
         if len(args) == 5 and str(args[1]) == TemporalSymbols.AT.value:
             time_specifier = str(args[2])
+            # Only 'start'/'end' are valid dation time specifiers; not 'over all'
             if time_specifier not in {
                 TemporalSymbols.START.value,
                 TemporalSymbols.END.value,
@@ -272,6 +275,7 @@ class DomainTransformer(Transformer[Any, Domain]):
                 )
             inner = args[3]
             assert_(isinstance(inner, SimpleDurationConstraint))
+            # Reject constraint that already carries time specifier (no nesting).
             if inner.time_specifier is not None:
                 raise PDDLParsingError(
                     "Nested duration time specifiers are not allowed."
@@ -281,7 +285,9 @@ class DomainTransformer(Transformer[Any, Domain]):
                 inner.expression,
                 time_specifier=TimeSpecifier(time_specifier),
             )
+        # Otherwise this is a bare '<op> ?duration <expr>' constraint.
         operator = args[1]
+        # Strict inequalities are only allowed with :duration-inequalities
         if operator in {
             Symbols.LESSER_EQUAL.value,
             Symbols.GREATER_EQUAL.value,
@@ -291,12 +297,16 @@ class DomainTransformer(Transformer[Any, Domain]):
 
     def da_gd(self, args):
         """Process the 'da_gd' rule."""
+        # Single nested durative goal descriptor.
         if len(args) == 1:
             return args[0]
+        # Empty '()' condition is always true.
         if len(args) == 2:
             return And()
+        # '(and g1 ...)' conjoins several durative goal descriptors.
         if args[1] == Symbols.AND.value:
             return And(*args[2:-1])
+        # '(forall (...) g)' requires universal/quantified precondition support.
         if args[1] == Symbols.FORALL.value:
             if not bool(
                 {
@@ -314,11 +324,13 @@ class DomainTransformer(Transformer[Any, Domain]):
     def timed_gd(self, args):
         """Process the 'timed_gd' rule."""
         first, second = str(args[1]), str(args[2])
+        # '(at start ...)' or '(at end...)'.
         if first == TemporalSymbols.AT.value and second in {
             TemporalSymbols.START.value,
             TemporalSymbols.END.value,
         }:
             time_specifier = TimeSpecifier(second)
+        # '(over all ...)' holds throughout the whole action interval.
         elif (
             first == TemporalSymbols.OVER.value and second == TemporalSymbols.ALL.value
         ):
@@ -335,11 +347,14 @@ class DomainTransformer(Transformer[Any, Domain]):
             return args[0]
         if len(args) == 2:
             return And()
+        # '(and e1 ...)' conjoins several durative effects.
         if args[1] == Symbols.AND.value:
             return And(*args[2:-1])
+        # '(forall (...) e)' applies the effect to every matching object.
         if args[1] == Symbols.FORALL.value:
             variables = [Variable(var_name, tags) for var_name, tags in args[3]]
             return Forall(effect=args[5], variables=variables)
+        # '(when condition effect)' is a conditional durative effect.
         if args[1] == Symbols.WHEN.value:
             return When(args[2], args[3])
         raise PDDLParsingError("Invalid durative effect.")
@@ -347,6 +362,7 @@ class DomainTransformer(Transformer[Any, Domain]):
     def timed_effect(self, args):
         """Process the 'timed_effect' rule."""
         first, second = str(args[1]), str(args[2])
+        # A timed effect may only occur at start or end, never 'over all'
         if first != TemporalSymbols.AT.value or second not in {
             TemporalSymbols.START.value,
             TemporalSymbols.END.value,
@@ -598,6 +614,8 @@ class DomainTransformer(Transformer[Any, Domain]):
     def f_exp(self, args):
         """Process the 'f_exp' rule."""
         if len(args) == 1:
+            # A nested expression already built (e.g., NumericFunction)
+            # is returned unchanged.
             if isinstance(args[0], FunctionExpression):
                 return args[0]
             return NumericValue(args[0])
@@ -619,6 +637,7 @@ class DomainTransformer(Transformer[Any, Domain]):
 
     def f_exp_da(self, args):
         """Process the 'f_exp_da' rule."""
+        # Durative-action numeric expression reuse f_exp + '?duration' token.
         return self.f_exp(args)
 
     def f_head(self, args):
@@ -631,6 +650,7 @@ class DomainTransformer(Transformer[Any, Domain]):
 
     def f_duration(self, args):
         """Process the 'f_duration' rule."""
+        # '?duration' used inside a durative effect or numeric expression.
         return DurationVariable()
 
     def typed_list_name(self, args) -> Dict[name, Optional[name]]:

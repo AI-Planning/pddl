@@ -156,6 +156,8 @@ class NumericValue(FunctionExpression):
 class DurationVariable(FunctionExpression):
     """The special '?duration' variable, used in durative-action numeric expressions."""
 
+    # '?duration' is a singleton-like token: every instance represents the same value.
+
     def instantiate(self, mapping: Mapping[Variable, Term]) -> "DurationVariable":
         """Instantiate the value with a mapping from variables to terms."""
         return self

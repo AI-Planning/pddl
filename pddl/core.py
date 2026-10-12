@@ -255,7 +255,7 @@ class Problem:
                 is_literal(formula) or isinstance(formula, TimedInitialLiteral)
                 for formula in self.init
             ),
-            "Not all formulas of initial condition are literals or timed initial literals!",
+            "Not all formulas of initial condition are literals or timed initial literals.",
         )
 
         self._check_consistency()
