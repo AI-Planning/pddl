@@ -1460,7 +1460,14 @@ def test_parse_durative_effect_when() -> None:
     )
     """)
     action = next(iter(DomainParser()(domain_str).durative_actions))
-    assert action.effect == When(
+    effect = action.effect
+    assert isinstance(effect, When)
+    assert effect.condition == TimedCondition(TimeSpecifier.START, Predicate("q"))
+    inner = effect.effect
+    assert isinstance(inner, TimedEffect)
+    assert inner.time_specifier is TimeSpecifier.END
+    assert inner.effect == Predicate("q")
+    assert action.effect == When(  # type: ignore
         TimedCondition(TimeSpecifier.START, Predicate("q")),
         TimedEffect(TimeSpecifier.END, Predicate("q")),
     )
