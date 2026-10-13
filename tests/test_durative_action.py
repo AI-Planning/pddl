@@ -164,3 +164,15 @@ def test_durative_action_repr() -> None:
     assert repr(action).startswith(
         "DurativeAction(move, parameters=?x, duration=None, condition=None, effect=None)"
     )
+
+
+def test_durative_action_str_empty() -> None:
+    """Test the string representation of a durative action without duration/condition/effect."""
+    action = DurativeAction("a", [])
+    assert str(action) == "(:durative-action a\n    :parameters ()\n)"
+
+
+def test_durative_action_instantiate_empty() -> None:
+    """Test instantiation of a durative action without duration/condition/effect."""
+    action = DurativeAction("a", [])
+    assert action.instantiate([]) == action

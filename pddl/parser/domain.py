@@ -258,7 +258,7 @@ class DomainTransformer(Transformer[Any, Domain]):
         # '(and c1 c2 ...)' groups several simple duration constraints
         if args[1] == Symbols.AND.value:
             return Duration(*args[2:-1])
-        raise PDDLParsingError("Invalid duration constraint.")
+        raise PDDLParsingError("Invalid duration constraint.")  # pragma: no cover
 
     def simple_duration_constraint(self, args):
         """Process the 'simple_duration_constraint' rule."""
@@ -319,7 +319,7 @@ class DomainTransformer(Transformer[Any, Domain]):
                 raise PDDLMissingRequirementError(Requirements.UNIVERSAL_PRECONDITION)
             variables = [Variable(var_name, tags) for var_name, tags in args[3]]
             return ForallCondition(cond=args[5], variables=variables)
-        raise PDDLParsingError("Invalid durative condition.")
+        raise PDDLParsingError("Invalid durative condition.")  # pragma: no cover
 
     def timed_gd(self, args):
         """Process the 'timed_gd' rule."""
@@ -357,7 +357,7 @@ class DomainTransformer(Transformer[Any, Domain]):
         # '(when condition effect)' is a conditional durative effect.
         if args[1] == Symbols.WHEN.value:
             return When(args[2], args[3])
-        raise PDDLParsingError("Invalid durative effect.")
+        raise PDDLParsingError("Invalid durative effect.")  # pragma: no cover
 
     def timed_effect(self, args):
         """Process the 'timed_effect' rule."""

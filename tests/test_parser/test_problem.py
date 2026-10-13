@@ -380,3 +380,16 @@ def test_timed_initial_literal_round_trip() -> None:
     """)
     problem = ProblemParser()(problem_str)
     assert ProblemParser()(str(problem)) == problem
+
+
+def test_parse_invalid_init_element() -> None:
+    """Test that an init element that is neither an assignment / timed literal is rejected."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:objects a)
+        (:init (foo 5 (p a)))
+        (:goal (p a)))
+    """)
+    with pytest.raises(ParseError):
+        ProblemParser()(problem_str)

@@ -401,3 +401,14 @@ def test_pickle_and_deepcopy_domain_with_durative_actions() -> None:
     )
     assert pickle.loads(pickle.dumps(domain)) == domain  # nosec
     assert copy.deepcopy(domain) == domain
+
+
+def test_domain_with_empty_durative_action_typechecks() -> None:
+    """Test that a durative action with None duration/condition/effect passes type checking."""
+    action = DurativeAction("a", [])
+    domain = Domain(
+        "domain_with_empty_durative_action",
+        requirements={Requirements.DURATIVE_ACTIONS},
+        durative_actions={action},
+    )
+    assert domain.durative_actions == {action}

@@ -26,6 +26,7 @@ from pddl.exceptions import (
     PDDLValidationError,
 )
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Not
+from pddl.logic.effects import Forall, When
 from pddl.logic.functions import (
     BinaryFunction,
     DurationVariable,
@@ -1275,3 +1276,227 @@ def test_duration_variable_not_allowed_as_d_value() -> None:
     """)
     with pytest.raises(ParseError):
         DomainParser()(domain_str)
+
+
+def test_parse_empty_duration_constraint() -> None:
+    """Test parsing of an empty ':duration ()' constraint."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :durative-actions)
+        (:predicates (p))
+        (:durative-action a
+            :parameters ()
+            :duration ()
+            :condition (at start (p))
+            :effect (at end (p)))
+    )
+    """)
+    action = next(iter(DomainParser()(domain_str).durative_actions))
+    assert action.duration == Duration()
+
+
+def test_parse_duration_invalid_time_specifier() -> None:
+    """Test that an invalid time specifier (e.g., 'all') in a duration constraint is rejected."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :durative-actions)
+        (:predicates (p))
+        (:durative-action a
+            :parameters ()
+            :duration (at all (= ?duration 1))
+            :condition (at start (p))
+            :effect (at end (p)))
+    )
+    """)
+    with pytest.raises(PDDLParsingError):
+        DomainParser()(domain_str)
+
+
+def test_parse_duration_nested_timed_specifier() -> None:
+    """Test that nested time specifiers in a duration constraint are rejected."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :durative-actions)
+        (:predicates (p))
+        (:durative-action a
+            :parameters ()
+            :duration (at start (at end (= ?duration 1)))
+            :condition (at start (p))
+            :effect (at end (p)))
+    )
+    """)
+    with pytest.raises(PDDLParsingError):
+        DomainParser()(domain_str)
+
+
+def test_parse_durative_condition_empty() -> None:
+    """Test parsing of an empty ':condition ()'."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :durative-actions)
+        (:predicates (p))
+        (:durative-action a
+            :parameters ()
+            :duration (= ?duration 1)
+            :condition ()
+            :effect (at end (p)))
+    )
+    """)
+    action = next(iter(DomainParser()(domain_str).durative_actions))
+    assert action.condition == And()
+
+
+def test_durative_condition_forall_missing_requirement() -> None:
+    """Test that 'forall' in a durative condition requires universal-preconditions."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :typing :durative-actions)
+        (:types t1)
+        (:predicates (p ?x - t1) (q))
+        (:durative-action a
+            :parameters ()
+            :duration (= ?duration 1)
+            :condition (forall (?x - t1) (at start (p ?x)))
+            :effect (at end (q)))
+    )
+    """)
+    with pytest.raises(PDDLMissingRequirementError):
+        DomainParser()(domain_str)
+
+
+def test_parse_durative_condition_forall() -> None:
+    """Test parsing of a 'forall' durative condition with the required support."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :typing :durative-actions :adl)
+        (:types t1)
+        (:predicates (p ?x - t1) (q))
+        (:durative-action a
+            :parameters ()
+            :duration (= ?duration 1)
+            :condition (forall (?x - t1) (at start (p ?x)))
+            :effect (at end (q)))
+    )
+    """)
+    action = next(iter(DomainParser()(domain_str).durative_actions))
+    assert isinstance(action.condition, ForallCondition)
+    (variable,) = tuple(action.condition.variables)
+    assert variable.name == "x"
+    assert variable.type_tags == {"t1"}
+    inner = action.condition.condition
+    assert isinstance(inner, TimedCondition)
+    assert inner.time_specifier is TimeSpecifier.START
+
+
+def test_parse_durative_condition_invalid_timed_gd() -> None:
+    """Test that an invalid timed goal descriptor in a durative condition is rejected."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :durative-actions)
+        (:predicates (p))
+        (:durative-action a
+            :parameters ()
+            :duration (= ?duration 1)
+            :condition (at middle (p))
+            :effect (at end (p)))
+    )
+    """)
+    with pytest.raises(PDDLParsingError):
+        DomainParser()(domain_str)
+
+
+def test_parse_durative_effect_empty() -> None:
+    """Test parsing of an empty ':effect ()'."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :durative-actions)
+        (:predicates (p))
+        (:durative-action a
+            :parameters ()
+            :duration (= ?duration 1)
+            :condition (at start (p))
+            :effect ())
+    )
+    """)
+    action = next(iter(DomainParser()(domain_str).durative_actions))
+    assert action.effect == And()
+
+
+def test_parse_durative_effect_forall() -> None:
+    """Test parsing of a 'forall' durative effect."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :typing :durative-actions)
+        (:types t1)
+        (:predicates (p ?x - t1) (q))
+        (:durative-action a
+            :parameters ()
+            :duration (= ?duration 1)
+            :condition (at start (q))
+            :effect (forall (?x - t1) (at end (p ?x))))
+    )
+    """)
+    action = next(iter(DomainParser()(domain_str).durative_actions))
+    assert isinstance(action.effect, Forall)
+    (effect_var,) = tuple(action.effect.variables)
+    assert effect_var.name == "x"
+    assert effect_var.type_tags == {"t1"}
+    inner = action.effect.effect
+    assert isinstance(inner, TimedEffect)
+    assert inner.time_specifier is TimeSpecifier.END
+
+
+def test_parse_durative_effect_when() -> None:
+    """Test parsing of a conditional ('when') durative effect."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :durative-actions :conditional-effects)
+        (:predicates (q))
+        (:durative-action a
+            :parameters ()
+            :duration (= ?duration 1)
+            :condition (at start (q))
+            :effect (when (at start (q)) (at end (q))))
+    )
+    """)
+    action = next(iter(DomainParser()(domain_str).durative_actions))
+    assert action.effect == When(
+        TimedCondition(TimeSpecifier.START, Predicate("q")),
+        TimedEffect(TimeSpecifier.END, Predicate("q")),
+    )
+
+
+def test_parse_durative_effect_invalid_timed_effect() -> None:
+    """Test that a timed effect that is not 'at start/end' is rejected."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :durative-actions)
+        (:predicates (p))
+        (:durative-action a
+            :parameters ()
+            :duration (= ?duration 1)
+            :condition (at start (p))
+            :effect (over all (p)))
+    )
+    """)
+    with pytest.raises(PDDLParsingError):
+        DomainParser()(domain_str)
+
+
+def test_parse_durative_effect_conditional_and() -> None:
+    """Test parsing of a conjunction inside a timed durative effect."""
+    domain_str = dedent("""
+    (define (domain test)
+        (:requirements :strips :durative-actions)
+        (:predicates (p) (q))
+        (:durative-action a
+            :parameters ()
+            :duration (= ?duration 1)
+            :condition (at start (p))
+            :effect (at end (and (p) (q))))
+    )
+    """)
+    action = next(iter(DomainParser()(domain_str).durative_actions))
+    assert isinstance(action.effect, TimedEffect)
+    assert isinstance(action.effect.effect, And)
+    assert {str(operand) for operand in action.effect.effect.operands} == {"(p)", "(q)"}

@@ -306,3 +306,9 @@ def test_timed_initial_literal_ordering() -> None:
     p = Predicate("p")
     assert TimedInitialLiteral(1, p) < TimedInitialLiteral(5, p)
     assert TimedInitialLiteral(5, p).__lt__(object()) is NotImplemented
+
+
+def test_duration_variable_ordering() -> None:
+    """Test ordering of the '?duration' variable, including the non-matching type branch."""
+    assert (DurationVariable() < DurationVariable()) is False
+    assert DurationVariable().__lt__(object()) is NotImplemented

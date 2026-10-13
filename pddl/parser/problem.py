@@ -119,7 +119,8 @@ class ProblemTransformer(Transformer[Any, Problem]):
             elif not isinstance(args[2], list):
                 return FunctionEqualTo(args[2], NumericValue(args[3]))
             else:
-                return [FunctionEqualTo(x, NumericValue(args[3])) for x in args[2]]
+                funcs = [FunctionEqualTo(x, NumericValue(args[3])) for x in args[2]]
+                return funcs
         # '(at <time> <interval>)' is a timed initial literal.
         if args[1] == TemporalSymbols.AT.value:
             number = args[2]
