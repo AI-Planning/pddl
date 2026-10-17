@@ -176,9 +176,11 @@ class Domain:
             "",
             self.derived_predicates,
             "",
-            to_string=lambda obj: f"({Symbols.DERIVED.value} "
-            f"{print_predicates_with_types([obj.predicate])} "
-            f"{obj.condition})\n",
+            to_string=lambda obj: (
+                f"({Symbols.DERIVED.value} "
+                f"{print_predicates_with_types([obj.predicate])} "
+                f"{obj.condition})\n"
+            ),
         )
         body += sort_and_print_collection(
             "",
@@ -292,11 +294,11 @@ class Problem:
     def check(self, domain: Domain) -> None:
         """Check the problem definition against a domain definition."""
         validate(
-            self.domain_name.lower() == domain.name.lower(),
+            self.domain_name == domain.name,
             "Domain names don't match.",
         )
         validate(
-            self._requirements is None or self._requirements == domain.requirements,
+            self._requirements is None or self._requirements <= domain.requirements,
             "Requirements don't match.",
         )
         types = Types(domain.types, domain.requirements, skip_checks=True)  # type: ignore

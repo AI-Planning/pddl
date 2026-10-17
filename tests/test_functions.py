@@ -14,8 +14,19 @@
 
 import pytest
 
-from pddl.logic.functions import Metric, NumericFunction, NumericValue
+from pddl.logic.base import And, Or
+from pddl.logic.functions import (
+    Divide,
+    Metric,
+    Minus,
+    NumericFunction,
+    NumericValue,
+    Plus,
+    Times,
+    UnaryMinus,
+)
 from pddl.logic.helpers import constants, variables
+from pddl.logic.predicates import Predicate
 from pddl.parser.symbols import Symbols
 
 
@@ -135,3 +146,138 @@ class TestNumericValue:
     def test_value(self):
         """Test the name getter."""
         assert self.numeric_value.value == 3
+
+
+class TestUnaryMinus:
+    """Test the unary minus operator."""
+
+    def setup_method(self):
+        """Set up the tests."""
+        self.function = NumericFunction("func")
+        self.unary_minus = UnaryMinus(self.function)
+
+    def test_operand(self):
+        """Test the operand getter."""
+        assert self.unary_minus.operand == self.function
+
+    def test_symbol(self):
+        """Test the symbol getter."""
+        assert self.unary_minus.SYMBOL == Symbols.MINUS
+
+    def test_to_equal(self):
+        """Test the equal operator."""
+        other = UnaryMinus(NumericFunction("func"))
+        assert self.unary_minus == other
+
+    def test_not_equal_to_minus(self):
+        """Test that UnaryMinus is distinct from binary Minus."""
+        binary_minus = Minus(self.function, NumericFunction("other"))
+        assert self.unary_minus != binary_minus
+
+    def test_to_str(self):
+        """Test the str operator."""
+        assert str(self.unary_minus) == f"({Symbols.MINUS.value} {self.function})"
+
+    def test_to_repr(self):
+        """Test the repr operator."""
+        assert repr(self.unary_minus) == f"UnaryMinus({repr(self.function)})"
+
+    def test_hash(self):
+        """Test the hash operator."""
+        assert hash(self.unary_minus) == hash(UnaryMinus(NumericFunction("func")))
+
+    def test_instantiate(self):
+        """Test the instantiate method."""
+        x = variables("x")[0]
+        a = constants("a")[0]
+        unary_minus = UnaryMinus(NumericFunction("func", x))
+        assert unary_minus.instantiate({x: a}) == UnaryMinus(NumericFunction("func", a))
+
+
+class TestNumericOperatorStructure:
+    """Test that numeric operators preserve operand structure (no flattening/dedup)."""
+
+    def setup_method(self):
+        """Set up the tests."""
+        self.f = NumericFunction("f")
+        self.g = NumericFunction("g")
+
+    def test_right_nested_minus_preserved(self):
+        """Right-nested binary minus keeps its tree structure."""
+        expr = Minus(self.f, Minus(self.f, NumericValue(2)))
+        assert str(expr) == "(- (f) (- (f) 2))"
+        assert isinstance(expr.operands[0], NumericFunction)
+        assert isinstance(expr.operands[1], Minus)
+        assert isinstance(expr.operands[1].operands[0], NumericFunction)
+        assert isinstance(expr.operands[1].operands[1], NumericValue)
+        assert expr.operands[1].operands == (self.f, NumericValue(2))
+
+    def test_left_nested_minus_preserved(self):
+        """Left-nested binary minus keeps its tree structure and order."""
+        expr = Minus(Minus(NumericValue(2), NumericValue(3)), NumericValue(1))
+        assert str(expr) == "(- (- 2 3) 1)"
+        assert isinstance(expr.operands[0], Minus)
+        assert isinstance(expr.operands[0].operands[0], NumericValue)
+        assert isinstance(expr.operands[0].operands[1], NumericValue)
+        assert isinstance(expr.operands[1], NumericValue)
+
+    def test_nested_plus_not_flattened(self):
+        """Nested plus is not auto-flattened."""
+        expr = Plus(Plus(self.f, self.g), self.f)
+        assert str(expr) == "(+ (+ (f) (g)) (f))"
+        assert isinstance(expr.operands[0], Plus)
+        assert isinstance(expr.operands[0].operands[0], NumericFunction)
+        assert isinstance(expr.operands[0].operands[1], NumericFunction)
+        assert isinstance(expr.operands[1], NumericFunction)
+
+    def test_nary_plus_accepted(self):
+        """Plus still accepts more than two operands."""
+        expr = Plus(self.f, self.g, self.f)
+        assert len(expr.operands) == 3
+        assert str(expr) == "(+ (f) (g) (f))"
+        assert isinstance(expr, Plus)
+        assert isinstance(expr.operands[0], NumericFunction)
+        assert isinstance(expr.operands[1], NumericFunction)
+        assert isinstance(expr.operands[2], NumericFunction)
+
+    def test_nested_times_preserved(self):
+        """Nested times keeps its tree structure."""
+        expr = Times(Times(self.f, self.g), self.f)
+        assert str(expr) == "(* (* (f) (g)) (f))"
+        assert isinstance(expr, Times)
+        assert isinstance(expr.operands[0], Times)
+        assert isinstance(expr.operands[0].operands[0], NumericFunction)
+        assert isinstance(expr.operands[0].operands[1], NumericFunction)
+        assert isinstance(expr.operands[1], NumericFunction)
+
+    def test_nested_divide_preserved(self):
+        """Nested divide keeps its tree structure."""
+        expr = Divide(NumericValue(1), Divide(NumericValue(2), NumericValue(3)))
+        assert str(expr) == "(/ 1 (/ 2 3))"
+        assert isinstance(expr.operands[1], Divide)
+        assert isinstance(expr.operands[0], NumericValue)
+        assert isinstance(expr.operands[1].operands[0], NumericValue)
+        assert isinstance(expr.operands[1].operands[1], NumericValue)
+
+
+class TestLogicOperatorSimplification:
+    """That that And/Or keep their monotone simplification behaviour."""
+
+    def setup_method(self):
+        """Set up the tests."""
+        self.p = Predicate("p")
+        self.q = Predicate("q")
+
+    def test_and_idempotency(self):
+        """And(a, a) collapses to a."""
+        assert And(self.p, self.p) == self.p
+
+    def test_or_idempotency(self):
+        """Or(a, a) collapses to a."""
+        assert Or(self.p, self.p) == self.p
+
+    def test_and_flattening(self):
+        """Nested And is flattened (associative)."""
+        r = Predicate("f")
+        expr = And(self.p, And(self.q, r))
+        assert tuple(expr.operands) == (self.p, self.q, r)

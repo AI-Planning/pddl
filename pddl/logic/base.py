@@ -136,6 +136,14 @@ class Atomic(Formula):
 
 
 class BinaryOpMetaclass(type):
+    """Base metaclass for binary operators."""
+
+    def __call__(cls, *args, **kwargs):
+        """Init the subclass object."""
+        return super().__call__(*args, **kwargs)
+
+
+class BinaryLogicOpMetaclass(BinaryOpMetaclass):
     """Metaclass to simplify monotone operator instantiations."""
 
     _absorbing: Optional[Formula] = None
@@ -152,7 +160,7 @@ class BinaryOpMetaclass(type):
         return super(BinaryOpMetaclass, cls).__call__(*operands, **kwargs)
 
 
-class And(BinaryOp, metaclass=BinaryOpMetaclass):
+class And(BinaryOp, metaclass=BinaryLogicOpMetaclass):
     """And operator."""
 
     _absorbing = False
@@ -160,7 +168,7 @@ class And(BinaryOp, metaclass=BinaryOpMetaclass):
     SYMBOL = "and"
 
 
-class Or(BinaryOp, metaclass=BinaryOpMetaclass):
+class Or(BinaryOp, metaclass=BinaryLogicOpMetaclass):
     """Or operator."""
 
     _absorbing = True

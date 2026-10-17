@@ -15,6 +15,7 @@
 from textwrap import dedent
 
 import pytest
+from lark import ParseError
 
 from pddl.exceptions import PDDLParsingError
 from pddl.logic.base import And
@@ -22,10 +23,13 @@ from pddl.logic.functions import (
     EqualTo,
     GreaterEqualThan,
     GreaterThan,
+    Minus,
     NumericFunction,
     NumericValue,
+    UnaryMinus,
 )
 from pddl.logic.terms import Constant
+from pddl.parser.domain import DomainParser
 from pddl.parser.problem import ProblemParser
 from pddl.requirements import Requirements
 
@@ -190,3 +194,108 @@ def test_numeric_function_equality_in_goal() -> None:
         EqualTo(NumericValue(3), NumericFunction("hello_counter", Constant("jimmy"))),
         EqualTo(NumericFunction("hello_counter", Constant("jammy")), NumericValue(5)),
     )
+
+
+def test_metric_unary_minus() -> None:
+    """Check parsing of a metric with unary minus."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:requirements :numeric-fluents)
+        (:init (= (f) 0))
+        (:goal (>= (f) 0))
+        (:metric minimize (- (f)))
+    )
+    """)
+    problem = ProblemParser()(problem_str)
+    assert problem.metric is not None
+    expression = problem.metric.expression
+    assert isinstance(expression, UnaryMinus)
+    assert isinstance(expression.operand, NumericFunction)
+
+
+def test_metric_binary_minus() -> None:
+    """Check parsing of a metric with binary minus."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:requirements :numeric-fluents)
+        (:init (= (f) 0))
+        (:goal (>= (f) 0))
+        (:metric minimize (- (f) 2))
+    )
+    """)
+    problem = ProblemParser()(problem_str)
+    assert problem.metric is not None
+    expression = problem.metric.expression
+    assert isinstance(expression, Minus)
+    assert len(expression.operands) == 2
+    assert isinstance(expression.operands[0], NumericFunction)
+    assert isinstance(expression.operands[1], NumericValue)
+
+
+def test_metric_nested_minus() -> None:
+    """Check that a nested binary minus metric keeps its structure."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:requirements :numeric-fluents)
+        (:init (= (f) 0))
+        (:goal (>= (f) 0))
+        (:metric minimize (- (f) (- (f) 2)))
+    )
+    """)
+    problem = ProblemParser()(problem_str)
+    assert problem.metric is not None
+    expression = problem.metric.expression
+    assert isinstance(expression, Minus)
+    assert isinstance(expression.operands[0], NumericFunction)
+    assert isinstance(expression.operands[1], Minus)
+    assert isinstance(expression.operands[1].operands[0], NumericFunction)
+    assert isinstance(expression.operands[1].operands[1], NumericValue)
+    assert str(expression) == "(- (f) (- (f) 2))"
+
+
+def test_metric_with_three_operands_not_allowed() -> None:
+    """Check that a minus expression with more than two operands is rejected."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:requirements :numeric-fluents)
+        (:init (= (f) 0))
+        (:goal (>= (f) 0))
+        (:metric minimize (- (f) 2 3))
+    )
+    """)
+
+    with pytest.raises(ParseError, match=r"Expected one of:\s*\*\s*RPAR"):
+        ProblemParser()(problem_str)
+
+
+def test_mixed_case_identifiers_across_domain_and_problem() -> None:
+    """Test that identifiers are case-insensitive across domain and problem."""
+    domain = DomainParser()(
+        dedent("""
+    (define (domain test-domain)
+        (:requirements :strips :typing)
+        (:types Counter - object)
+        (:predicates (Move ?x - Counter))
+        (:action move
+            :parameters (?x - Counter)
+            :precondition (Move ?x)
+            :effect (Move ?x)
+        )
+    )
+    """)
+    )
+    problem = ProblemParser()(
+        dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:objects c1 - counter)
+        (:init (Move c1))
+        (:goal (Move c1))
+    )
+    """)
+    )
+    problem.check(domain)

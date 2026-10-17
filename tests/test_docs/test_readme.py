@@ -36,7 +36,7 @@ class TestIntroduction(BaseTestMarkdownDocs):
     def test_python_and_output(self):
         """Test Python snipped and its output."""
         for python_code_block, output_code_block in zip(
-            self.python_code_blocks, self.output_code_blocks
+            self.python_code_blocks, self.output_code_blocks, strict=False
         ):
             logging.debug(f"Testing block: {python_code_block[:50]}...")
             with patch("sys.stdout", new_callable=StringIO) as mock_stdout:

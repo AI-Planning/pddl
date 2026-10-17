@@ -81,7 +81,9 @@ class Action:
                 f"Mapping length {len(mapping)} does not match number of parameters {len(self.parameters)}."
             )
 
-        instantiation = {param: const for param, const in zip(self.parameters, mapping)}
+        instantiation = {
+            param: const for param, const in zip(self.parameters, mapping, strict=False)
+        }
 
         return Action(
             name=self.name,

@@ -34,9 +34,10 @@ from pddl.exceptions import PDDLMissingRequirementError, PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import And, ExistsCondition, ForallCondition, Imply, Not, OneOf, Or
 from pddl.logic.effects import Forall, When
-from pddl.logic.functions import Assign, Decrease, Divide
-from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
+    Assign,
+    Decrease,
+    Divide,
     FunctionExpression,
     GreaterEqualThan,
     GreaterThan,
@@ -50,7 +51,9 @@ from pddl.logic.functions import (
     ScaleDown,
     ScaleUp,
     Times,
+    UnaryMinus,
 )
+from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
 from pddl.logic.terms import Constant, Variable
 from pddl.parser._update_type_tags import update_type_tags
@@ -213,7 +216,7 @@ class DomainTransformer(Transformer[Any, Domain]):
                     raise PDDLParsingError(
                         f"Type tags in condition and predicate definition do not match "
                         f"for variable '{term.name}' (position {idx}) in predicate '{dp_predicate.name}': {e}"
-                    )
+                    ) from e
 
         new_predicate = update_type_tags(dp_predicate, current_var_to_types)
         new_condition = update_type_tags(dp_condition, current_var_to_types)
@@ -393,10 +396,15 @@ class DomainTransformer(Transformer[Any, Domain]):
 
     def _constant_or_variable(self, t):
         """Get the constant or variable with the given name."""
+        if isinstance(t, Constant):
+            return t
+        # Normalize raw token/string to a 'name' so lookup is case-insensitive
+        # and hashes consistently with the dictionary keys.
+        key = name(t) if isinstance(t, str) else t
         # Case where the term is a free variable (bug) or comes from a parent quantifier
-        if not isinstance(t, Constant) and t not in self._current_parameters_by_name:
+        if key not in self._current_parameters_by_name:
             return Variable(str(t), {})
-        return t if isinstance(t, Constant) else self._current_parameters_by_name[t]
+        return self._current_parameters_by_name[key]
 
     def atomic_formula_term(self, args):
         """Process the 'atomic_formula_term' rule."""
@@ -414,7 +422,7 @@ class DomainTransformer(Transformer[Any, Domain]):
     def constant(self, args):
         """Process the 'constant' rule."""
         assert_(len(args) == 1, "Unexpected parsing error.")
-        constant = self._constants_by_name.get(args[0], None)
+        constant = self._constants_by_name.get(name(args[0]), None)
         if constant is None:
             raise ParseError(f"Constant '{args[0]}' not defined.")
         return constant
@@ -451,7 +459,8 @@ class DomainTransformer(Transformer[Any, Domain]):
             return args[0]
         op = None
         if args[1] == Symbols.MINUS.value:
-            op = Minus
+            n = len(args[2:-1])
+            op = UnaryMinus if n == 1 else Minus
         if args[1] == Symbols.PLUS.value:
             op = Plus
         if args[1] == Symbols.TIMES.value:

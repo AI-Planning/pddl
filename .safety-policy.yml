@@ -2,3 +2,5 @@ security:
   ignore-vulnerabilities:
     70612:
       reason: "This seems to refer to a broken vulnerability for every Jinja version."
+    SFTY-20260902-58666:
+      reason: "nltk is a dependency of the safety scanner itself; affected <=3.10.3 with no fixed release."

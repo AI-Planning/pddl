@@ -17,9 +17,13 @@ from collections.abc import Iterable
 from typing import AbstractSet, Collection, Dict, Optional, Set, Tuple, cast
 
 from pddl.action import Action
+
+# isort: off
 from pddl.custom_types import _check_not_a_keyword  # noqa: F401
 from pddl.custom_types import name as name_type
 from pddl.custom_types import namelike, to_names, to_types  # noqa: F401
+
+# isort: on
 from pddl.exceptions import PDDLValidationError
 from pddl.helpers.base import check, ensure, ensure_set, find_cycle
 from pddl.logic import Predicate
@@ -30,6 +34,7 @@ from pddl.logic.functions import (
     FunctionExpression,
     NumericFunction,
     NumericValue,
+    UnaryMinus,
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo
 from pddl.logic.terms import Term
@@ -255,6 +260,11 @@ class TypeChecker:
     def _(self, binary_function: BinaryFunction) -> None:
         """Check types annotations of a PDDL numeric binary operator."""
         self.check_type(binary_function.operands)
+
+    @check_type.register
+    def _(self, unary_minus: UnaryMinus) -> None:
+        """Check types annotations of a PDDL numeric unary operator."""
+        self.check_type(unary_minus.operand)
 
     @check_type.register
     def _(self, equal_to: EqualTo) -> None:

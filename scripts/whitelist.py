@@ -30,6 +30,7 @@ _update_type_tags_predicate  # unused function (pddl/parser/_update_type_tags.py
 _update_type_tags_numeric_function  # unused function (pddl/parser/_update_type_tags.py:93)
 _update_type_tags_numeric_value  # unused function (pddl/parser/_update_type_tags.py:103)
 _update_type_tags_binary_function  # unused function (pddl/parser/_update_type_tags.py:110)
+_update_type_tags_unary_minus  # unused function (pddl/parser/_update_type_tags.py:128)
 _._predicates_by_name  # unused attribute (pddl/parser/domain.py:58)
 _._functions_by_name  # unused attribute (pddl/parser/domain.py:59)
 _.start  # unused method (pddl/parser/domain.py:64)
