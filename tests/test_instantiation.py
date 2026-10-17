@@ -18,11 +18,12 @@ import pytest
 
 from pddl import parse_domain, parse_plan, parse_problem
 from pddl.action import Action
-from pddl.logic.base import ExistsCondition
+from pddl.logic.base import And, ExistsCondition, Not
 from pddl.logic.effects import Forall, When
 from pddl.logic.functions import Metric, NumericFunction, Times
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import DerivedPredicate, EqualTo, Predicate
+from pddl.parser.domain import DomainParser
 from tests.conftest import PLAN_FILES
 
 
@@ -240,3 +241,86 @@ def test_instantiate_forall_does_not_substitute_bound_variables():
     # x must remain a variable (bound by forall), only y gets substituted
     forall_expected = Forall(Predicate("on", x, b), variables={x})
     assert forall_instantiated == forall_expected
+
+
+@pytest.mark.parametrize("effect_type", [When, Forall])
+def test_instantiate_effect_with_empty_mapping(effect_type):
+    """An empty mapping preserves the effect and its variables."""
+    x, y = variables("x y")
+    predicate = Predicate("on", x, y)
+    effect = (
+        When(Predicate("clear", x), predicate)
+        if effect_type is When
+        else Forall(predicate, variables={x})
+    )
+
+    assert effect.instantiate({}) == effect
+
+
+def test_instantiate_nested_forall_when_effect():
+    """Nested quantifiers restrict substitution only within their own scope."""
+    a, b, c = constants("a b c")
+    x, y, z = variables("x y z")
+    effect = Forall(
+        And(
+            Predicate("on", x, y),
+            Forall(
+                When(Predicate("on", y, z), Not(Predicate("on", x, z))),
+                variables={y},
+            ),
+        ),
+        variables={x},
+    )
+    mapping = {x: a, y: b, z: c}
+    expected = Forall(
+        And(
+            Predicate("on", x, b),
+            Forall(
+                When(Predicate("on", y, c), Not(Predicate("on", x, c))),
+                variables={y},
+            ),
+        ),
+        variables={x},
+    )
+
+    assert effect.instantiate(mapping) == expected
+    assert mapping == {x: a, y: b, z: c}
+    assert effect.effect.operands[0] == Predicate("on", x, y)
+
+
+def test_instantiate_parsed_action_with_conditional_effects():
+    """Instantiate conjunctions and quantified conditional effects in an action."""
+    domain = DomainParser()(
+        """
+        (define (domain conditional)
+          (:requirements :adl)
+          (:predicates (on ?x ?y) (clear ?x))
+          (:action move
+            :parameters (?x ?y)
+            :precondition (clear ?x)
+            :effect (and
+              (when (clear ?y) (and (on ?x ?y) (not (clear ?y))))
+              (forall (?z) (when (on ?z ?x) (not (on ?z ?x)))))))
+        """
+    )
+    action = next(iter(domain.actions))
+    a, b = constants("a b")
+    z = variables("z")[0]
+    expected = And(
+        When(
+            Predicate("clear", b),
+            And(Predicate("on", a, b), Not(Predicate("clear", b))),
+        ),
+        Forall(
+            When(Predicate("on", z, a), Not(Predicate("on", z, a))),
+            variables={z},
+        ),
+    )
+
+    original = str(action)
+    instantiated = action.instantiate([a, b])
+
+    assert instantiated.effect == expected
+    assert instantiated.precondition == Predicate("clear", a)
+    assert instantiated.parameters == (a, b)
+    assert str(action) == original

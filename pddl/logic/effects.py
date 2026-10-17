@@ -13,12 +13,13 @@
 """This modules implements PDDL effects."""
 
 import functools
-from typing import AbstractSet, Collection, Optional, Union
+from typing import AbstractSet, Collection, Mapping, Optional, Union, cast
 
 from pddl.helpers.base import _typed_parameters, ensure_set
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic import Variable
 from pddl.logic.base import And, Atomic, Formula, Not, OneOf
+from pddl.logic.terms import Term
 from pddl.parser.symbols import Symbols
 
 
@@ -67,9 +68,12 @@ class When:
         """Compute the hash of the object."""
         return hash((type(self), self.condition, self.effect))
 
-    def instantiate(self, mapping) -> "When":
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "When":
         """Instantiate the When effect with a mapping from variables to terms."""
-        return When(self._condition.instantiate(mapping), self._effect.instantiate(mapping))
+        return When(
+            self.condition.instantiate(mapping),
+            cast("CondEffect", self.effect.instantiate(mapping)),
+        )
 
     def __lt__(self, other):
         """Compare with another object."""
@@ -120,10 +124,12 @@ class Forall:
         """Compute the hash of the object."""
         return hash((type(self), self.variables, self.effect))
 
-    def instantiate(self, mapping) -> "Forall":
-        """Instantiate the Forall effect with a mapping from variables to terms."""
-        restricted = {k: v for k, v in mapping.items() if k not in self._variables}
-        return Forall(self._effect.instantiate(restricted), self._variables)
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "Forall":
+        """Instantiate free variables in the effect, preserving bound variables."""
+        restricted = {k: v for k, v in mapping.items() if k not in self.variables}
+        return Forall(
+            cast("Effect", self.effect.instantiate(restricted)), self.variables
+        )
 
     def __lt__(self, other):
         """Compare with another object."""
