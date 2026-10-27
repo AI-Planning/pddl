@@ -13,10 +13,12 @@
 """This module defines validation functions for PDDL data structures."""
 
 import functools
+import types
 from collections.abc import Iterable
 from typing import AbstractSet, Collection, Dict, Optional, Set, Tuple, cast
 
 from pddl.action import Action
+from pddl.durative_action import DurativeAction
 
 # isort: off
 from pddl.custom_types import _check_not_a_keyword  # noqa: F401
@@ -31,12 +33,20 @@ from pddl.logic.base import And, BinaryOp, QuantifiedCondition, UnaryOp
 from pddl.logic.effects import Forall, When
 from pddl.logic.functions import (
     BinaryFunction,
+    DurationVariable,
     FunctionExpression,
     NumericFunction,
     NumericValue,
     UnaryMinus,
 )
 from pddl.logic.predicates import DerivedPredicate, EqualTo
+from pddl.logic.temporal import (
+    Duration,
+    SimpleDurationConstraint,
+    TimedCondition,
+    TimedEffect,
+    TimedInitialLiteral,
+)
 from pddl.logic.terms import Term
 from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements, _extend_domain_requirements
@@ -257,6 +267,11 @@ class TypeChecker:
         return None
 
     @check_type.register
+    def _(self, _: DurationVariable) -> None:
+        """Check types annotations of the '?duration' variable (no-op)."""
+        return None
+
+    @check_type.register
     def _(self, binary_function: BinaryFunction) -> None:
         """Check types annotations of a PDDL numeric binary operator."""
         self.check_type(binary_function.operands)
@@ -316,6 +331,44 @@ class TypeChecker:
         """Check types annotations of a PDDL term."""
         self.check_type(action.parameters)
         self.check_type(action.precondition)
+        self.check_type(action.effect)
+
+    @check_type.register(types.NoneType)
+    def _(self, _: object) -> None:
+        """Check types of a None value (no-op)."""
+        return None
+
+    @check_type.register
+    def _(self, timed_conditions: TimedCondition) -> None:
+        """Check types annotations of a PDDL timed condition."""
+        self.check_type(timed_conditions.condition)
+
+    @check_type.register
+    def _(self, timed_effect: TimedEffect) -> None:
+        """Check types annotations of a PDDL timed effect."""
+        self.check_type(timed_effect.effect)
+
+    @check_type.register
+    def _(self, constraint: SimpleDurationConstraint) -> None:
+        """Check types annotations of a PDDL simple duration constraint."""
+        self.check_type(constraint.expression)
+
+    @check_type.register
+    def _(self, duration: Duration) -> None:
+        """Check types annotations of a PDDL duration."""
+        self.check_type(duration.constraints)
+
+    @check_type.register
+    def _(self, timed_initial_literal: TimedInitialLiteral) -> None:
+        """Check types annotations of a PDDL timed initial literal."""
+        self.check_type(timed_initial_literal.literal)
+
+    @check_type.register
+    def _(self, action: DurativeAction) -> None:
+        """Check types annotations of a PDDL durative action."""
+        self.check_type(action.parameters)
+        self.check_type(action.duration)
+        self.check_type(action.condition)
         self.check_type(action.effect)
 
 

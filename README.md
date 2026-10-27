@@ -187,10 +187,10 @@ requirements:
 - [x] `:numeric-fluents`
 - [x] `:non-deterministic` (see [6th IPC: Uncertainty Part](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.163.7140&rep=rep1&type=pdf))
 - [x] `:adl`
-- [ ] `:durative-actions`
-- [ ] `:duration-inequalities`
+- [x] `:durative-actions`
+- [x] `:duration-inequalities`
 - [x] `:derived-predicates`
-- [ ] `:timed-initial-literals`
+- [x] `:timed-initial-literals`
 - [ ] `:preferences`
 - [ ] `:constraints`
 - [x] `:action-costs`
