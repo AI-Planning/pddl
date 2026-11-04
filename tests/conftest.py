@@ -68,6 +68,9 @@ DOMAIN_NAMES = [
     "triangle-tireworld",
     "zenotravel",
     "hello-world-functions",
+    "satellite-temporal-satisficing",
+    "airport-temporal-time-windows-strips",
+    "rovers-time-automatic",
 ]
 
 PROBLEM_FILES = list(
