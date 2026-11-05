@@ -884,3 +884,32 @@ def test_mixed_case_type_identifiers() -> None:
     domain = DomainParser()(domain_str)
     assert name("counter") in domain.types
     assert domain.types[name("counter")] is None
+
+
+@pytest.mark.parametrize(
+    "action_body,has_precondition,has_effect",
+    [
+        (":precondition (p ?x)", True, False),
+        (":effect (p ?x)", False, True),
+        ("", False, False),
+    ],
+)
+def test_action_without_precondition_or_effect(
+    action_body, has_precondition, has_effect
+) -> None:
+    """Check that ':precondition' and ':effect' are optional in an action."""
+    domain_str = dedent(f"""
+    (define (domain test)
+        (:requirements :strips)
+        (:predicates (p ?x))
+        (:action a
+            :parameters (?x)
+            {action_body}
+        )
+    )
+    """)
+    domain = DomainParser()(domain_str)
+    action = next(iter(domain.actions))
+    assert (action.precondition is not None) == has_precondition
+    assert (action.effect is not None) == has_effect
+    assert DomainParser()(str(domain)) == domain
