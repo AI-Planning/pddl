@@ -37,7 +37,7 @@ from pddl.logic.temporal import TimedInitialLiteral
 from pddl.logic.terms import Constant
 from pddl.parser.base import BaseParser
 from pddl.parser.domain import DomainTransformer
-from pddl.parser.symbols import Symbols, TemporalSymbols
+from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements
 
 
@@ -122,12 +122,10 @@ class ProblemTransformer(Transformer[Any, Problem]):
                 funcs = [FunctionEqualTo(x, NumericValue(args[3])) for x in args[2]]
                 return funcs
         # '(at <time> <interval>)' is a timed initial literal.
-        if args[1] == TemporalSymbols.AT.value:
-            number = args[2]
-            # Keep integer times as int and decimal times as float.
-            time = float(number) if "." in number else int(number)
-            return TimedInitialLiteral(time, args[3])
-        raise ParseError(f"Invalid init element: {args}")
+        number = args[2]
+        # Keep integer times as int and decimal times as float.
+        time = float(number) if "." in number else int(number)
+        return TimedInitialLiteral(time, args[3])
 
     def literal_name(self, args):
         """Process the 'literal_name' rule."""

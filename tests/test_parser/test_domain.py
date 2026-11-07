@@ -1308,7 +1308,7 @@ def test_parse_duration_invalid_time_specifier() -> None:
             :effect (at end (p)))
     )
     """)
-    with pytest.raises(PDDLParsingError):
+    with pytest.raises(ParseError):
         DomainParser()(domain_str)
 
 
@@ -1401,7 +1401,7 @@ def test_parse_durative_condition_invalid_timed_gd() -> None:
             :effect (at end (p)))
     )
     """)
-    with pytest.raises(PDDLParsingError):
+    with pytest.raises(ParseError):
         DomainParser()(domain_str)
 
 
@@ -1486,7 +1486,7 @@ def test_parse_durative_effect_invalid_timed_effect() -> None:
             :effect (over all (p)))
     )
     """)
-    with pytest.raises(PDDLParsingError):
+    with pytest.raises(ParseError):
         DomainParser()(domain_str)
 
 

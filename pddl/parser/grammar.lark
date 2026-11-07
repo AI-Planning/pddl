@@ -31,7 +31,9 @@ duration_constraint: simple_duration_constraint
                    | LPAR AND simple_duration_constraint+ RPAR
                    | LPAR RPAR
 simple_duration_constraint: LPAR d_op DURATION_VAR f_exp RPAR
-                          | LPAR NAME NAME simple_duration_constraint RPAR
+                          | LPAR AT time_specifier simple_duration_constraint RPAR
+time_specifier: START | END
+
 ?d_op: GREATER_EQUAL_OP
      | LESSER_EQUAL_OP
      | EQUAL_OP
@@ -40,14 +42,15 @@ da_gd:             timed_gd
      |             LPAR AND da_gd* RPAR
      |             LPAR FORALL LPAR typed_list_variable RPAR da_gd RPAR
      |             LPAR RPAR
-timed_gd:          LPAR NAME NAME gd RPAR
+timed_gd:          LPAR AT time_specifier gd RPAR
+        |          LPAR OVER ALL gd RPAR
 
 da_effect:         LPAR AND da_effect* RPAR
          |         timed_effect
          |         LPAR RPAR
          |         LPAR FORALL LPAR typed_list_variable RPAR da_effect RPAR
          |         LPAR WHEN da_gd timed_effect RPAR
-timed_effect:      LPAR NAME NAME da_cond_effect RPAR
+timed_effect:      LPAR AT time_specifier da_cond_effect RPAR
 da_cond_effect:    LPAR AND da_p_effect* RPAR
               |    da_p_effect
 da_p_effect:       LPAR NOT atomic_formula_term RPAR
@@ -152,7 +155,7 @@ objects:   LPAR OBJECTS typed_list_name RPAR
 init:                  LPAR INIT init_el* RPAR
 init_el:               literal_name
        |               LPAR EQUAL_OP basic_function_term num_literal RPAR
-       |               LPAR NAME NUMBER literal_name RPAR
+       |               LPAR TIMED_AT NUMBER literal_name RPAR
 
 literal_name:          atomic_formula_name
             |          LPAR NOT atomic_formula_name RPAR
@@ -232,6 +235,11 @@ DURATIVE_ACTION: ":durative-action"
 DURATION: ":duration"
 CONDITION: ":condition"
 DURATION_VAR: "?duration"
+AT: "at"
+OVER: "over"
+ALL: "all"
+START: "start"
+END: "end"
 FORALL: "forall"
 EXISTS: "exists"
 WHEN: "when"
@@ -261,6 +269,7 @@ MAXIMIZE: "maximize"
 MINIMIZE: "minimize"
 TOTAL_COST: "total-cost"
 NUMBER: /[0-9]+(\.[0-9]+)*/
+TIMED_AT.2: /at(?=\s+[0-9])/
 
 // available requirements
 STRIPS: ":strips"

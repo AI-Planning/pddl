@@ -260,22 +260,17 @@ class DomainTransformer(Transformer[Any, Domain]):
             return Duration(*args[2:-1])
         raise PDDLParsingError("Invalid duration constraint.")  # pragma: no cover
 
+    def time_specifier(self, args):
+        """Process the 'time_specifier' rule."""
+        return TimeSpecifier(str(args[0]))
+
     def simple_duration_constraint(self, args):
         """Process the 'simple_duration_constraint' rule."""
         # Handle the '(at start/end <constraint>)' form.
-        if len(args) == 5 and str(args[1]) == TemporalSymbols.AT.value:
-            time_specifier = str(args[2])
-            # Only 'start'/'end' are valid dation time specifiers; not 'over all'
-            if time_specifier not in {
-                TemporalSymbols.START.value,
-                TemporalSymbols.END.value,
-            }:
-                raise PDDLParsingError(
-                    f"Invalid time specifier in duration constraint: {time_specifier}."
-                )
+        if args[1] == TemporalSymbols.AT.value:
             inner = args[3]
-            assert_(isinstance(inner, SimpleDurationConstraint))
-            # Reject constraint that already carries time specifier (no nesting).
+            # BNF permits recursion, but nested time specifiers are not
+            # representable by SimpleDurationConstraint; reject semantically.
             if inner.time_specifier is not None:
                 raise PDDLParsingError(
                     "Nested duration time specifiers are not allowed."
@@ -283,7 +278,7 @@ class DomainTransformer(Transformer[Any, Domain]):
             return SimpleDurationConstraint(
                 inner.operator,
                 inner.expression,
-                time_specifier=TimeSpecifier(time_specifier),
+                time_specifier=args[2],
             )
         # Otherwise this is a bare '<op> ?duration <expr>' constraint.
         operator = args[1]
@@ -323,23 +318,9 @@ class DomainTransformer(Transformer[Any, Domain]):
 
     def timed_gd(self, args):
         """Process the 'timed_gd' rule."""
-        first, second = str(args[1]), str(args[2])
-        # '(at start ...)' or '(at end...)'.
-        if first == TemporalSymbols.AT.value and second in {
-            TemporalSymbols.START.value,
-            TemporalSymbols.END.value,
-        }:
-            time_specifier = TimeSpecifier(second)
-        # '(over all ...)' holds throughout the whole action interval.
-        elif (
-            first == TemporalSymbols.OVER.value and second == TemporalSymbols.ALL.value
-        ):
-            time_specifier = TimeSpecifier.OVER_ALL
-        else:
-            raise PDDLParsingError(
-                f"Invalid timed goal descriptor: ({first} {second} ...)."
-            )
-        return TimedCondition(time_specifier, args[3])
+        if args[1] == TemporalSymbols.AT.value:
+            return TimedCondition(args[2], args[3])
+        return TimedCondition(TimeSpecifier.OVER_ALL, args[3])
 
     def da_effect(self, args):
         """Process the 'da_effect' rule."""
@@ -361,14 +342,7 @@ class DomainTransformer(Transformer[Any, Domain]):
 
     def timed_effect(self, args):
         """Process the 'timed_effect' rule."""
-        first, second = str(args[1]), str(args[2])
-        # A timed effect may only occur at start or end, never 'over all'
-        if first != TemporalSymbols.AT.value or second not in {
-            TemporalSymbols.START.value,
-            TemporalSymbols.END.value,
-        }:
-            raise PDDLParsingError(f"Invalid timed effect: ({first} {second} ...).")
-        return TimedEffect(TimeSpecifier(second), args[3])
+        return TimedEffect(args[2], args[3])
 
     def da_cond_effect(self, args):
         """Process the 'da_cond_effect' rule."""
