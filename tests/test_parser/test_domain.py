@@ -900,7 +900,6 @@ def test_mixed_case_type_identifiers() -> None:
     assert domain.types[name("counter")] is None
 
 
-
 def test_parse_basic_durative_action() -> None:
     """Test parsing of a basic durative action."""
     domain_str = dedent("""
@@ -1509,6 +1508,7 @@ def test_parse_durative_effect_conditional_and() -> None:
     assert isinstance(action.effect.effect, And)
     assert {str(operand) for operand in action.effect.effect.operands} == {"(p)", "(q)"}
 
+
 @pytest.mark.parametrize(
     "action_body,has_precondition,has_effect",
     [
@@ -1536,4 +1536,3 @@ def test_action_without_precondition_or_effect(
     assert (action.precondition is not None) == has_precondition
     assert (action.effect is not None) == has_effect
     assert DomainParser()(str(domain)) == domain
-
