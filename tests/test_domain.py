@@ -107,6 +107,22 @@ def test_build_simple_domain():
     assert domain
 
 
+def test_build_domain_with_action_without_precondition_or_effect():
+    """Test a domain whose actions leave out the optional precondition or effect."""
+    x = Variable("x")
+    p = Predicate("p", x)
+    domain = Domain(
+        "simple_domain",
+        predicates={p},
+        actions={
+            Action("only_precondition", [x], precondition=p),
+            Action("only_effect", [x], effect=p),
+            Action("neither", [x]),
+        },
+    )
+    assert len(domain.actions) == 3
+
+
 def test_build_simple_domain_with_derived_predicates():
     """Test a simple PDDL domain with derived predicates."""
     x, y, z = variables("x y z")

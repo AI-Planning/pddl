@@ -330,8 +330,11 @@ class TypeChecker:
     def _(self, action: Action) -> None:
         """Check types annotations of a PDDL term."""
         self.check_type(action.parameters)
-        self.check_type(action.precondition)
-        self.check_type(action.effect)
+        # precondition and effect are both optional
+        if action.precondition is not None:
+            self.check_type(action.precondition)
+        if action.effect is not None:
+            self.check_type(action.effect)
 
     @check_type.register(types.NoneType)
     def _(self, _: object) -> None:

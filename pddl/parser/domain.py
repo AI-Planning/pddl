@@ -176,10 +176,13 @@ class DomainTransformer(Transformer[Any, Domain]):
         action_name = args[2]
         variables = args[4]
 
-        # process action body
+        # process action body; ":precondition" and ":effect" are both optional,
+        # and a missing one shows up as a pair of None placeholders
         _children = args[5].children
         action_body = {
-            _children[i][1:]: _children[i + 1] for i in range(0, len(_children), 2)
+            _children[i][1:]: _children[i + 1]
+            for i in range(0, len(_children), 2)
+            if _children[i] is not None
         }
         return Action(action_name, variables, **action_body)
 
