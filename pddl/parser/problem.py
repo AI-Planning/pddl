@@ -17,20 +17,23 @@ from typing import Any, Dict
 from lark import ParseError, Transformer
 
 from pddl.core import Problem
+from pddl.custom_types import name
 from pddl.exceptions import PDDLParsingError
 from pddl.helpers.base import assert_
 from pddl.logic.base import Not
-from pddl.logic.functions import Divide
-from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
+    Divide,
     Metric,
     Minus,
     NumericFunction,
     NumericValue,
     Plus,
     Times,
+    UnaryMinus,
 )
+from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.predicates import EqualTo, Predicate
+from pddl.logic.temporal import TimedInitialLiteral
 from pddl.logic.terms import Constant
 from pddl.parser.base import BaseParser
 from pddl.parser.domain import DomainTransformer
@@ -110,7 +113,7 @@ class ProblemTransformer(Transformer[Any, Problem]):
         """Process the 'init_el' rule."""
         if len(args) == 1:
             return args[0]
-        elif args[1] == Symbols.EQUAL.value:
+        if args[1] == Symbols.EQUAL.value:
             if isinstance(args[2], list) and len(args[2]) == 1:
                 return FunctionEqualTo(*args[2], NumericValue(args[3]))
             elif not isinstance(args[2], list):
@@ -118,6 +121,11 @@ class ProblemTransformer(Transformer[Any, Problem]):
             else:
                 funcs = [FunctionEqualTo(x, NumericValue(args[3])) for x in args[2]]
                 return funcs
+        # '(at <time> <interval>)' is a timed initial literal.
+        number = args[2]
+        # Keep integer times as int and decimal times as float.
+        time = float(number) if "." in number else int(number)
+        return TimedInitialLiteral(time, args[3])
 
     def literal_name(self, args):
         """Process the 'literal_name' rule."""
@@ -147,21 +155,21 @@ class ProblemTransformer(Transformer[Any, Problem]):
 
     def atomic_formula_name(self, args):
         """Process the 'atomic_formula_name' rule."""
-        if args[1] == Symbols.EQUAL.value:
-            obj1 = self._objects_by_name.get(args[1])
-            obj2 = self._objects_by_name.get(args[2])
+        if args[1] == Symbols.EQUAL.value:  # pragma: no cover
+            obj1 = self._objects_by_name.get(name(args[1]))
+            obj2 = self._objects_by_name.get(name(args[2]))
             return EqualTo(obj1, obj2)
         else:
-            name = args[1]
+            p_name = args[1]
             terms = [
                 (
                     Constant(str(_term_name))
-                    if self._objects_by_name.get(str(_term_name)) is None
-                    else self._objects_by_name.get(str(_term_name))
+                    if self._objects_by_name.get(name(_term_name)) is None
+                    else self._objects_by_name.get(name(_term_name))
                 )
                 for _term_name in args[2:-1]
             ]
-            return Predicate(name, *terms)
+            return Predicate(p_name, *terms)
 
     def num_literal(self, args):
         """Process the 'num_literal' rule."""
@@ -192,7 +200,8 @@ class ProblemTransformer(Transformer[Any, Problem]):
             return args[0]
         op = None
         if args[1] == Symbols.MINUS.value:
-            op = Minus
+            n = len(args[2:-1])
+            op = UnaryMinus if n == 1 else Minus
         if args[1] == Symbols.PLUS.value:
             op = Plus
         if args[1] == Symbols.TIMES.value:

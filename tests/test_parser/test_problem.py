@@ -15,17 +15,24 @@
 from textwrap import dedent
 
 import pytest
+from lark import ParseError
 
-from pddl.exceptions import PDDLParsingError
-from pddl.logic.base import And
+from pddl.core import Domain
+from pddl.exceptions import PDDLParsingError, PDDLValidationError
+from pddl.logic import Predicate
+from pddl.logic.base import And, Not
 from pddl.logic.functions import (
     EqualTo,
     GreaterEqualThan,
     GreaterThan,
+    Minus,
     NumericFunction,
     NumericValue,
+    UnaryMinus,
 )
+from pddl.logic.temporal import TimedInitialLiteral
 from pddl.logic.terms import Constant
+from pddl.parser.domain import DomainParser
 from pddl.parser.problem import ProblemParser
 from pddl.requirements import Requirements
 
@@ -190,3 +197,199 @@ def test_numeric_function_equality_in_goal() -> None:
         EqualTo(NumericValue(3), NumericFunction("hello_counter", Constant("jimmy"))),
         EqualTo(NumericFunction("hello_counter", Constant("jammy")), NumericValue(5)),
     )
+
+
+def test_metric_unary_minus() -> None:
+    """Check parsing of a metric with unary minus."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:requirements :numeric-fluents)
+        (:init (= (f) 0))
+        (:goal (>= (f) 0))
+        (:metric minimize (- (f)))
+    )
+    """)
+    problem = ProblemParser()(problem_str)
+    assert problem.metric is not None
+    expression = problem.metric.expression
+    assert isinstance(expression, UnaryMinus)
+    assert isinstance(expression.operand, NumericFunction)
+
+
+def test_metric_binary_minus() -> None:
+    """Check parsing of a metric with binary minus."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:requirements :numeric-fluents)
+        (:init (= (f) 0))
+        (:goal (>= (f) 0))
+        (:metric minimize (- (f) 2))
+    )
+    """)
+    problem = ProblemParser()(problem_str)
+    assert problem.metric is not None
+    expression = problem.metric.expression
+    assert isinstance(expression, Minus)
+    assert len(expression.operands) == 2
+    assert isinstance(expression.operands[0], NumericFunction)
+    assert isinstance(expression.operands[1], NumericValue)
+
+
+def test_metric_nested_minus() -> None:
+    """Check that a nested binary minus metric keeps its structure."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:requirements :numeric-fluents)
+        (:init (= (f) 0))
+        (:goal (>= (f) 0))
+        (:metric minimize (- (f) (- (f) 2)))
+    )
+    """)
+    problem = ProblemParser()(problem_str)
+    assert problem.metric is not None
+    expression = problem.metric.expression
+    assert isinstance(expression, Minus)
+    assert isinstance(expression.operands[0], NumericFunction)
+    assert isinstance(expression.operands[1], Minus)
+    assert isinstance(expression.operands[1].operands[0], NumericFunction)
+    assert isinstance(expression.operands[1].operands[1], NumericValue)
+    assert str(expression) == "(- (f) (- (f) 2))"
+
+
+def test_metric_with_three_operands_not_allowed() -> None:
+    """Check that a minus expression with more than two operands is rejected."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:requirements :numeric-fluents)
+        (:init (= (f) 0))
+        (:goal (>= (f) 0))
+        (:metric minimize (- (f) 2 3))
+    )
+    """)
+
+    with pytest.raises(ParseError, match=r"Expected one of:\s*\*\s*RPAR"):
+        ProblemParser()(problem_str)
+
+
+def test_mixed_case_identifiers_across_domain_and_problem() -> None:
+    """Test that identifiers are case-insensitive across domain and problem."""
+    domain = DomainParser()(
+        dedent("""
+    (define (domain test-domain)
+        (:requirements :strips :typing)
+        (:types Counter - object)
+        (:predicates (Move ?x - Counter))
+        (:action move
+            :parameters (?x - Counter)
+            :precondition (Move ?x)
+            :effect (Move ?x)
+        )
+    )
+    """)
+    )
+    problem = ProblemParser()(
+        dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:objects c1 - counter)
+        (:init (Move c1))
+        (:goal (Move c1))
+    )
+    """)
+    )
+    problem.check(domain)
+
+
+def test_parse_timed_initial_literal() -> None:
+    """Test parsing of timed initial literals."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:objects a)
+        (:init (p a) (at 5 (q a)) (at 2.5 (not (r a))))
+        (:goal (p a)))
+    """)
+    problem = ProblemParser()(problem_str)
+    assert TimedInitialLiteral(5, Predicate("q", Constant("a"))) in problem.init
+    assert TimedInitialLiteral(2.5, Not(Predicate("r", Constant("a")))) in problem.init
+    assert Predicate("p", Constant("a")) in problem.init
+
+
+def test_parse_timed_initial_literal_at_predicate_regression() -> None:
+    """Test that a normal 'at' predicate in init is not parsed as timed literal."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:objects truck loc)
+        (:init (at truck loc))
+        (:goal (at truck loc)))
+    """)
+    problem = ProblemParser()(problem_str)
+    assert problem.init == {Predicate("at", Constant("truck"), Constant("loc"))}
+
+
+def test_problem_check_timed_initial_literals_requirement() -> None:
+    """Test that timed initial literals require :timed-initial-literals."""
+    domain = Domain("test-domain", requirements={Requirements.STRIPS})
+    problem = ProblemParser()(
+        dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:objects a)
+        (:init (at 5 (p a)))
+        (:goal (p a)))
+    """)
+    )
+    with pytest.raises(
+        PDDLValidationError,
+        match="timed-initial-literals requirement is not specified",
+    ):
+        problem.check(domain)
+
+
+def test_problem_check_timed_initial_literals_requirement_satisfied() -> None:
+    """Test that timed initial literals pass when the requirement is declared."""
+    domain = Domain(
+        "test-domain",
+        requirements={Requirements.STRIPS, Requirements.TIMED_INITIAL_LITERALS},
+    )
+    problem = ProblemParser()(
+        dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:objects a)
+        (:init (at 5 (p a)))
+        (:goal (p a)))
+    """)
+    )
+    problem.check(domain)
+
+
+def test_timed_initial_literal_round_trip() -> None:
+    """Test round-trip of a problem with timed initial literals."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:objects a)
+        (:init (p a) (at 5 (q a)) (at 2.5 (not (r a))))
+        (:goal (p a)))
+    """)
+    problem = ProblemParser()(problem_str)
+    assert ProblemParser()(str(problem)) == problem
+
+
+def test_parse_invalid_init_element() -> None:
+    """Test that an init element that is neither an assignment / timed literal is rejected."""
+    problem_str = dedent("""
+    (define (problem test-problem)
+        (:domain test-domain)
+        (:objects a)
+        (:init (foo 5 (p a)))
+        (:goal (p a)))
+    """)
+    with pytest.raises(ParseError):
+        ProblemParser()(problem_str)

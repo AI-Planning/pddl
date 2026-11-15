@@ -25,9 +25,55 @@ class name(RegexConstrainedString):
     This type represents a 'name' in a PDDL file.
 
     It must match the following regex: "[A-Za-z][-_A-Za-z0-9]*".
+
+    PDDL identifiers are case-insensitive: two names that differ only by case are
+    equal and hash equally, while the original spelling is preserved for print and
+    serialization. Note that a 'name' and a plain 'str' are only interchangeable as
+    set/dict keys when plain string is lowercase, because 'str's hash is case-sensitive.
     """
 
     REGEX = re.compile("[A-Za-z][-_A-Za-z0-9]*")
+
+    def __eq__(self, other):
+        """Compare with another object, ignoring case."""
+        if isinstance(other, str):
+            return self.lower() == other.lower()
+        return NotImplemented
+
+    def __ne__(self, other):
+        """Compare with another object, ignoring case."""
+        result = self.__eq__(other)
+        if result is NotImplemented:
+            return result
+        return not result
+
+    def __hash__(self) -> int:
+        """Compute a case-insensitive hash."""
+        return hash(self.lower())
+
+    def __lt__(self, other):
+        """Compare with another object, ignoring case."""
+        if isinstance(other, str):
+            return self.lower() < other.lower()
+        return NotImplemented
+
+    def __le__(self, other):
+        """Compare with another object, ignoring case."""
+        if isinstance(other, str):
+            return self.lower() <= other.lower()
+        return NotImplemented
+
+    def __gt__(self, other):
+        """Compare with another object, ignoring case."""
+        if isinstance(other, str):
+            return self.lower() > other.lower()
+        return NotImplemented
+
+    def __ge__(self, other):
+        """Compare with another object, ignoring case."""
+        if isinstance(other, str):
+            return self.lower() >= other.lower()
+        return NotImplemented
 
 
 """
@@ -117,6 +163,9 @@ def to_types(names: Dict[namelike, Optional[namelike]]) -> Dict[name, Optional[n
 def _is_a_keyword(word: str, ignore: Optional[AbstractSet[str]] = None) -> bool:
     """Check that the word is not a keyword."""
     ignore_set = ensure_set(ignore)
+    # normalize to plain str so case-insensitive comparison introduced for 'name'
+    # does not leak into keyword detection (keywords are case-sensitive)
+    word = str(word)
     # we remove the TOTAL_COST because it is not a keyword but a special function
     return word not in ignore_set and word in ALL_SYMBOLS
 

@@ -12,7 +12,9 @@
 #
 
 """
-This script checks that all the Python files of the repository have:
+This script checks that all the Python files of the repository have the required header.
+
+The checked header includes:
 - (optional) the Python shebang
 - the encoding header;
 - the copyright notice;
@@ -73,7 +75,6 @@ if __name__ == "__main__":
         Path("pddl").glob("**/*.py"),
         Path("tests").glob("**/*.py"),
         Path("scripts").glob("**/*.py"),
-        [Path("setup.py")],
     )
 
     python_files = filter(lambda p: p not in IGNORE_FILES, python_files)

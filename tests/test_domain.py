@@ -20,22 +20,32 @@ import pytest
 
 from pddl.action import Action
 from pddl.core import Domain
+from pddl.durative_action import DurativeAction
 from pddl.exceptions import PDDLValidationError
 from pddl.logic import Constant, Variable
 from pddl.logic.base import And, Not
-from pddl.logic.functions import Decrease
-from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.functions import (
+    Decrease,
     GreaterEqualThan,
     GreaterThan,
     Increase,
     LesserEqualThan,
     LesserThan,
+    Minus,
     NumericFunction,
     NumericValue,
+    UnaryMinus,
 )
+from pddl.logic.functions import EqualTo as FunctionEqualTo
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import DerivedPredicate, Predicate
+from pddl.logic.temporal import (
+    Duration,
+    SimpleDurationConstraint,
+    TimedCondition,
+    TimedEffect,
+    TimeSpecifier,
+)
 from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements
 from tests.conftest import pddl_objects_domains
@@ -95,6 +105,22 @@ def test_build_simple_domain():
     )
 
     assert domain
+
+
+def test_build_domain_with_action_without_precondition_or_effect():
+    """Test a domain whose actions leave out the optional precondition or effect."""
+    x = Variable("x")
+    p = Predicate("p", x)
+    domain = Domain(
+        "simple_domain",
+        predicates={p},
+        actions={
+            Action("only_precondition", [x], precondition=p),
+            Action("only_effect", [x], effect=p),
+            Action("neither", [x]),
+        },
+    )
+    assert len(domain.actions) == 3
 
 
 def test_build_simple_domain_with_derived_predicates():
@@ -239,7 +265,12 @@ def test_constants_type_not_available() -> None:
         PDDLValidationError,
         match=rf"types \['t1'\] of term {re.escape(repr(a))} are not in available types {{'{my_type}'}}",
     ):
-        Domain("test", requirements={Requirements.TYPING}, constants={a}, types=type_set)  # type: ignore
+        Domain(
+            "test",
+            requirements={Requirements.TYPING},
+            constants={a},
+            types=type_set,  # type: ignore
+        )
 
 
 def test_predicate_variable_type_not_available() -> None:
@@ -254,7 +285,12 @@ def test_predicate_variable_type_not_available() -> None:
         PDDLValidationError,
         match=rf"types \['t1', 't2'\] of term {re.escape(repr(x))} are not in available types {{'{my_type}'}}",
     ):
-        Domain("test", requirements={Requirements.TYPING}, predicates={p}, types=type_set)  # type: ignore
+        Domain(
+            "test",
+            requirements={Requirements.TYPING},
+            predicates={p},
+            types=type_set,  # type: ignore
+        )
 
 
 def test_action_parameter_type_not_available() -> None:
@@ -269,7 +305,12 @@ def test_action_parameter_type_not_available() -> None:
         PDDLValidationError,
         match=rf"types \['t1', 't2'\] of term {re.escape(repr(x))} are not in available types {{'{my_type}'}}",
     ):
-        Domain("test", requirements={Requirements.TYPING}, actions={action}, types=type_set)  # type: ignore
+        Domain(
+            "test",
+            requirements={Requirements.TYPING},
+            actions={action},
+            types=type_set,  # type: ignore
+        )
 
 
 def test_derived_predicate_type_not_available() -> None:
@@ -286,4 +327,104 @@ def test_derived_predicate_type_not_available() -> None:
         match=rf"type '(t1|t2)' of term {re.escape(repr(x))} in atomic expression {re.escape(repr(p))} is not in "
         f"available types {{'{my_type}'}}",
     ):
-        Domain("test", requirements={Requirements.TYPING}, derived_predicates={dp}, types=type_set)  # type: ignore
+        Domain(
+            "test",
+            requirements={Requirements.TYPING},
+            derived_predicates={dp},
+            types=type_set,  # type: ignore
+        )
+
+
+def test_build_domain_with_unary_minus() -> None:
+    """Test a PDDL domain with unary minus in precondition and effect."""
+    f = NumericFunction("f1")
+    action = Action(
+        "action_1",
+        [],
+        precondition=GreaterEqualThan(NumericValue(0), UnaryMinus(f)),
+        effect=Increase(f, UnaryMinus(NumericValue(1))),
+    )
+    domain = Domain(
+        "domain_with_unary_minus",
+        requirements={Requirements.NUMERIC_FLUENTS},
+        functions={f: None},
+        actions={action},
+    )
+    assert domain
+
+
+def test_build_domain_with_binary_minus() -> None:
+    """Test a PDDL domain with binary minus in precondition and effect."""
+    f1 = NumericFunction("f1")
+    f2 = NumericFunction("f2")
+    action = Action(
+        "action_1",
+        [],
+        precondition=GreaterEqualThan(NumericValue(0), Minus(f1, f2)),
+        effect=Increase(f1, Minus(f2, NumericValue(1))),
+    )
+    domain = Domain(
+        "domain_with_binary_minus",
+        requirements={Requirements.NUMERIC_FLUENTS},
+        functions={f1: None, f2: None},
+        actions={action},
+    )
+    assert domain
+
+
+def test_build_domain_with_durative_actions() -> None:
+    """Test a PDDL domain with durative actions."""
+    x, y = variables("x y")
+    p = Predicate("p", x)
+    q = Predicate("q", y)
+    move = DurativeAction(
+        "move",
+        parameters=(x, y),
+        duration=Duration(
+            SimpleDurationConstraint(Symbols.EQUAL.value, NumericValue(1))
+        ),
+        condition=TimedCondition(TimeSpecifier.START, p),
+        effect=TimedEffect(TimeSpecifier.END, q),
+    )
+    domain = Domain(
+        "domain_with_durative_actions",
+        requirements={Requirements.DURATIVE_ACTIONS},
+        predicates={p, q},
+        durative_actions={move},
+    )
+    assert domain.durative_actions == {move}
+
+
+def test_pickle_and_deepcopy_domain_with_durative_actions() -> None:
+    """Test that a domain with durative actions can be pickled and deepcopied."""
+    x, y = variables("x y")
+    p = Predicate("p", x)
+    q = Predicate("q", y)
+    move = DurativeAction(
+        "move",
+        parameters=(x, y),
+        duration=Duration(
+            SimpleDurationConstraint(Symbols.EQUAL.value, NumericValue(1))
+        ),
+        condition=TimedCondition(TimeSpecifier.START, p),
+        effect=TimedEffect(TimeSpecifier.END, q),
+    )
+    domain = Domain(
+        "domain_with_durative_actions",
+        requirements={Requirements.DURATIVE_ACTIONS},
+        predicates={p, q},
+        durative_actions={move},
+    )
+    assert pickle.loads(pickle.dumps(domain)) == domain  # nosec
+    assert copy.deepcopy(domain) == domain
+
+
+def test_domain_with_empty_durative_action_typechecks() -> None:
+    """Test that a durative action with None duration/condition/effect passes type checking."""
+    action = DurativeAction("a", [])
+    domain = Domain(
+        "domain_with_empty_durative_action",
+        requirements={Requirements.DURATIVE_ACTIONS},
+        durative_actions={action},
+    )
+    assert domain.durative_actions == {action}

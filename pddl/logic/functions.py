@@ -22,7 +22,7 @@ from pddl.helpers.base import assert_
 from pddl.helpers.cache_hash import cache_hash
 from pddl.logic.base import Atomic, BinaryOpMetaclass, Formula
 from pddl.logic.terms import Term, Variable
-from pddl.parser.symbols import Symbols
+from pddl.parser.symbols import Symbols, TemporalSymbols
 
 
 @cache_hash
@@ -76,7 +76,10 @@ class NumericFunction(FunctionExpression):
         """Replace terms."""
         assert_(len(terms) == self.arity, "Wrong number of terms.")
         assert_(
-            all(t1.type_tags == t2.type_tags for t1, t2 in zip(self.terms, terms)),
+            all(
+                t1.type_tags == t2.type_tags
+                for t1, t2 in zip(self.terms, terms, strict=False)
+            ),
             "Wrong types of replacements.",
         )
         return NumericFunction(self.name, *terms)
@@ -146,6 +149,40 @@ class NumericValue(FunctionExpression):
     def __str__(self) -> str:
         """Get the string representation."""
         return str(self._value)
+
+
+@cache_hash
+@functools.total_ordering
+class DurationVariable(FunctionExpression):
+    """The special '?duration' variable, used in durative-action numeric expressions."""
+
+    # '?duration' is a singleton-like token: every instance represents the same value.
+
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "DurationVariable":
+        """Instantiate the value with a mapping from variables to terms."""
+        return self
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return TemporalSymbols.DURATION_VAR.value
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return f"{type(self).__name__}()"
+
+    def __eq__(self, other):
+        """Compare with another object."""
+        return isinstance(other, DurationVariable)
+
+    def __hash__(self) -> int:
+        """Compute the hash of the object."""
+        return hash(DurationVariable)
+
+    def __lt__(self, other):
+        """Compare with another object."""
+        if isinstance(other, DurationVariable):
+            return False
+        return NotImplemented
 
 
 class BinaryFunction(FunctionExpression):
@@ -347,6 +384,41 @@ class Decrease(BinaryFunction):
         :param operands: the operands.
         """
         super().__init__(*operands)
+
+
+class UnaryMinus(FunctionExpression):
+    """Unary Minus operator: (- <f_exp>)."""
+
+    SYMBOL = Symbols.MINUS
+
+    def __init__(self, operand: FunctionExpression):
+        """Initialize UnaryMinus operator with exactly one operand."""
+        self._operand = operand
+
+    @property
+    def operand(self) -> FunctionExpression:
+        """Get the operand."""
+        return self._operand
+
+    def instantiate(self, mapping: Mapping[Variable, Term]) -> "UnaryMinus":
+        """Instantiate the formula with a mapping from variables to terms."""
+        return UnaryMinus(cast(FunctionExpression, self.operand.instantiate(mapping)))
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        return f"({self.SYMBOL.value} {self.operand})"
+
+    def __repr__(self) -> str:
+        """Get an unambiguous string representation."""
+        return f"{type(self).__name__}({repr(self.operand)})"
+
+    def __eq__(self, other):
+        """Compare with another object."""
+        return isinstance(other, UnaryMinus) and self.operand == other.operand
+
+    def __hash__(self) -> int:
+        """Compute the hash of the object."""
+        return hash((type(self), self.operand))
 
 
 class Minus(BinaryFunction, metaclass=BinaryOpMetaclass):

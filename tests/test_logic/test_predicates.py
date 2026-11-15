@@ -39,3 +39,10 @@ def test_inconsistent_equal_to_terms() -> None:
     ):
         a1, a2 = Variable("a", ["t1", "t2"]), Variable("a", ["t3", "t4"])
         EqualTo(a1, a2)
+
+
+def test_predicate_equality_is_case_insensitive() -> None:
+    """Test that predicates differing only by case are equal."""
+    assert Predicate("case") == Predicate("CASE")
+    assert hash(Predicate("case")) == hash(Predicate("CASE"))
+    assert not (Predicate("case") != Predicate("CASE"))

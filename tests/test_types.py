@@ -67,3 +67,77 @@ def test_type_is_a_keyword(keyword):
 def test_object_is_a_valid_type_name():
     """Test that parse_type with input 'object' does not raise error."""
     parse_type(Symbols.OBJECT.value)
+
+
+def test_name_is_case_insensitive():
+    """Test that names differing only by case are equal."""
+    assert name("Counter") == name("counter")
+    assert name("Counter") == "counter"
+    assert "counter" == name("Counter")
+    assert not (name("Counter") != name("counter"))
+
+
+def test_name_case_insensitive_hash():
+    """Test that case-insensitive names hash equally and deduplicate in sets."""
+    assert hash(name("Counter")) == hash(name("counter"))
+    assert len({name("Counter"), name("counter")}) == 1
+
+
+def test_name_mixed_case_plain_str_is_not_a_valid_hash_key():
+    """
+    Test the eq/hash contract break for mixed-case plain strs.
+
+    A name and a plain mixed-case str compare equal, but they are not
+    interchangeable as dict/set keys because a plain str's hash is
+    case-sensitive. Only lowercase plain str hashes alike.
+    """
+    a = name("Counter")
+    # equality is symmetric and case-insensitive in both directions
+    assert a == "Counter"
+    assert "Counter" == a
+    # equality does not extend to hash-based lookup
+    assert a not in {"Counter"}
+    assert "Counter" not in {a}
+    with pytest.raises(KeyError):
+        {"Counter": 1}[a]
+    with pytest.raises(KeyError):
+        {a: 1}["Counter"]
+    # lowercase plain str hash the same, lookups work
+    assert a in {"counter"}
+    assert {"counter": 1}[a] == 1
+    assert {a: 1}["counter"] == 1
+
+
+def test_name_case_insensitive_ordering():
+    """Test that ordering is consistent with case-insensitive equality."""
+    a, b = name("Counter"), name("counter")
+    assert not (a < b)
+    assert not (b < a)
+    assert a <= b
+    assert b <= a
+
+
+def test_name_preserves_original_case():
+    """Test that the original spelling is preserved in output."""
+    assert str(name("Counter")) == "Counter"
+
+
+def test_name_comparisons_ignore_case():
+    """Test all comparison operators on names are case-insensitive."""
+    a, b = name("Counter"), name("counter")
+    assert a == b
+    assert not (a != b)
+    assert not (a < b) and not (b < a)
+    assert not (a > b) and not (b > a)
+    assert a <= b and b <= a
+    assert a >= b and b >= a
+
+
+def test_name_comparisons_with_non_strings():
+    """Test comparisons against non-strings (NotImplemented paths)."""
+    a = name("Counter")
+    assert not (a == 1)
+    assert a != 1
+    for op in (lambda: a < 1, lambda: a <= 1, lambda: a > 1, lambda: a >= 1):
+        with pytest.raises(TypeError):
+            op()

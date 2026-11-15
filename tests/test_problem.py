@@ -28,9 +28,11 @@ from pddl.logic.functions import (
     LesserThan,
     Metric,
     NumericFunction,
+    UnaryMinus,
 )
 from pddl.logic.helpers import constants, variables
 from pddl.logic.predicates import Predicate
+from pddl.logic.temporal import TimedInitialLiteral
 from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements
 from tests.conftest import pddl_objects_problems
@@ -180,3 +182,43 @@ def test_problem_check_domain_requirements_match() -> None:
     )
 
     problem.check(domain)
+
+
+def test_build_problem_with_unary_minus_metric() -> None:
+    """Test a PDDL problem with a unary minus metric."""
+    total_cost = NumericFunction(Symbols.TOTAL_COST.value)
+    problem = Problem(
+        "simple_problem",
+        domain_name="simple_domain",
+        metric=Metric(UnaryMinus(total_cost)),
+    )
+    assert problem.metric is not None
+    assert isinstance(problem.metric.expression, UnaryMinus)
+
+
+def test_build_problem_with_timed_initial_literals() -> None:
+    """Test a PDDL problem with timed initial literals."""
+    a = constants("a")[0]
+    p = Predicate("p", a)
+    problem = Problem(
+        "problem_with_time_initial_literals",
+        domain_name="test-domain",
+        objects=[a],
+        init={p, TimedInitialLiteral(5, Not(p))},
+        goal=p,
+    )
+    assert problem.init == {p, TimedInitialLiteral(5, Not(p))}
+
+
+def test_pickle_problem_with_timed_initial_literals() -> None:
+    """Test that a problem with timed initial literals can be pickled."""
+    a = constants("a")[0]
+    p = Predicate("p", a)
+    problem = Problem(
+        "problem_with_timed_initial_literals",
+        domain_name="test-domain",
+        objects=[a],
+        init={p, TimedInitialLiteral(5, Not(p))},
+        goal=p,
+    )
+    assert pickle.loads(pickle.dumps(problem)) == problem  # nosec

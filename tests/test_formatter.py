@@ -41,9 +41,9 @@ def test_domain_formatter(domain_parser, pddl_file: Path):
     expected_domain_obj = domain_parser(pddl_file.read_text())
     actual_domain_str = domain_to_string(expected_domain_obj)
     actual_domain_obj = domain_parser(actual_domain_str)
-    assert (
-        actual_domain_obj == expected_domain_obj
-    ), f"Domain mismatch for {str(pddl_file).split('/')[-2]}"
+    assert actual_domain_obj == expected_domain_obj, (
+        f"Domain mismatch for {str(pddl_file).split('/')[-2]}"
+    )
 
 
 @pytest.mark.parametrize("pddl_file", PROBLEM_FILES)
@@ -174,3 +174,20 @@ def test_numerical_hello_world_problem_formatter():
             ")",
         )
     )
+
+
+def test_mixed_case_types_formatting() -> None:
+    """Test that CamelCase types keep the correct parent hierarchy."""
+    domain = Domain(
+        "my_domain",
+        requirements=[Requirements.TYPING],
+        types={"Counter": None, "SpecialCounter": "Counter"},
+    )
+    assert domain_to_string(domain) == dedent("""\
+    (define (domain my_domain)
+        (:requirements :typing)
+        (:types
+            Counter - object
+            SpecialCounter - Counter
+        )
+    )""")

@@ -27,6 +27,9 @@ class Symbols(Enum):
     TYPE_SEP = "-"
     EQUAL = "="
     ACTION = ":action"
+    DURATIVE_ACTION = ":durative-action"
+    DURATION = ":duration"
+    CONDITION = ":condition"
     AND = "and"
     CONSTANTS = ":constants"
     DEFINE = "define"
@@ -77,6 +80,19 @@ BINARY_COMP_SYMBOLS: Set[str] = {
 }
 
 
+class TemporalSymbols(Enum):
+    """A set of temporal symbols that can be used in PDDL."""
+
+    # 'at' / 'over' combine with 'start' / 'end' / 'all' to form timed descriptors.
+
+    AT = "at"
+    OVER = "over"
+    ALL = "all"
+    START = "start"
+    END = "end"
+    DURATION_VAR = "?duration"  # '?duration' is the duration token.
+
+
 class RequirementSymbols(Enum):
     """A set of requirements that can be used in PDDL."""
 
@@ -96,6 +112,9 @@ class RequirementSymbols(Enum):
     OBJECT_FLUENTS = ":object-fluents"
     NUMERIC_FLUENTS = ":numeric-fluents"
     ACTION_COSTS = ":action-costs"
+    DURATIVE_ACTIONS = ":durative-actions"
+    DURATION_INEQUALITIES = ":duration-inequalities"
+    TIMED_INITIAL_LITERALS = ":timed-initial-literals"
 
     def strip(self) -> str:
         """Strip the leading colon."""

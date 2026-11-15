@@ -21,7 +21,7 @@ _Put an `x` in the boxes that apply._
        ```pip install pddl==<version-number> --index-url https://test.pypi.org/simple --force --no-cache-dir --no-deps```
 - [ ] After merging the PR, I'll publish the build also on PyPI. Then, I'll make sure the following
       command will work:
-      ```pip install pddl==<version_number> --force --no-cache-dir --no-deps```  
+      ```pip install pddl==<version_number> --force --no-cache-dir --no-deps```
 - [ ] After merging the PR, I'll tag the repo with `v${VERSION_NUMVER}` (e.g. `v0.1.2`)
 
 
