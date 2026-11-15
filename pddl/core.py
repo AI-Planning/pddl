@@ -467,7 +467,9 @@ class Plan:
                 )
             typed_parameters = [
                 self._typed_constant(param, schema_param, declared)
-                for param, schema_param in zip(parameters, action_schema.parameters, strict=False)
+                for param, schema_param in zip(
+                    parameters, action_schema.parameters, strict=False
+                )
             ]
             ret.append(action_schema.instantiate(typed_parameters))
         return ret
