@@ -246,6 +246,6 @@ def test_fixture_plans_parameters_are_typed(plan_file):
     name_to_schema = {a.name: a for a in domain.actions}
     for action in plan.instantiate(domain):
         schema = name_to_schema[action.name]
-        for term, var in zip(action.parameters, schema.parameters):
+        for term, var in zip(action.parameters, schema.parameters, strict=False):
             if len(var.type_tags) == 1:
                 assert term.type_tag is not None, f"{term} untyped in {action.name}"
