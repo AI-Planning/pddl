@@ -40,7 +40,7 @@ from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
 from pddl.logic.functions import FunctionExpression, Metric, NumericFunction
 from pddl.logic.predicates import DerivedPredicate, Predicate
-from pddl.logic.terms import Constant
+from pddl.logic.terms import Constant, Variable
 from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements
 
@@ -408,27 +408,57 @@ class Plan:
         """Get the actions."""
         return self._actions
 
-    def instantiate(self, domain: Domain) -> List[Action]:
-        """Instantiate the actions in the plan."""
+    def instantiate(
+        self, domain: Domain, problem: Optional[Problem] = None
+    ) -> List[Action]:
+        """
+        Instantiate the actions in the plan.
+
+        Each parameter's type is taken from, in order of preference:
+        the type already on the plan's constant; the type declared for that
+        object in the problem's objects or the domain's constants; the type
+        of the action schema's parameter, if it has exactly one.
+
+        :param domain: the domain holding the action schemas.
+        :param problem: optional problem whose objects give the declared types.
+        :return: the instantiated actions.
+        """
         name_to_schema = {action.name: action for action in domain.actions}
+        declared = {c.name: c for c in domain.constants}
+        if problem is not None:
+            declared.update({o.name: o for o in problem.objects})
         ret = []
         for action_name, parameters in self._actions:
             if action_name not in name_to_schema:
                 raise ValueError(f"Action {action_name} not found in domain.")
             action_schema = name_to_schema[action_name]
-            typed_parameters = []
-            for untyped_param, action_param in zip(
-                parameters, action_schema.parameters
-            ):
-                type_tag = (
-                    next(iter(action_param.type_tags))
-                    if len(action_param.type_tags) == 1
-                    else None
+            if len(parameters) != len(action_schema.parameters):
+                raise ValueError(
+                    f"Action {action_name} expects {len(action_schema.parameters)} "
+                    f"parameters, got {len(parameters)}."
                 )
-                typed_parameters.append(Constant(untyped_param.name, type_tag))
-            instantiated_action = action_schema.instantiate(typed_parameters)
-            ret.append(instantiated_action)
+            typed_parameters = [
+                self._typed_constant(param, schema_param, declared)
+                for param, schema_param in zip(parameters, action_schema.parameters)
+            ]
+            ret.append(action_schema.instantiate(typed_parameters))
         return ret
+
+    @staticmethod
+    def _typed_constant(
+        param: Constant, schema_param: Variable, declared: Dict[name_type, Constant]
+    ) -> Constant:
+        """Return the plan parameter as a constant carrying its best-known type."""
+        if param.type_tags:
+            return param
+        if param.name in declared and declared[param.name].type_tags:
+            return declared[param.name]
+        type_tag = (
+            next(iter(schema_param.type_tags))
+            if len(schema_param.type_tags) == 1
+            else None
+        )
+        return Constant(param.name, type_tag)
 
     def check(self, domain: Domain, problem: Problem) -> None:
         """Check the plan against a domain and a problem."""
