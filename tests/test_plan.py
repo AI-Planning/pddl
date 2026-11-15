@@ -132,10 +132,12 @@ def test_bad_plan_objects():
 def test_plan_instantiation_eq():
     """Test Issue #176."""
     domain = parse_domain(BLOCKSWORLD_FILES / "domain.pddl")
-    b1, b2 = constants("badblock1 badblock2")
+    b1, b2 = constants("badblock1 badblock2", type_="block")
     plan = Plan(actions=[("pick-up", [b1, b2])])
     instantiated_plan = plan.instantiate(domain)
     assert len(instantiated_plan) == 1
     assert instantiated_plan[0].name == "pick-up"
     assert instantiated_plan[0].parameters == (b1, b2)
+    assert instantiated_plan[0].parameters[0].type_tags == b1.type_tags
+    assert instantiated_plan[0].parameters[1].type_tags == b2.type_tags
     assert "badblock" not in str(domain)
