@@ -41,8 +41,8 @@ from pddl.helpers.base import assert_, check, ensure, ensure_set
 from pddl.logic.base import And, Formula, is_literal
 from pddl.logic.functions import FunctionExpression, Metric, NumericFunction
 from pddl.logic.predicates import DerivedPredicate, Predicate
-from pddl.logic.terms import Constant, Variable
 from pddl.logic.temporal import TimedInitialLiteral
+from pddl.logic.terms import Constant, Variable
 from pddl.parser.symbols import Symbols
 from pddl.requirements import Requirements
 
